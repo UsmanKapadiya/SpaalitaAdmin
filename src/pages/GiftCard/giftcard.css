@@ -1,0 +1,120 @@
+/* GiftCard Table and Page Styles (based on product.css) */
+.product-page {
+  background: #f7f9fb;
+  min-height: 100vh;
+  padding: 32px 0;
+}
+.page-header {
+  margin-bottom: 24px;
+}
+.product-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+.product-actions {
+  margin-left: auto;
+}
+.btn-add {
+  background: linear-gradient(90deg, #1976d2 40%, #00c6fb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-add:hover {
+  background: linear-gradient(90deg, #1251a3 40%, #009ec3 100%);
+}
+.product-table-wrapper {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  padding: 0 0 24px 0;
+  margin-bottom: 32px;
+}
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0;
+}
+.product-table th, .product-table td {
+  padding: 14px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e3e8f0;
+}
+.product-table th {
+  background: #f7faff;
+  font-weight: 700;
+  color: #1976d2;
+}
+.product-table tr:last-child td {
+  border-bottom: none;
+}
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  color: #1976d2;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+}
+.btn-icon.delete {
+  color: #d32f2f;
+}
+.btn-icon.edit:hover {
+  color: #1251a3;
+}
+.btn-icon.delete:hover {
+  color: #b71c1c;
+}
+.empty-state {
+  text-align: center;
+  color: #888;
+  padding: 40px 0;
+}
+.empty-state-icon {
+  margin-bottom: 12px;
+}
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+.search-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.search-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #b3c6e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-right: 8px;
+}
+.clear-search {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #1976d2;
+  cursor: pointer;
+  margin-left: 4px;
+}

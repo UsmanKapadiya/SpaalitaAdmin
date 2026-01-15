@@ -1,0 +1,74 @@
+/* Gift Card Form Styles - based on EditProduct.css */
+.form-input, .form-select, .ql-container.ql-snow {
+  padding: 12px 14px !important;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  background: #fafbfc;
+  margin-bottom: 2px;
+  transition: border 0.2s;
+}
+.form-input:focus, .form-select:focus {
+  border-color: #1976d2;
+  outline: none;
+}
+.edit-form .form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  z-index: 2;
+  position: relative;
+}
+.edit-form-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e3e8f0;
+}
+.edit-form-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 8px;
+}
+.edit-form-subtitle {
+  font-size: 14px;
+  color: #666;
+}
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.form-group-full {
+  width: 100%;
+}
+.form-label {
+  color: #1976d2;
+}
+.form-error {
+  color: #d32f2f;
+  margin-bottom: 8px;
+}
+.form-success {
+  color: #388e3c;
+  margin-bottom: 8px;
+}
+.gradient-btn {
+  background: linear-gradient(90deg, #1976d2 40%, #00c6fb 100%);
+  color: #fff;
+  border: none;
+  box-shadow: 0 2px 8px 0 rgba(25, 118, 210, 0.10);
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.gradient-btn:hover {
+  background: linear-gradient(90deg, #1251a3 40%, #009ec3 100%);
+}
