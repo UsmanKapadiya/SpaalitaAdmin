@@ -1,6 +1,6 @@
 :root {
   /* Brand Colors */
-  --primary-color: #005c5c;
+  --primary-color: #334155;
   --primary-hover: #004040;
   --primary-dark: #003232;
   --secondary-color: #009999;
@@ -14,16 +14,16 @@
   /* Background Colors */
   --bg-color: #f8f9fa;
   --bg-white: #fff;
-  --bg-light: #f8f9fa;
+  --bg-light: #334155;
   --bg-gray: #f3f3f3;
-  --sidebar-bg: #1e293b;
+  --sidebar-bg: #ffffff;
   --sidebar-hover: #334155;
   
   /* Text Colors */
   --text-primary: #333;
   --text-secondary: #555;
   --text-muted: #666;
-  --text-light: #999;
+  --text-light: #334155;
   --text-white: #fff;
   
   /* Border Colors */
