@@ -206,7 +206,7 @@ const ProductForm = ({ products, setProducts }) => {
                   {error.field === 'name' && (
                     <div className="input-error">{error.message}</div>
                   )}
-                
+
                 </div>
                 <div className="form-group">
                   <label className="form-label form-label-required">SKU</label>
@@ -349,17 +349,16 @@ const ProductForm = ({ products, setProducts }) => {
               <Button
                 type="submit"
                 className="btn-add"
-                disabled={loading}
-                // variant="primary"
-              >
-                {loading ? 'Adding...' : 'Add Products'}
+                disabled={loading}              
+              >                
+                {loading ? (isNewItem ? 'Updating...' : 'Adding...') : (isNewItem ? 'Update Products' : 'Add Products')}
+
               </Button>
               <Button
                 type="button"
                 className="btn-secondary"
                 onClick={() => navigate('/products')}
-                disabled={loading}
-                // variant="secondary"
+                disabled={loading}     
               >
                 Cancel
               </Button>
