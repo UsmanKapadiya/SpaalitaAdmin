@@ -25,7 +25,7 @@
 .product-actions {
   margin-left: auto;
 }
-.btn-add {
+/* .btn-add {
   background: linear-gradient(90deg, #1976d2 40%, #00c6fb 100%);
   color: #fff;
   border: none;
@@ -40,7 +40,7 @@
 }
 .btn-add:hover {
   background: linear-gradient(90deg, #1251a3 40%, #009ec3 100%);
-}
+} */
 .product-table-wrapper {
   background: #fff;
   border-radius: 10px;

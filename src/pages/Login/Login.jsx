@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Button from '../../components/Button/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -97,9 +98,9 @@ const Login = () => {
             </a>
           </div>
 
-          <button type="submit" className="btn-login" disabled={loading}>
+          <Button type="submit" className="btn-login" disabled={loading} >
             {loading ? 'Signing in...' : 'Sign In'}
-          </button>
+          </Button>
         </form>
 
         {/* <div className="demo-credentials">

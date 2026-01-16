@@ -11,7 +11,7 @@ import { toast } from 'react-toastify';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import Button from '../../components/Button';
+import Button from '../../components/Button/Button';
 import ArticleIcon from '@mui/icons-material/Article';
 import Pagination from '@mui/material/Pagination';
 import './product.css';

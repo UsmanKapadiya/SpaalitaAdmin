@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import Button from '../../components/Button';
+import Button from '../../components/Button/Button';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import ReactQuill from 'react-quill';

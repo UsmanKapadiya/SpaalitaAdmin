@@ -121,7 +121,7 @@
   gap: 16px;
   margin-top: 24px;
 }
-.btn-primary {
+/* .btn-primary {
   background: #1976d2;
   color: #fff;
   border: none;
@@ -134,7 +134,7 @@
 }
 .btn-primary:hover {
   background: #1251a3;
-}
+} */
 .btn-secondary {
   background: #e0e0e0;
   color: #333;
@@ -239,7 +239,7 @@
 
 .btn-add {
   padding: 10px 20px;
-  background-color: var(--primary-color);
+  background-color: var(--primary-color) !important;
   color: var(--white);
   border: none;
   border-radius: 8px;
