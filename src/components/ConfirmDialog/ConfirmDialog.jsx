@@ -1,6 +1,7 @@
 import React from 'react';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
+import Button from '../../components/Button/Button';
 import './ConfirmDialog.css';
 
 const ConfirmDialog = ({ 
@@ -24,9 +25,9 @@ const ConfirmDialog = ({
     <>
       <div className="confirm-overlay" onClick={onClose} />
       <div className="confirm-dialog">
-        <button className="confirm-close" onClick={onClose}>
+        <Button className="confirm-close" type="button" onClick={onClose}>
           <CloseIcon />
-        </button>
+        </Button>
         
         <div className={`confirm-icon ${type}`}>
           <WarningAmberIcon style={{ fontSize: 48 }} />
@@ -35,19 +36,21 @@ const ConfirmDialog = ({
         <h2 className="confirm-title">{title}</h2>
         <p className="confirm-message">{message}</p>
         
-        <div className="confirm-actions">
-          <button 
-            className="confirm-btn cancel" 
+        <div className="confirm-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+          <Button 
+            className="btn-secondary" 
+            type="button"
             onClick={onClose}
           >
             {cancelText}
-          </button>
-          <button 
-            className={`confirm-btn confirm ${type}`}
+          </Button>
+          <Button 
+            className={`btn-add ${type}`}
+            type="button"
             onClick={handleConfirm}
           >
             {confirmText}
-          </button>
+          </Button>
         </div>
       </div>
     </>

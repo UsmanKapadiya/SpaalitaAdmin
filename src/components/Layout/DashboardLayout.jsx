@@ -9,6 +9,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import './DashboardLayout.css';
 import logo from "../../assets/logo.png"
+import Button from '../../components/Button/Button';
 
 const DashboardLayout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -94,9 +95,9 @@ const DashboardLayout = ({ children }) => {
                 {/* Top Bar */}
                 <header className="topbar">
                     <div className="topbar-left">
-                        <button className="menu-toggle" onClick={toggleSidebar}>
+                        <Button className="menu-toggle" type="button" onClick={toggleSidebar}>
                             <MenuIcon />
-                        </button>
+                        </Button>
                         {/* <div className="topbar-search">
                             <SearchIcon />
                             <input type="text" placeholder="Search..." />
@@ -104,9 +105,9 @@ const DashboardLayout = ({ children }) => {
                     </div>
 
                     <div className="topbar-right">                    
-                        <button className="topbar-icon" onClick={handleLogout}>
+                        <Button className="btn-icon edit" type="button" onClick={handleLogout}>
                             <LogoutIcon />
-                        </button>
+                        </Button>
                     </div>
                 </header>
 
