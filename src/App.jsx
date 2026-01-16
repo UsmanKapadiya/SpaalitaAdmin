@@ -21,6 +21,8 @@ import GiftCard from './pages/GiftCard/giftcard';
 import GiftCardForm from './pages/GiftCard/GiftCardForm';
 import Services from './pages/Services/Services';
 import ServicesForm from './pages/Services/ServicesForm';
+import BookingPolicy from './pages/BookingPolicy/BookingPolicy';
+import BookingPolicyForm from './pages/BookingPolicy/BookingPolicyForm';
 
 function App() {
   return (
@@ -69,7 +71,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/services"
               element={
                 <ProtectedRoute>
@@ -77,11 +79,27 @@ function App() {
                 </ProtectedRoute>
               }
             />
-                        <Route
+            <Route
               path="/services/edit/:id"
               element={
                 <ProtectedRoute>
                   <ServicesForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookingPolicy"
+              element={
+                <ProtectedRoute>
+                  <BookingPolicy />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookingPolicy/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <BookingPolicyForm />
                 </ProtectedRoute>
               }
             />
