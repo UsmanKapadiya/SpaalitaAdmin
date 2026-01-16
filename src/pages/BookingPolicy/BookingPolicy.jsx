@@ -10,35 +10,9 @@ import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
 import Switch from '@mui/material/Switch';
+import { mockBookingPolicies } from '../../data/mockBookingPolicies';
 
-const dummyNews = [
-    {
-        _id: '1',
-        title: 'Grand Opening!',
-        description: 'We are excited to announce the grand opening of our new spa location. Join us for exclusive offers and a relaxing experience.',
-        date: '2026-01-10',
-        createdAt: '2026-01-01',
-        updatedAt: '2026-01-10',
-        active: true
-    },
-    {
-        _id: '2',
-        title: 'Grand Opening!',
-        description: 'We are excited to announce the grand opening of our new spa location. Join us for exclusive offers and a relaxing experience.',
-        date: '2026-01-10',
-        createdAt: '2026-01-01',
-        updatedAt: '2026-01-10',
-        active: false
-    },
-    {
-        _id: '3',
-        title: 'Grand Opening!',
-        description: 'We are excited to announce the grand opening of our new spa location. Join us for exclusive offers and a relaxing experience.',
-        date: '2026-01-10',
-        createdAt: '2026-01-01',
-        updatedAt: '2026-01-10',
-        active: false
-    }]
+
 
 const BookingPolicy = () => {
     const navigate = useNavigate();
@@ -51,7 +25,7 @@ const BookingPolicy = () => {
         itemId: null,
         itemName: '',
     });
-    const [newsData, setNewsData] = useState([]);
+    const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
@@ -59,27 +33,27 @@ const BookingPolicy = () => {
     const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
 
     useEffect(() => {
-        const fetchNews = async () => {
+        const fetchPolicies = async () => {
             setLoading(true);
             setError(null);
-            setNewsData(dummyNews);
+            setPolicies(mockBookingPolicies);
             setTotalPages(1);
-            setTotalItems(dummyNews.length);
+            setTotalItems(mockBookingPolicies.length);
             setLoading(false);
         };
-        fetchNews();
+        fetchPolicies();
     }, [page, itemsPerPage]);
 
     // Memoized filtered and sorted data (client-side search only)
-    const filteredNews = useMemo(() => {
-        if (!searchTerm.trim()) return newsData;
+    const filteredPolicies = useMemo(() => {
+        if (!searchTerm.trim()) return policies;
         const search = searchTerm.toLowerCase();
-        return newsData.filter(item =>
+        return policies.filter(item =>
             item.title.toLowerCase().includes(search) ||
             item.description.toLowerCase().includes(search) ||
             (item.date && item.date.toLowerCase().includes(search))
         );
-    }, [searchTerm, newsData]);
+    }, [searchTerm, policies]);
 
     // Reset to page 1 when search changes
     const handleSearchChange = useCallback((e) => {
@@ -105,30 +79,19 @@ const BookingPolicy = () => {
 
     const handleDelete = useCallback((id, e) => {
         e.stopPropagation();
-        const item = newsData.find(item => item.id === id);
+        const item = policies.find(item => item.id === id);
         setConfirmDialog({
             isOpen: true,
             itemId: id,
-            itemName: item?.title || 'this news item'
+            itemName: item?.title || 'this policy'
         });
-    }, [newsData]);
+    }, [policies]);
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
         setLoading(true);
-        const res = await deleteNews(confirmDialog.itemId);
-        if (res.success) {
-            // Refresh news list after delete
-            const listRes = await getAllNews();
-            if (listRes.success) {
-                setNewsData(listRes.data?.data || []);
-            }
-            setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-            toast.success('BookingPolicy item deleted successfully!');
-        } else {
-            setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-            toast.error(res.error || 'Failed to delete news item');
-        }
+        setPolicies(prev => prev.filter(item => item._id !== confirmDialog.itemId));
+        setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
         setLoading(false);
     }, [confirmDialog.itemId]);
 
@@ -141,7 +104,7 @@ const BookingPolicy = () => {
     }, []);
 
     const confirmToggleActive = useCallback(() => {
-        setNewsData(prev => prev.map(item => ({ ...item, active: item._id === toggleDialog.policyId })));
+        setPolicies(prev => prev.map(item => ({ ...item, active: item._id === toggleDialog.policyId })));
         setToggleDialog({ isOpen: false, policyId: null });
     }, [toggleDialog.policyId]);
 
@@ -149,7 +112,7 @@ const BookingPolicy = () => {
         setToggleDialog({ isOpen: false, policyId: null });
     }, []);
 
-    const renderNewsItem = useCallback((item) => {
+    const renderPolicyItem = useCallback((item) => {
         const isExpanded = expandedItems.includes(item._id);
         return (
             <div className="news-item-wrapper" key={item._id}>
@@ -255,15 +218,15 @@ const BookingPolicy = () => {
                     {/* {loading && <GlobalLoader text="Loading..." />} */}
                     {error ? (
                         <div className="empty-state">{error}</div>
-                    ) : filteredNews.length > 0 ? (
-                        filteredNews.map(item => (
-                            <div key={item._id}>{renderNewsItem(item)}</div>
+                    ) : filteredPolicies.length > 0 ? (
+                        filteredPolicies.map(item => (
+                            <div key={item._id}>{renderPolicyItem(item)}</div>
                         ))
                     ) : (
                         <div className="empty-state">
                             <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
                             <div className="empty-state-text">
-                                {searchTerm ? 'No news items found' : 'No news items yet'}
+                                {searchTerm ? 'No policies found' : 'No policies yet'}
                             </div>
                         </div>
                     )}

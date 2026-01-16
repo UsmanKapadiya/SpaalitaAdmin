@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -7,6 +8,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
+import useForm from '../../hooks/useForm';
+import mockServices from '../../data/mockServices';
 
 const initialForm = {
     name: '',
@@ -17,84 +20,53 @@ const initialForm = {
     image: '',
 };
 
-const ServicesForm = ({ services, setServices }) => {
+const ServicesForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
-    const [form, setForm] = useState(initialForm);
-    const [imagePreview, setImagePreview] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [showPreview, setShowPreview] = useState(false);
 
-    useEffect(() => {
-        if (isEdit && services) {
-            const service = services.find(g => g.id === id);
-            if (service) {
-                setForm({ ...service, value: String(service.value), qty: String(service.qty) });
-                setImagePreview(service.image || '');
+    const {
+        form,
+        setForm,
+        loading,
+        error,
+        success,
+        handleChange,
+        handleImageChange,
+        handleDescriptionChange,
+        handleSubmit,
+        setError,
+        setSuccess,
+        imagePreview,
+        setImagePreview,
+    } = useForm({
+        initialForm,
+        data: mockServices,
+        id,
+        isEdit,
+        fields: ['name', 'code', 'value', 'qty', 'description'],
+        onSubmit: (formData, { setError, setSuccess, setLoading }) => {
+            if (isEdit) {
+                setSuccess('Service updated successfully!');
+                toast.success('Service updated successfully!');
+            } else {
+                const newService = {
+                    ...formData,
+                    id: Date.now().toString(),
+                    value: parseFloat(formData.value),
+                    qty: parseInt(formData.qty),
+                    createdAt: new Date().toISOString().slice(0, 10),
+                    updatedAt: new Date().toISOString().slice(0, 10),
+                };
+                setSuccess('Service added successfully!');
+                toast.success('Service added successfully!');
             }
-        }
-    }, [id, isEdit, services]);
-
-    const handleChange = e => {
-        const { name, value } = e.target;
-        setForm(f => ({ ...f, [name]: value }));
-        setError('');
-        setSuccess('');
-    };
-
-    const handleImageChange = e => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setForm(f => ({ ...f, image: reader.result }));
-                setImagePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-        setError('');
-        setSuccess('');
-    };
-
-    const handleDescriptionChange = useCallback((value) => {
-        setForm(f => ({ ...f, description: value }));
-        setError('');
-        setSuccess('');
-    }, []);
-
-    const handleSubmit = e => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
-        setLoading(true);
-        if (!form.name || !form.code || !form.value || !form.qty || !form.description) {
-            setError('Please fill all required fields');
             setLoading(false);
-            return;
-        }
-        if (isEdit) {
-            // setServices(prev => prev.map(g => g.id === id ? { ...form, id, value: parseFloat(form.value), qty: parseInt(form.qty) } : g));
-            setSuccess('Service updated successfully!');
-            toast.success('Service updated successfully!');
-        } else {
-            const newService = {
-                ...form,
-                id: Date.now().toString(),
-                value: parseFloat(form.value),
-                qty: parseInt(form.qty),
-                createdAt: new Date().toISOString().slice(0, 10),
-                updatedAt: new Date().toISOString().slice(0, 10),
-            };
-            // setServices(prev => [newService, ...prev]);
-            setSuccess('Service added successfully!');
-            toast.success('Service added successfully!');
-        }
-        setLoading(false);
-        setTimeout(() => navigate('/services'), 1200);
-    };
+            setTimeout(() => navigate('/services'), 1200);
+        },
+        imageField: 'image',
+        descriptionField: 'description',
+    });
 
     return (
         <DashboardLayout>
@@ -109,7 +81,9 @@ const ServicesForm = ({ services, setServices }) => {
                         </p>
                     </div>
 
-                    {error && <div className="error-banner">{error}</div>}
+                    {error && error !== '' && (
+                        <div className="error-banner">{typeof error === 'string' ? error : error.message}</div>
+                    )}
                     {success && <div className="success-banner">{success}</div>}
 
                     <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">

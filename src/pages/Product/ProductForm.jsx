@@ -1,80 +1,71 @@
-import React, { useState, useCallback, useRef } from 'react';
+
+import React, { useRef } from 'react';
 import Button from '../../components/Button/Button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './EditProduct.css';
 import { toast } from 'react-toastify';
+import useForm from '../../hooks/useForm';
+import mockProducts from '../../data/mockProducts';
 
-const initialProduct = () => ({
+const initialForm = {
   name: '',
   sku: '',
   price: '',
   qty: '',
   description: '',
-  images: [], // array of base64 or url
+  images: [],
   imagePreviews: [],
   showPreview: false,
-});
+};
 
-import { useParams } from 'react-router-dom';
-
-const ProductForm = ({ products, setProducts }) => {
+const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const isEdit = Boolean(id && id !== 'new');
 
-  const isNewItem = id === 'new';
-  const [form, setForm] = useState(() => {
-    if (!isNewItem && id && products) {
-      const prod = products.find(p => p.id === id);
-      if (prod) {
-        return {
-          ...prod,
-          price: String(prod.price),
-          qty: String(prod.qty),
-          images: prod.images || [],
-          imagePreviews: prod.imagePreviews || prod.images || [],
-          showPreview: false,
+  const {
+    form,
+    setForm,
+    loading,
+    error,
+    success,
+    handleChange,
+    handleImageChange,
+    handleDescriptionChange,
+    handleSubmit,
+    setError,
+    setSuccess,
+  } = useForm({
+    initialForm,
+    data: mockProducts,
+    id,
+    isEdit,
+    fields: ['name', 'sku', 'price', 'qty', 'description'],
+    onSubmit: (formData, { setError, setSuccess, setLoading }) => {
+      if (isEdit) {
+        setSuccess('Product updated successfully!');
+        toast.success('Product updated successfully!');
+      } else {
+        const newProduct = {
+          ...formData,
+          id: Date.now().toString() + Math.random().toString(36).slice(2),
+          price: parseFloat(formData.price),
+          qty: parseInt(formData.qty),
+          createdAt: new Date().toISOString().slice(0, 10),
+          updatedAt: new Date().toISOString().slice(0, 10),
         };
+        setSuccess('Product added successfully!');
+        toast.success('Product added successfully!');
       }
-    }
-    return initialProduct();
+      setLoading(false);
+      setTimeout(() => navigate('/products'), 1200);
+    },
+    imageField: 'images',
+    descriptionField: 'description',
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({ field: '', message: '' });
-  const [success, setSuccess] = useState('');
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-    setError({ field: '', message: '' });
-    setSuccess('');
-  };
-
-  const handleImageChange = e => {
-    const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      const readers = files.map(file => {
-        return new Promise(resolve => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
-      });
-      Promise.all(readers).then(results => {
-        setForm(f => ({
-          ...f,
-          images: [...(f.images || []), ...results],
-          imagePreviews: [...(f.imagePreviews || []), ...results]
-        }));
-      });
-    } else {
-      setForm(f => ({ ...f, images: [], imagePreviews: [] }));
-    }
-    setError({ field: '', message: '' });
-    setSuccess('');
-  };
 
   // Remove image by index
   const handleRemoveImage = idx => {
@@ -116,64 +107,8 @@ const ProductForm = ({ products, setProducts }) => {
     dragOverItem.current = undefined;
   };
 
-  const handleDescriptionChange = useCallback((value) => {
-    setForm(f => ({ ...f, description: value }));
-    setError({ field: '', message: '' });
-    setSuccess('');
-  }, []);
-
   const handlePreviewToggle = () => {
     setForm(f => ({ ...f, showPreview: !f.showPreview }));
-  };
-
-  // Validation function for form fields
-  const validateForm = (data) => {
-    if (!data.name || data.name.trim() === '') {
-      return { field: 'name', message: 'Please fill in this field' };
-    }
-    if (!data.sku || data.sku.trim() === '') {
-      return { field: 'sku', message: 'Please fill in this field' };
-    }
-    if (!data.price || isNaN(data.price) || Number(data.price) <= 0) {
-      return { field: 'price', message: 'Please fill in this field' };
-    }
-    if (!data.qty || isNaN(data.qty) || Number(data.qty) < 0) {
-      return { field: 'qty', message: 'Please fill in this field' };
-    }
-    if (!data.description || data.description.trim() === '') {
-      return { field: 'description', message: 'Please fill in this field' };
-    }
-    return null;
-  };
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    setError({ field: '', message: '' });
-    setSuccess('');
-    setLoading(true);
-    const validationError = validateForm(form);
-    if (validationError) {
-      setError(validationError);
-      setLoading(false);
-      return;
-    }
-    if (!isNewItem) {
-      setSuccess('Product updated successfully!');
-      toast.success('Product updated successfully!');
-    } else {
-      const newProduct = {
-        ...form,
-        id: Date.now().toString() + Math.random().toString(36).slice(2),
-        price: parseFloat(form.price),
-        qty: parseInt(form.qty),
-        createdAt: new Date().toISOString().slice(0, 10),
-        updatedAt: new Date().toISOString().slice(0, 10),
-      };
-      setSuccess('Product added successfully!');
-      toast.success('Product added successfully!');
-    }
-    setLoading(false);
-    setTimeout(() => navigate('/products'), 1200);
   };
 
   return (
@@ -181,9 +116,9 @@ const ProductForm = ({ products, setProducts }) => {
       <div className="edit-product-page">
         <div className="edit-form-card">
           <div className="edit-form-header">
-            <h1 className="edit-form-title">{isNewItem ? 'Add Product' : 'Update Product'}</h1>
+            <h1 className="edit-form-title">{isEdit ? 'Add Product' : 'Update Product'}</h1>
             <p className="edit-form-subtitle">
-              {isNewItem
+              {isEdit
                 ? 'Fill in the details to add a new product.'
                 : 'Edit product details and save changes.'}
             </p>
@@ -203,7 +138,7 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  {error.field === 'name' && (
+                  {error && error.field === 'name' && (
                     <div className="input-error">{error.message}</div>
                   )}
 
@@ -219,7 +154,7 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  {error.field === 'sku' && (
+                  {error && error.field === 'sku' && (
                     <div className="input-error">{error.message}</div>
                   )}
                 </div>
@@ -237,7 +172,7 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  {error.field === 'price' && (
+                  {error && error.field === 'price' && (
                     <div className="input-error">{error.message}</div>
                   )}
                 </div>
@@ -252,7 +187,7 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  {error.field === 'qty' && (
+                  {error && error.field === 'qty' && (
                     <div className="input-error">{error.message}</div>
                   )}
                 </div>
@@ -339,7 +274,7 @@ const ProductForm = ({ products, setProducts }) => {
                     style={{ height: '180px' }}
                   />
                 </div>
-                {error.field === 'description' && (
+                {error && error.field === 'description' && (
                   <div className="input-error">{error.message}</div>
                 )}
               </div>
@@ -349,10 +284,9 @@ const ProductForm = ({ products, setProducts }) => {
               <Button
                 type="submit"
                 className="btn-add"
-                disabled={loading}              
-              >                
-                {loading ? (isNewItem ? 'Updating...' : 'Adding...') : (isNewItem ? 'Update Products' : 'Add Products')}
-
+                disabled={loading}
+              >
+                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Products' : 'Add Products')}
               </Button>
               <Button
                 type="button"

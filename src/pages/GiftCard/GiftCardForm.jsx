@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+
+import React from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -7,6 +8,8 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
+import useForm from '../../hooks/useForm';
+import mockGiftCards from '../../data/mockGiftCards';
 
 const initialForm = {
   name: '',
@@ -17,84 +20,53 @@ const initialForm = {
   image: '',
 };
 
-const GiftCardForm = ({ giftCards, setGiftCards }) => {
+const GiftCardForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
-  const [form, setForm] = useState(initialForm);
-  const [imagePreview, setImagePreview] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
 
-  useEffect(() => {
-    if (isEdit && giftCards) {
-      const card = giftCards.find(g => g.id === id);
-      if (card) {
-        setForm({ ...card, value: String(card.value), qty: String(card.qty) });
-        setImagePreview(card.image || '');
+  const {
+    form,
+    setForm,
+    loading,
+    error,
+    success,
+    handleChange,
+    handleImageChange,
+    handleDescriptionChange,
+    handleSubmit,
+    setError,
+    setSuccess,
+    imagePreview,
+    setImagePreview,
+  } = useForm({
+    initialForm,
+    data: mockGiftCards,
+    id,
+    isEdit,
+    fields: ['name', 'code', 'value', 'qty', 'description'],
+    onSubmit: (formData, { setError, setSuccess, setLoading }) => {
+      if (isEdit) {
+        setSuccess('Gift Card updated successfully!');
+        toast.success('Gift Card updated successfully!');
+      } else {
+        const newGiftCard = {
+          ...formData,
+          id: Date.now().toString(),
+          value: parseFloat(formData.value),
+          qty: parseInt(formData.qty),
+          createdAt: new Date().toISOString().slice(0, 10),
+          updatedAt: new Date().toISOString().slice(0, 10),
+        };
+        setSuccess('Gift Card added successfully!');
+        toast.success('Gift Card added successfully!');
       }
-    }
-  }, [id, isEdit, giftCards]);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
-    setError('');
-    setSuccess('');
-  };
-
-  const handleImageChange = e => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm(f => ({ ...f, image: reader.result }));
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-    setError('');
-    setSuccess('');
-  };
-
-  const handleDescriptionChange = useCallback((value) => {
-    setForm(f => ({ ...f, description: value }));
-    setError('');
-    setSuccess('');
-  }, []);
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
-    if (!form.name || !form.code || !form.value || !form.qty || !form.description) {
-      setError('Please fill all required fields');
       setLoading(false);
-      return;
-    }
-    if (isEdit) {
-      // setGiftCards(prev => prev.map(g => g.id === id ? { ...form, id, value: parseFloat(form.value), qty: parseInt(form.qty) } : g));
-      setSuccess('Gift Card updated successfully!');
-      toast.success('Gift Card updated successfully!');
-    } else {
-      const newGiftCard = {
-        ...form,
-        id: Date.now().toString(),
-        value: parseFloat(form.value),
-        qty: parseInt(form.qty),
-        createdAt: new Date().toISOString().slice(0, 10),
-        updatedAt: new Date().toISOString().slice(0, 10),
-      };
-      // setGiftCards(prev => [newGiftCard, ...prev]);
-      setSuccess('Gift Card added successfully!');
-      toast.success('Gift Card added successfully!');
-    }
-    setLoading(false);
-    setTimeout(() => navigate('/giftCards'), 1200);
-  };
+      setTimeout(() => navigate('/giftCards'), 1200);
+    },
+    imageField: 'image',
+    descriptionField: 'description',
+  });
 
   return (
     <DashboardLayout>
@@ -109,7 +81,9 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
             </p>
           </div>
 
-          {error && <div className="error-banner">{error}</div>}
+          {error && error !== '' && (
+            <div className="error-banner">{typeof error === 'string' ? error : error.message}</div>
+          )}
           {success && <div className="success-banner">{success}</div>}
 
           <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">

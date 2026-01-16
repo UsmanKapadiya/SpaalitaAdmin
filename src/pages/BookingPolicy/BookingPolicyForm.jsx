@@ -15,7 +15,7 @@ const initialForm = {
   active: false,
 };
 
-const BookingPolicyForm = ({ giftCards, setGiftCards }) => {
+const BookingPolicyForm = ({ policies, setPolicies }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
@@ -27,8 +27,8 @@ const BookingPolicyForm = ({ giftCards, setGiftCards }) => {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    if (isEdit && giftCards) {
-      const policy = giftCards.find(g => g.id === id);
+    if (isEdit && policies) {
+      const policy = policies.find(g => g.id === id);
       if (policy) {
         setForm({
           title: policy.title || '',
@@ -37,7 +37,7 @@ const BookingPolicyForm = ({ giftCards, setGiftCards }) => {
         });
       }
     }
-  }, [id, isEdit, giftCards]);
+  }, [id, isEdit, policies]);
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
@@ -65,7 +65,7 @@ const BookingPolicyForm = ({ giftCards, setGiftCards }) => {
       return;
     }
     if (isEdit) {
-      // setGiftCards(prev => prev.map(g => g.id === id ? { ...form, id } : g));
+      // setPolicies(prev => prev.map(g => g.id === id ? { ...form, id } : g));
       setSuccess('Booking Policy updated successfully!');
       toast.success('Booking Policy updated successfully!');
     } else {
@@ -75,7 +75,7 @@ const BookingPolicyForm = ({ giftCards, setGiftCards }) => {
         createdAt: new Date().toISOString().slice(0, 10),
         updatedAt: new Date().toISOString().slice(0, 10),
       };
-      // setGiftCards(prev => [newPolicy, ...prev]);
+      // setPolicies(prev => [newPolicy, ...prev]);
       setSuccess('Booking Policy added successfully!');
       toast.success('Booking Policy added successfully!');
     }
