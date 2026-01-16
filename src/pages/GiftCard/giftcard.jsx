@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import Button from '../../components/Button/Button';
 import { useNavigate } from 'react-router-dom';
 import GiftCardForm from './GiftCardForm';
 import dayjs from 'dayjs';
@@ -50,11 +51,231 @@ const GiftCard = () => {
       createdAt: '2025-11-20',
       updatedAt: '2025-12-01',
     },
+    {
+      id: '4',
+      name: 'Steam Gift Card',
+      code: 'STM-20',
+      value: 20,
+      qty: 40,
+      description: 'Steam Wallet gift card for games.',
+      createdAt: '2025-10-10',
+      updatedAt: '2025-11-01',
+    },
+    {
+      id: '5',
+      name: 'Walmart Gift Card',
+      code: 'WMT-50',
+      value: 50,
+      qty: 60,
+      description: 'Walmart eGift Card for shopping.',
+      createdAt: '2025-09-15',
+      updatedAt: '2025-10-01',
+    },
+    {
+      id: '6',
+      name: 'Target Gift Card',
+      code: 'TGT-25',
+      value: 25,
+      qty: 80,
+      description: 'Target digital gift card for stores.',
+      createdAt: '2025-08-20',
+      updatedAt: '2025-09-01',
+    },
+    {
+      id: '7',
+      name: 'Best Buy Gift Card',
+      code: 'BBY-100',
+      value: 100,
+      qty: 20,
+      description: 'Best Buy eGift Card for electronics.',
+      createdAt: '2025-07-10',
+      updatedAt: '2025-08-01',
+    },
+    {
+      id: '8',
+      name: 'Uber Gift Card',
+      code: 'UBR-50',
+      value: 50,
+      qty: 35,
+      description: 'Uber digital gift card for rides.',
+      createdAt: '2025-06-15',
+      updatedAt: '2025-07-01',
+    },
+    {
+      id: '9',
+      name: 'Netflix Gift Card',
+      code: 'NFLX-30',
+      value: 30,
+      qty: 45,
+      description: 'Netflix eGift Card for streaming.',
+      createdAt: '2025-05-20',
+      updatedAt: '2025-06-01',
+    },
+    {
+      id: '10',
+      name: 'Spotify Gift Card',
+      code: 'SPFY-60',
+      value: 60,
+      qty: 25,
+      description: 'Spotify digital gift card for music.',
+      createdAt: '2025-04-10',
+      updatedAt: '2025-05-01',
+    },
+    {
+      id: '11',
+      name: 'Apple Store Gift Card',
+      code: 'APL-200',
+      value: 200,
+      qty: 10,
+      description: 'Apple Store eGift Card for devices.',
+      createdAt: '2025-03-15',
+      updatedAt: '2025-04-01',
+    },
+    {
+      id: '12',
+      name: 'PlayStation Gift Card',
+      code: 'PSN-50',
+      value: 50,
+      qty: 70,
+      description: 'PlayStation Network gift card for games.',
+      createdAt: '2025-02-20',
+      updatedAt: '2025-03-01',
+    },
+    {
+      id: '13',
+      name: 'Xbox Gift Card',
+      code: 'XBX-25',
+      value: 25,
+      qty: 90,
+      description: 'Xbox digital gift card for games.',
+      createdAt: '2025-01-10',
+      updatedAt: '2025-02-01',
+    },
+    {
+      id: '14',
+      name: 'Facebook Gift Card',
+      code: 'FBK-10',
+      value: 10,
+      qty: 100,
+      description: 'Facebook eGift Card for ads.',
+      createdAt: '2024-12-15',
+      updatedAt: '2025-01-01',
+    },
+    {
+      id: '15',
+      name: 'Disney+ Gift Card',
+      code: 'DSNY-40',
+      value: 40,
+      qty: 55,
+      description: 'Disney+ digital gift card for streaming.',
+      createdAt: '2024-11-20',
+      updatedAt: '2024-12-01',
+    },
+    {
+      id: '16',
+      name: 'eBay Gift Card',
+      code: 'EBY-75',
+      value: 75,
+      qty: 30,
+      description: 'eBay eGift Card for shopping.',
+      createdAt: '2024-10-10',
+      updatedAt: '2024-11-01',
+    },
+    {
+      id: '17',
+      name: 'Google Gift Card',
+      code: 'GOGL-100',
+      value: 100,
+      qty: 60,
+      description: 'Google eGift Card for services.',
+      createdAt: '2024-09-15',
+      updatedAt: '2024-10-01',
+    },
+    {
+      id: '18',
+      name: 'Amazon Prime Gift Card',
+      code: 'AMZP-120',
+      value: 120,
+      qty: 20,
+      description: 'Amazon Prime eGift Card for subscription.',
+      createdAt: '2024-08-20',
+      updatedAt: '2024-09-01',
+    },
+    {
+      id: '19',
+      name: 'Airbnb Gift Card',
+      code: 'AIRB-150',
+      value: 150,
+      qty: 15,
+      description: 'Airbnb digital gift card for stays.',
+      createdAt: '2024-07-10',
+      updatedAt: '2024-08-01',
+    },
+    {
+      id: '20',
+      name: 'Hulu Gift Card',
+      code: 'HULU-30',
+      value: 30,
+      qty: 50,
+      description: 'Hulu eGift Card for streaming.',
+      createdAt: '2024-06-15',
+      updatedAt: '2024-07-01',
+    },
+    {
+      id: '21',
+      name: 'DoorDash Gift Card',
+      code: 'DRDS-25',
+      value: 25,
+      qty: 80,
+      description: 'DoorDash digital gift card for food delivery.',
+      createdAt: '2024-05-20',
+      updatedAt: '2024-06-01',
+    },
+    {
+      id: '22',
+      name: 'Starbucks Gift Card',
+      code: 'SBKS-15',
+      value: 15,
+      qty: 100,
+      description: 'Starbucks eGift Card for coffee.',
+      createdAt: '2024-04-10',
+      updatedAt: '2024-05-01',
+    },
+    {
+      id: '23',
+      name: 'Visa Gift Card',
+      code: 'VISA-200',
+      value: 200,
+      qty: 10,
+      description: 'Visa digital gift card for payments.',
+      createdAt: '2024-03-15',
+      updatedAt: '2024-04-01',
+    },
+    {
+      id: '24',
+      name: 'Mastercard Gift Card',
+      code: 'MCARD-100',
+      value: 100,
+      qty: 20,
+      description: 'Mastercard eGift Card for payments.',
+      createdAt: '2024-02-20',
+      updatedAt: '2024-03-01',
+    },
+    {
+      id: '25',
+      name: 'Home Depot Gift Card',
+      code: 'HDPT-75',
+      value: 75,
+      qty: 30,
+      description: 'Home Depot digital gift card for home improvement.',
+      createdAt: '2024-01-10',
+      updatedAt: '2024-02-01',
+    },
   ];
 
   const [giftCardData, setGiftCardData] = useState(allGiftCards);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const [loading] = useState(false);
   const [error] = useState(null);
 
@@ -140,10 +361,10 @@ const GiftCard = () => {
               <p className="page-subtitle">Manage your gift card inventory</p>
             </div>
             <div className="product-actions" style={{ marginLeft: 'auto' }}>
-              <button className="btn-add" onClick={() => navigate('/giftCards/edit/new')}>
+              <Button className="btn-add" onClick={() => navigate('/giftCards/edit/new')} variant="primary">
                 <AddIcon />
                 Add Gift Card
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -157,16 +378,18 @@ const GiftCard = () => {
             className="search-input"
           />
           {searchTerm && (
-            <button
+            <Button
+              type="button"
               className="clear-search"
               onClick={() => {
                 setSearchTerm('');
                 setPage(1);
               }}
               aria-label="Clear search"
+              variant="secondary"
             >
               ×
-            </button>
+            </Button>
           )}
         </div>
 
@@ -184,7 +407,7 @@ const GiftCard = () => {
                   <th>Qty</th>
                   <th>Description</th>
                   <th>Created</th>
-                  <th>Updated</th>
+                  {/* <th>Updated</th> */}
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -194,17 +417,17 @@ const GiftCard = () => {
                     <td>{item.name}</td>
                     <td>{item.code}</td>
                     <td>${item.value}</td>
-                    <td>{item.qty}</td>
-                    <td>{item.description}</td>
+                    <td>{item.qty}</td>              
+                    <td>{item.description && item.description.length > 40 ? item.description.slice(0, 40) + '...' : item.description}</td>
                     <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
-                    <td>{item.updatedAt ? dayjs(item.updatedAt).format('DD-MMM-YYYY') : ''}</td>
+                    {/* <td>{item.updatedAt ? dayjs(item.updatedAt).format('DD-MMM-YYYY') : ''}</td> */}
                     <td>
-                      <button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title="Edit" aria-label={`Edit ${item.name}`}>
+                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title="Edit" aria-label={`Edit ${item.name}`} variant="icon">
                         <EditIcon />
-                      </button>
-                      <button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title="Delete" aria-label={`Delete ${item.name}`}>
+                      </Button>
+                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title="Delete" aria-label={`Delete ${item.name}`} variant="danger">
                         <DeleteIcon />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

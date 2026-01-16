@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import ReactQuill from 'react-quill';
@@ -75,7 +76,7 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
       return;
     }
     if (isEdit) {
-      setGiftCards(prev => prev.map(g => g.id === id ? { ...form, id, value: parseFloat(form.value), qty: parseInt(form.qty) } : g));
+      // setGiftCards(prev => prev.map(g => g.id === id ? { ...form, id, value: parseFloat(form.value), qty: parseInt(form.qty) } : g));
       setSuccess('Gift Card updated successfully!');
       toast.success('Gift Card updated successfully!');
     } else {
@@ -87,7 +88,7 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
         createdAt: new Date().toISOString().slice(0, 10),
         updatedAt: new Date().toISOString().slice(0, 10),
       };
-      setGiftCards(prev => [newGiftCard, ...prev]);
+      // setGiftCards(prev => [newGiftCard, ...prev]);
       setSuccess('Gift Card added successfully!');
       toast.success('Gift Card added successfully!');
     }
@@ -124,8 +125,7 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
                   value={form.name}
                   onChange={handleChange}
                   required
-                />
-                <p className="form-help-text">The gift card name</p>
+                />              
               </div>
               <div className="form-group">
                 <label htmlFor="code" className="form-label form-label-required">Code</label>
@@ -138,8 +138,7 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
                   value={form.code}
                   onChange={handleChange}
                   required
-                />
-                <p className="form-help-text">Unique gift card code</p>
+                />            
               </div>
             </div>
             <div className="form-row">
@@ -155,8 +154,7 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
                   value={form.value}
                   onChange={handleChange}
                   required
-                />
-                <p className="form-help-text">Gift card value in USD</p>
+                />              
               </div>
               <div className="form-group">
                 <label htmlFor="qty" className="form-label form-label-required">Quantity</label>
@@ -170,7 +168,6 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
                   onChange={handleChange}
                   required
                 />
-                <p className="form-help-text">Available quantity</p>
               </div>
             </div>
             <div className="form-row">
@@ -223,33 +220,25 @@ const GiftCardForm = ({ giftCards, setGiftCards }) => {
                   ]}
                   style={{ height: '180px' }}
                 />
-              </div>
-              <p className="form-help-text">Use the toolbar to format text, add links, images, and more.</p>
-              <button
-                type="button"
-                className="preview-toggle"
-                onClick={() => setShowPreview(!showPreview)}
-                disabled={!form.description || !form.description.trim()}
-              >
-                {showPreview ? 'Hide Preview' : 'Show Preview'}
-              </button>
-              {showPreview && form.description && form.description.trim() && (
-                <div className="html-preview">
-                  <div dangerouslySetInnerHTML={{ __html: form.description }} />
-                </div>
-              )}
+              </div>        
             </div>
             <div className="form-actions">
-              <button
+              <Button
                 type="submit"
-                className="btn-primary gradient-btn"
+                className="btn-add"
                 disabled={loading}
               >
                 {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Gift Card' : 'Add Gift Card')}
-              </button>
-              <button type="button" className="btn-secondary" onClick={() => navigate('/giftCards')} disabled={loading}>
+              </Button>
+              <Button
+                type="button"
+                className="btn-secondary"
+                onClick={() => navigate('/giftCards')}
+                disabled={loading}
+                variant="secondary"
+              >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -115,7 +115,7 @@
 .edit-form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  /* gap: 24px; */
 }
 
 .form-row {
@@ -127,7 +127,6 @@
 
 .form-group-full {
   width: 100%;
-  margin-bottom: 32px; /* Add space below description/editor to prevent overlap */
 }
 
 .form-label {
