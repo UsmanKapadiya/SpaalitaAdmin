@@ -19,6 +19,8 @@ import Product from './pages/Product/product';
 import ProductForm from './pages/Product/ProductForm';
 import GiftCard from './pages/GiftCard/giftcard';
 import GiftCardForm from './pages/GiftCard/GiftCardForm';
+import Services from './pages/Services/Services';
+import ServicesForm from './pages/Services/ServicesForm';
 
 function App() {
   return (
@@ -43,7 +45,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          <Route
+            <Route
               path="/products/edit/:id"
               element={
                 <ProtectedRoute>
@@ -51,7 +53,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-         <Route
+            <Route
               path="/giftCards"
               element={
                 <ProtectedRoute>
@@ -63,11 +65,27 @@ function App() {
               path="/giftCards/edit/:id"
               element={
                 <ProtectedRoute>
-                  <GiftCardForm/>
+                  <GiftCardForm />
                 </ProtectedRoute>
               }
             />
-             {/*     <Route
+             <Route
+              path="/services"
+              element={
+                <ProtectedRoute>
+                  <Services />
+                </ProtectedRoute>
+              }
+            />
+                        <Route
+              path="/services/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <ServicesForm />
+                </ProtectedRoute>
+              }
+            />
+            {/*     <Route
               path="/gallery"
               element={
                 <ProtectedRoute>

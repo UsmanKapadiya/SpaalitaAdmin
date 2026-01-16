@@ -36,7 +36,7 @@ const DashboardLayout = ({ children }) => {
                 { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
                 { path: '/product', icon: <InfoIcon />, label: 'Product' },
                 { path: '/giftCards', icon: <NewspaperIcon />, label: 'GiftCard' },
-                { path: '/gallery', icon: <PhotoLibraryIcon />, label: 'Gallery' },
+                { path: '/services', icon: <PhotoLibraryIcon />, label: 'Services' },
             ]
         }
     ];
