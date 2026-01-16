@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
+import Button from '../../components/Button';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import ReactQuill from 'react-quill';
@@ -41,13 +42,13 @@ const ProductForm = ({ products, setProducts }) => {
     return initialProduct();
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState({ field: '', message: '' });
   const [success, setSuccess] = useState('');
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
-    setError('');
+    setError({ field: '', message: '' });
     setSuccess('');
   };
 
@@ -71,7 +72,7 @@ const ProductForm = ({ products, setProducts }) => {
     } else {
       setForm(f => ({ ...f, images: [], imagePreviews: [] }));
     }
-    setError('');
+    setError({ field: '', message: '' });
     setSuccess('');
   };
 
@@ -117,7 +118,7 @@ const ProductForm = ({ products, setProducts }) => {
 
   const handleDescriptionChange = useCallback((value) => {
     setForm(f => ({ ...f, description: value }));
-    setError('');
+    setError({ field: '', message: '' });
     setSuccess('');
   }, []);
 
@@ -125,24 +126,38 @@ const ProductForm = ({ products, setProducts }) => {
     setForm(f => ({ ...f, showPreview: !f.showPreview }));
   };
 
+  // Validation function for form fields
+  const validateForm = (data) => {
+    if (!data.name || data.name.trim() === '') {
+      return { field: 'name', message: 'Please fill in this field' };
+    }
+    if (!data.sku || data.sku.trim() === '') {
+      return { field: 'sku', message: 'Please fill in this field' };
+    }
+    if (!data.price || isNaN(data.price) || Number(data.price) <= 0) {
+      return { field: 'price', message: 'Please fill in this field' };
+    }
+    if (!data.qty || isNaN(data.qty) || Number(data.qty) < 0) {
+      return { field: 'qty', message: 'Please fill in this field' };
+    }
+    if (!data.description || data.description.trim() === '') {
+      return { field: 'description', message: 'Please fill in this field' };
+    }
+    return null;
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
-    setError('');
+    setError({ field: '', message: '' });
     setSuccess('');
     setLoading(true);
-    if (!form.name || !form.sku || !form.price || !form.qty || !form.description) {
-      setError('Please fill all required fields');
+    const validationError = validateForm(form);
+    if (validationError) {
+      setError(validationError);
       setLoading(false);
       return;
     }
     if (!isNewItem) {
-      // setProducts(prev => prev.map(p => p.id === id ? {
-      //   ...form,
-      //   id,
-      //   price: parseFloat(form.price),
-      //   qty: parseInt(form.qty),
-      //   updatedAt: new Date().toISOString().slice(0, 10),
-      // } : p));
       setSuccess('Product updated successfully!');
       toast.success('Product updated successfully!');
     } else {
@@ -154,7 +169,6 @@ const ProductForm = ({ products, setProducts }) => {
         createdAt: new Date().toISOString().slice(0, 10),
         updatedAt: new Date().toISOString().slice(0, 10),
       };
-      // setProducts(prev => [newProduct, ...prev]);
       setSuccess('Product added successfully!');
       toast.success('Product added successfully!');
     }
@@ -174,7 +188,6 @@ const ProductForm = ({ products, setProducts }) => {
                 : 'Edit product details and save changes.'}
             </p>
           </div>
-          {error && <div className="error-banner">{error}</div>}
           {success && <div className="success-banner">{success}</div>}
           <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">
             <div className="single-product-form">
@@ -190,7 +203,10 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  <p className="form-help-text">The product name</p>
+                  {error.field === 'name' && (
+                    <div className="input-error">{error.message}</div>
+                  )}
+                
                 </div>
                 <div className="form-group">
                   <label className="form-label form-label-required">SKU</label>
@@ -203,7 +219,9 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  <p className="form-help-text">Unique product code (SKU)</p>
+                  {error.field === 'sku' && (
+                    <div className="input-error">{error.message}</div>
+                  )}
                 </div>
               </div>
               <div className="form-row">
@@ -219,7 +237,9 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  <p className="form-help-text">Product price in USD</p>
+                  {error.field === 'price' && (
+                    <div className="input-error">{error.message}</div>
+                  )}
                 </div>
                 <div className="form-group">
                   <label className="form-label form-label-required">Quantity</label>
@@ -232,7 +252,9 @@ const ProductForm = ({ products, setProducts }) => {
                     onChange={handleChange}
                     required
                   />
-                  <p className="form-help-text">Available stock quantity</p>
+                  {error.field === 'qty' && (
+                    <div className="input-error">{error.message}</div>
+                  )}
                 </div>
               </div>
               <div className="form-row">
@@ -265,41 +287,17 @@ const ProductForm = ({ products, setProducts }) => {
                             className="image-preview"
                             style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: i === 0 ? '2px solid #007bff' : '1px solid #ccc' }}
                           />
-                          <button
+                          <Button
                             type="button"
+                            className="remove-image-btn"
                             onClick={() => handleRemoveImage(i)}
-                            style={{
-                              position: 'absolute',
-                              top: 2,
-                              right: 2,
-                              background: 'rgba(0,0,0,0.6)',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '50%',
-                              width: 22,
-                              height: 22,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              cursor: 'pointer',
-                              zIndex: 2
-                            }}
                             aria-label="Remove image"
+                            variant="danger"
                           >
                             &#10005;
-                          </button>
+                          </Button>
                           {i === 0 && (
-                            <span style={{
-                              position: 'absolute',
-                              bottom: 2,
-                              left: 2,
-                              background: '#007bff',
-                              color: '#fff',
-                              fontSize: 10,
-                              padding: '2px 6px',
-                              borderRadius: 4,
-                              zIndex: 1
-                            }}>Main</span>
+                            <span className="main-image-label">Main</span>
                           )}
                         </div>
                       ))}
@@ -341,37 +339,30 @@ const ProductForm = ({ products, setProducts }) => {
                     style={{ height: '180px' }}
                   />
                 </div>
-                {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <p className="form-help-text">Use the toolbar to format text, add links, images, and more.</p>
-                  <button
-                    type="button"
-                    className="preview-toggle"
-                    style={{ alignSelf: 'flex-start', marginTop: 0 }}
-                    onClick={handlePreviewToggle}
-                    disabled={!form.description || !form.description.trim()}
-                  >
-                    {form.showPreview ? 'Hide Preview' : 'Show Preview'}
-                  </button>
-                </div>
-                {form.showPreview && form.description && form.description.trim() && (
-                  <div className="html-preview">
-                    <div dangerouslySetInnerHTML={{ __html: form.description }} />
-                  </div>
-                )} */}
+                {error.field === 'description' && (
+                  <div className="input-error">{error.message}</div>
+                )}
               </div>
             </div>
 
             <div className="form-actions">
-              <button
+              <Button
                 type="submit"
-                className="btn-primary gradient-btn"
+                className="btn-add"
                 disabled={loading}
+                // variant="primary"
               >
                 {loading ? 'Adding...' : 'Add Products'}
-              </button>
-              <button type="button" className="btn-secondary" onClick={() => navigate('/products')} disabled={loading}>
+              </Button>
+              <Button
+                type="button"
+                className="btn-secondary"
+                onClick={() => navigate('/products')}
+                disabled={loading}
+                // variant="secondary"
+              >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         </div>

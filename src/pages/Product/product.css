@@ -300,7 +300,7 @@
 
 .clear-search:hover {
   background-color: var(--bg-light);
-  color: var(--text-primary);
+  color: var(--white);
 }
 
 .news-stats {

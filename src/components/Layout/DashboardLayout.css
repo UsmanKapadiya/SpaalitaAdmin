@@ -22,7 +22,7 @@
 
 .sidebar-header {
   padding: 24px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--primary-color);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -94,7 +94,7 @@
 
 .sidebar-footer {
   padding: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--primary-color);
 }
 
 .user-profile {
@@ -102,26 +102,27 @@
   align-items: center;
   gap: 12px;
   padding: 12px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--primary-color);
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
-.user-profile:hover {
+/* .user-profile:hover {
   background-color: rgba(255, 255, 255, 0.1);
-}
+} */
 
 .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  background: var(--bg-color);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 16px;
+  color: var(--primary-color);
 }
 
 .user-info {
@@ -131,13 +132,13 @@
 .user-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--white);
+  color: var(--text-white);
   margin-bottom: 2px;
 }
 
 .user-role {
   font-size: 12px;
-  color: var(--text-light);
+  color: var(--text-white);
 }
 
 /* Main Content Area */

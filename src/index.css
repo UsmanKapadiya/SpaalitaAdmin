@@ -1,10 +1,10 @@
 :root {
   /* Brand Colors */
   --primary-color: #334155;
-  --primary-hover: #004040;
-  --primary-dark: #003232;
-  --secondary-color: #009999;
-  --secondary-dark: #007373;
+  --primary-hover: #42506a; /* Slightly lighter for hover */
+  --primary-dark: #232b3a;  /* Deeper shade for dark */
+  --secondary-color: #64748b; /* Muted blue-gray as secondary */
+  --secondary-dark: #475569; /* Darker blue-gray for secondary dark */
   
   /* Status Colors */
   --success-color: #10b981;
@@ -20,7 +20,7 @@
   --sidebar-hover: #334155;
   
   /* Text Colors */
-  --text-primary: #333;
+  --text-primary: #334155;
   --text-secondary: #555;
   --text-muted: #666;
   --text-light: #334155;
@@ -81,4 +81,11 @@ code {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
+}
+
+.btn-icon{
+  color: var(--primary-color) !important;
+}
+.btn-icon:hover {
+  color: var(--text-white) !important;
 }

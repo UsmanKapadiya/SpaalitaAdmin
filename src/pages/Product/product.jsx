@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import Button from '../../components/Button';
 import ArticleIcon from '@mui/icons-material/Article';
 import Pagination from '@mui/material/Pagination';
 import './product.css';
@@ -236,10 +237,10 @@ const Product = () => {
                     <p className="page-subtitle">Manage your product inventory</p>
                   </div>
                   <div className="product-actions" style={{ marginLeft: 'auto' }}>
-                    <button className="btn-add" onClick={() => navigate('/products/edit/new')}>
-                      <AddIcon />
+                    <Button className="btn-add" onClick={() => navigate('/products/edit/new')}>
+                      <AddIcon style={{ marginRight: 6 }} />
                       Add Product
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -253,16 +254,17 @@ const Product = () => {
                   className="search-input"
                 />
                 {searchTerm && (
-                  <button
+                  <Button
                     className="clear-search"
                     onClick={() => {
                       setSearchTerm('');
                       setPage(1);
                     }}
                     aria-label="Clear search"
+                    // variant="secondary"
                   >
                     ×
-                  </button>
+                  </Button>
                 )}
               </div>
 
@@ -279,8 +281,7 @@ const Product = () => {
                         <th>Price</th>
                         <th>Qty</th>
                         <th>Description</th>
-                        <th>Created</th>
-                        <th>Updated</th>
+                        <th>Created</th>                      
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -291,16 +292,17 @@ const Product = () => {
                           <td>{item.sku}</td>
                           <td>${item.price}</td>
                           <td>{item.qty}</td>
-                          <td>{item.description}</td>
+                          <td>{item.description && item.description.length > 40 ? item.description.slice(0, 40) + '...' : item.description}</td>
                           <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
-                          <td>{item.updatedAt ? dayjs(item.updatedAt).format('DD-MMM-YYYY') : ''}</td>
                           <td>
-                            <button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title="Edit" aria-label={`Edit ${item.name}`}>
-                              <EditIcon />
-                            </button>
-                            <button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title="Delete" aria-label={`Delete ${item.name}`}>
-                              <DeleteIcon />
-                            </button>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                              <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{padding: 4, minWidth: 0, height: 32}}>
+                                <EditIcon />
+                              </Button>
+                              <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{padding: 4, minWidth: 0, height: 32}}>
+                                <DeleteIcon />
+                              </Button>
+                            </div>
                           </td>
                         </tr>
                       ))}
