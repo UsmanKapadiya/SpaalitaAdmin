@@ -1,0 +1,31 @@
+.gallery-page {
+  padding: 24px;
+}
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+.gallery-item {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+.gallery-img {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.empty-state {
+  text-align: center;
+  color: #888;
+  font-size: 18px;
+  margin-top: 40px;
+}

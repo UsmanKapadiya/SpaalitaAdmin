@@ -26,6 +26,8 @@ import BookingPolicy from './pages/BookingPolicy/BookingPolicy';
 import BookingPolicyForm from './pages/BookingPolicy/BookingPolicyForm';
 import MonthlySpecial from './pages/MonthlySpecial/MonthlySpecial';
 import MonthlySpecialForm from './pages/MonthlySpecial/MonthlySpecialForm';
+import Gallery from './pages/Gallery/Gallery';
+import GalleryForm from './pages/Gallery/galleryForm';
 
 function App() {
   return (
@@ -106,23 +108,23 @@ function App() {
                 </ProtectedRoute>
               }
             />
-              <Route
-                path="/monthly-special"
-                element={
-                  <ProtectedRoute>
-                    <MonthlySpecial />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/monthly-special/edit/:id"
-                element={
-                  <ProtectedRoute>
-                    <MonthlySpecialForm />
-                  </ProtectedRoute>
-                }
-              />
-            {/*     <Route
+            <Route
+              path="/monthly-special"
+              element={
+                <ProtectedRoute>
+                  <MonthlySpecial />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/monthly-special/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <MonthlySpecialForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/gallery"
               element={
                 <ProtectedRoute>
@@ -134,11 +136,11 @@ function App() {
               path="/gallery/edit/:id"
               element={
                 <ProtectedRoute>
-                  <EditGallery />
+                  <GalleryForm />
                 </ProtectedRoute>
               }
             />
-            <Route
+            {/*<Route
               path="/gallery/videos/edit/:id"
               element={
                 <ProtectedRoute>

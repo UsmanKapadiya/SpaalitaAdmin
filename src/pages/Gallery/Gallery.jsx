@@ -1,0 +1,130 @@
+    import Button from '../../components/Button/Button';
+    import AddIcon from '@mui/icons-material/Add';
+    import { useNavigate } from 'react-router-dom';
+
+import React, { useEffect, useState, useMemo } from 'react';
+import DashboardLayout from '../../components/Layout/DashboardLayout';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
+import ArticleIcon from '@mui/icons-material/Article';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import mockGallery from '../../data/mockGallery';
+
+const Gallery = () => {
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        setImages(mockGallery.map(item => ({
+            id: item.id,
+            image: item.image,
+            created_at: item.created_at
+        })).filter(item => !!item.image));
+        setLoading(false);
+    }, []);
+
+    const handleEdit = (id) => {
+        navigate(`/gallery/edit/${id}`);
+    };
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this image?')) {
+            setImages(prev => prev.filter(img => img.id !== id));
+        }
+    };
+
+    const filteredImages = useMemo(() => {
+        if (!searchTerm.trim()) return images;
+        const search = searchTerm.toLowerCase();
+        return images.filter(item =>
+            (item.created_at && item.created_at.toLowerCase().includes(search))
+            || (item.id && item.id.toLowerCase().includes(search))
+        );
+    }, [searchTerm, images]);
+
+    return (
+        <DashboardLayout>
+            <div className="news-page">
+
+                <div className="news-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <h1 className="page-title">Gallery</h1>
+                        <p className="page-subtitle">Browse all uploaded images</p>
+                    </div>
+                    <div className="news-actions">
+                        <Button className="btn-add" type="button" onClick={() => navigate('/gallery/edit/new')}>
+                            <AddIcon />
+                            Add Gallery
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="search-bar">
+                    <input
+                        type="text"
+                        placeholder="Search by date or id..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                    {searchTerm && (
+                        <button
+                            type="button"
+                            className="clear-search"
+                            onClick={() => setSearchTerm('')}
+                            aria-label="Clear search"
+                        >
+                            ×
+                        </button>
+                    )}
+                </div>
+
+                <div className="gallery-grid news-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+                    {loading && <GlobalLoader text="Loading..." />}
+                    {error ? (
+                        <div className="empty-state">{error}</div>
+                    ) : filteredImages.length > 0 ? (
+                        filteredImages.map((item, idx) => (
+                            <div className="news-item-wrapper" key={item.id}>
+                                <div className="news-item" style={{ cursor: 'default', position: 'relative', padding: 16 }}>
+                                    <div className="news-item-header" style={{ marginBottom: 8 }}>
+                                        <div className="news-item-info">
+                                            <div className="news-item-title">{item.created_at}</div>
+                                        </div>
+                                        <div className="news-item-actions" style={{ display: 'flex', gap: 8 }}>
+                                            <button className="btn-icon edit" title="Edit" aria-label={`Edit image ${item.id}`} style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => handleEdit(item.id)}>
+                                                <EditIcon fontSize="small" />
+                                            </button>
+                                            <button className="btn-icon delete" title="Delete" aria-label={`Delete image ${item.id}`} style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => handleDelete(item.id)}>
+                                                <DeleteIcon fontSize="small" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="news-item-description">
+                                        <div className="gallery-img-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
+                                            <img src={item.image} alt={`Gallery ${item.id}`} className="gallery-img" style={{ maxHeight: 160, borderRadius: 6 }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-state">
+                            <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
+                            <div className="empty-state-text">
+                                {searchTerm ? 'No images found' : 'No images yet'}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </DashboardLayout>
+    );
+};
+
+export default Gallery;
