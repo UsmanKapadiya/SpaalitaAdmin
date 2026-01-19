@@ -4,6 +4,11 @@ import { useAuth } from '../../context/AuthContext';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InfoIcon from '@mui/icons-material/Info';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import BuildIcon from '@mui/icons-material/Build';
+import PolicyIcon from '@mui/icons-material/Policy';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -35,11 +40,12 @@ const DashboardLayout = ({ children }) => {
             section: '',
             items: [
                 { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
-                { path: '/product', icon: <InfoIcon />, label: 'Product' },
-                { path: '/giftCards', icon: <NewspaperIcon />, label: 'GiftCard' },
-                { path: '/services', icon: <PhotoLibraryIcon />, label: 'Services' },
-                { path: '/bookingPolicy', icon: <PhotoLibraryIcon />, label: 'BookingPolicy' },
-                { path: '/monthly-special', icon: <PhotoLibraryIcon />, label: 'MonthlySpecial' },
+                { path: '/product', icon: <LocalOfferIcon />, label: 'Product' },
+                { path: '/giftCards', icon: <CardGiftcardIcon />, label: 'GiftCard' },
+                { path: '/services', icon: <BuildIcon />, label: 'Services' },
+                { path: '/bookingPolicy', icon: <PolicyIcon />, label: 'BookingPolicy' },
+                { path: '/monthly-special', icon: <EventNoteIcon />, label: 'MonthlySpecial' },
+                { path: '/gallery', icon: <PhotoLibraryIcon />, label: 'Gallery' },
             ]
         }
     ];
