@@ -28,6 +28,8 @@ import MonthlySpecial from './pages/MonthlySpecial/MonthlySpecial';
 import MonthlySpecialForm from './pages/MonthlySpecial/MonthlySpecialForm';
 import Gallery from './pages/Gallery/Gallery';
 import GalleryForm from './pages/Gallery/galleryForm';
+import User from './pages/User/User';
+import UserForm from './pages/User/UserForm';
 
 function App() {
   return (
@@ -137,6 +139,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <GalleryForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user"
+              element={
+                <ProtectedRoute>
+                  <User />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/user/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <UserForm />
                 </ProtectedRoute>
               }
             />

@@ -12,6 +12,7 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
 import './DashboardLayout.css';
 import logo from "../../assets/logo.png"
 import Button from '../../components/Button/Button';
@@ -46,6 +47,7 @@ const DashboardLayout = ({ children }) => {
                 { path: '/bookingPolicy', icon: <PolicyIcon />, label: 'BookingPolicy' },
                 { path: '/monthly-special', icon: <EventNoteIcon />, label: 'MonthlySpecial' },
                 { path: '/gallery', icon: <PhotoLibraryIcon />, label: 'Gallery' },
+                { path: '/user', icon: <PeopleIcon />, label: 'Users' },
             ]
         }
     ];
