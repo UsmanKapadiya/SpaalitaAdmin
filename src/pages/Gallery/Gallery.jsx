@@ -1,6 +1,6 @@
-    import Button from '../../components/Button/Button';
-    import AddIcon from '@mui/icons-material/Add';
-    import { useNavigate } from 'react-router-dom';
+import Button from '../../components/Button/Button';
+import AddIcon from '@mui/icons-material/Add';
+import { useNavigate } from 'react-router-dom';
 
 import React, { useEffect, useState, useMemo } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -73,14 +73,18 @@ const Gallery = () => {
                         className="search-input"
                     />
                     {searchTerm && (
-                        <button
+                        <Button
                             type="button"
                             className="clear-search"
-                            onClick={() => setSearchTerm('')}
+                            onClick={() => {
+                                setSearchTerm('');
+                                setPage(1);
+                            }}
                             aria-label="Clear search"
+                            variant="secondary"
                         >
                             ×
-                        </button>
+                        </Button>
                     )}
                 </div>
 
@@ -97,12 +101,12 @@ const Gallery = () => {
                                             <div className="news-item-title">{item.created_at}</div>
                                         </div>
                                         <div className="news-item-actions" style={{ display: 'flex', gap: 8 }}>
-                                            <button className="btn-icon edit" title="Edit" aria-label={`Edit image ${item.id}`} style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => handleEdit(item.id)}>
+                                            <Button className="btn-icon edit" type="button" title="Edit" aria-label={`Edit image ${item.id}`} onClick={() => handleEdit(item.id)}>
                                                 <EditIcon fontSize="small" />
-                                            </button>
-                                            <button className="btn-icon delete" title="Delete" aria-label={`Delete image ${item.id}`} style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => handleDelete(item.id)}>
+                                            </Button>
+                                            <Button className="btn-icon delete" type="button" title="Delete" aria-label={`Delete image ${item.id}`} onClick={() => handleDelete(item.id)}>
                                                 <DeleteIcon fontSize="small" />
-                                            </button>
+                                            </Button>
                                         </div>
                                     </div>
                                     <div className="news-item-description">
