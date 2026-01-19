@@ -15,6 +15,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard/Dashboard'));
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css';
+
 import Product from './pages/Product/product';
 import ProductForm from './pages/Product/ProductForm';
 import GiftCard from './pages/GiftCard/giftcard';
@@ -23,6 +24,8 @@ import Services from './pages/Services/Services';
 import ServicesForm from './pages/Services/ServicesForm';
 import BookingPolicy from './pages/BookingPolicy/BookingPolicy';
 import BookingPolicyForm from './pages/BookingPolicy/BookingPolicyForm';
+import MonthlySpecial from './pages/MonthlySpecial/MonthlySpecial';
+import MonthlySpecialForm from './pages/MonthlySpecial/MonthlySpecialForm';
 
 function App() {
   return (
@@ -103,6 +106,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
+              <Route
+                path="/monthly-special"
+                element={
+                  <ProtectedRoute>
+                    <MonthlySpecial />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/monthly-special/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <MonthlySpecialForm />
+                  </ProtectedRoute>
+                }
+              />
             {/*     <Route
               path="/gallery"
               element={
