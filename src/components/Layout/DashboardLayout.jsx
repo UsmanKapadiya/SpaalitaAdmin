@@ -13,6 +13,7 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import './DashboardLayout.css';
 import logo from "../../assets/logo.png"
 import Button from '../../components/Button/Button';
@@ -41,6 +42,7 @@ const DashboardLayout = ({ children }) => {
             section: '',
             items: [
                 { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
+                { path: '/orders', icon: <ShoppingCartIcon />, label: 'Orders' },
                 { path: '/product', icon: <LocalOfferIcon />, label: 'Product' },
                 { path: '/giftCards', icon: <CardGiftcardIcon />, label: 'GiftCard' },
                 { path: '/services', icon: <BuildIcon />, label: 'Services' },

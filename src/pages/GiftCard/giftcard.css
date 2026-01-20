@@ -59,9 +59,9 @@
   border-bottom: 1px solid #e3e8f0;
 }
 .product-table th {
-  background: #f7faff;
+  background: var(--primary-color);
   font-weight: 700;
-  color: #1976d2;
+  color: var(--text-white);
 }
 .product-table tr:last-child td {
   border-bottom: none;

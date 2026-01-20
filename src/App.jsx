@@ -30,6 +30,8 @@ import Gallery from './pages/Gallery/Gallery';
 import GalleryForm from './pages/Gallery/galleryForm';
 import User from './pages/User/User';
 import UserForm from './pages/User/UserForm';
+import OrderPage from './pages/Order/OrderPage';
+import OrderDetails from './pages/Order/OrderDetails';
 
 function App() {
   return (
@@ -155,6 +157,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UserForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrderPage />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/ordersDetails"
+              element={
+                <ProtectedRoute>
+                  <OrderDetails />
                 </ProtectedRoute>
               }
             />

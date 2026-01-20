@@ -1,0 +1,117 @@
+
+.order-items-tbody .order-item-row td,
+.order-items-tbody .order-summary-row td {
+  padding: 10px 8px;
+}
+
+.order-summary-row {
+  border-top: 2px solid #eee;
+  background: var(--light-gray-bg);
+}
+
+.order-summary-label {
+  font-weight: 500;
+  text-align: right;
+}
+
+.order-summary-value {
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: right;
+}
+
+.order-item-price {
+  text-align: right;
+}
+
+.order-items-thead {
+  border-bottom: 2px solid #eee;
+}
+.form-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 32px;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.order-form-title {
+  margin-bottom: 18px;
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+.order-form-section {
+  margin-bottom: 12px;
+}
+
+.order-form-section-title {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.order-form-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.news-item {
+  flex: 1;
+  position: relative;
+}
+
+.news-item-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  justify-content: space-between;
+}
+
+.news-item-header-title {
+  display: flex;
+  align-items: center;
+}
+
+.address-fields {
+  color: var(--text-color);
+  line-height: 2;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.address-fields-edit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 18px;
+}
+
+.address-label {
+  font-weight: 500;
+}
+
+.address-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-top: 4px;
+}
+
+.order-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+
