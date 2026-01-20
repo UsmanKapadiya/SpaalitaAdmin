@@ -180,9 +180,9 @@
 }
 
 .product-table th {
-  background: #f7f7f7;
+  background: var(--primary-color);
   font-weight: 600;
-  color: #333;
+  color: var(--text-white);
 }
 
 .product-table tr:last-child td {
