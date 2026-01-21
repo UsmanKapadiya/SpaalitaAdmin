@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import Button from '../../components/Button/Button';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import { useNavigate } from 'react-router-dom';
 import GiftCardForm from './GiftCardForm';
 import dayjs from 'dayjs';
@@ -370,27 +371,15 @@ const GiftCard = () => {
         </div>
 
         <div className="search-bar">
-          <input
-            type="text"
+          <SearchAndFilter
+            searchValue={searchTerm}
+            onSearchChange={value => {
+              setSearchTerm(value);
+              setPage(1);
+            }}
+            showFilter={false}
             placeholder="Search gift cards by name, code, or description..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
           />
-          {searchTerm && (
-            <Button
-              type="button"
-              className="clear-search"
-              onClick={() => {
-                setSearchTerm('');
-                setPage(1);
-              }}
-              aria-label="Clear search"
-              variant="secondary"
-            >
-              ×
-            </Button>
-          )}
         </div>
 
         <div className="product-table-wrapper">
@@ -447,7 +436,7 @@ const GiftCard = () => {
             <Pagination
               currentPage={page}
               totalPages={totalPages}
-              onPageChange={(newPage) => handlePageChange(null, newPage)}
+              onPageChange={setPage}
               showInfo={true}
               showJumper={totalPages > 10}
             />          

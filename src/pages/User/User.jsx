@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -70,27 +71,12 @@ const User = () => {
                     </div>
                 </div>
                 <div className="search-bar">
-                    <input
-                        type="text"
+                    <SearchAndFilter
+                        searchValue={searchTerm}
+                        onSearchChange={setSearchTerm}
+                        showFilter={false}
                         placeholder="Search by name, email, or role..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="search-input"
                     />
-                    {searchTerm && (
-                        <Button
-                            type="button"
-                            className="clear-search"
-                            onClick={() => {
-                                setSearchTerm('');
-                                setPage(1);
-                            }}
-                            aria-label="Clear search"
-                            variant="secondary"
-                        >
-                            ×
-                        </Button>
-                    )}
                 </div>
                 <div className="user-table-wrapper">
                     <table className="user-table" style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>

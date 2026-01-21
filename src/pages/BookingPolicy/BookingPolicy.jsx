@@ -11,6 +11,7 @@ import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
 import Switch from '@mui/material/Switch';
 import { mockBookingPolicies } from '../../data/mockBookingPolicies';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 
 
 
@@ -189,28 +190,17 @@ const BookingPolicy = () => {
                     </div>
                 </div>
 
-                {/* <div className="search-bar">
-                    <input
-                        type="text"
+                <div className="search-bar">
+                    <SearchAndFilter
+                        searchValue={searchTerm}
+                        onSearchChange={value => {
+                            setSearchTerm(value);
+                            setPage(1);
+                        }}
+                        showFilter={false}
                         placeholder="Search bookingPolicy by title, description, or date..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="search-input"
                     />
-                    {searchTerm && (
-                        <Button
-                            type="button"
-                            className="clear-search"
-                            onClick={() => {
-                                setSearchTerm('');
-                                setPage(1);
-                            }}
-                            aria-label="Clear search"
-                        >
-                            ×
-                        </Button>
-                    )}
-                </div> */}
+                </div>
 
                 <div className="news-list">
                     {/* {loading && <GlobalLoader text="Loading..." />} */}

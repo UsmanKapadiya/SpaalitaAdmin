@@ -10,6 +10,7 @@ import ArticleIcon from '@mui/icons-material/Article';
 import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -27,12 +28,12 @@ const MonthlySpecial = () => {
         itemName: '',
     });
     const [specials, setSpecials] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchSpecials = async () => {
-            setLoading(true);
+            setLoading(false);
             setError(null);
             setSpecials(mockMonthlySpecials);
             setTotalPages(1);
@@ -107,11 +108,11 @@ const MonthlySpecial = () => {
                         <div className="news-item-info">
                             <div className="news-item-title">{item.month}</div>
                             <div className="news-item-date">
-                                                                {/* Show small image and created_at date */}
-                                                                {item.image && (
-                                                                    <img src={item.image} alt={item.month} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4, marginRight: 8, border: '1px solid #eee' }} />
-                                                                )}
-                                                                <span className="date-badge">{item.created_at ? dayjs(item.created_at).format('DD-MMM-YYYY') : ''}</span>
+                                {/* Show small image and created_at date */}
+                                {item.image && (
+                                    <img src={item.image} alt={item.month} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4, marginRight: 8, border: '1px solid #eee' }} />
+                                )}
+                                <span className="date-badge">{item.created_at ? dayjs(item.created_at).format('DD-MMM-YYYY') : ''}</span>
                             </div>
                         </div>
                         <div className="news-item-actions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -168,26 +169,15 @@ const MonthlySpecial = () => {
                 </div>
 
                 <div className="search-bar">
-                    <input
-                        type="text"
-                        placeholder="Search monthly special by month..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="search-input"
+                    <SearchAndFilter
+                        searchValue={searchTerm}
+                        onSearchChange={value => {
+                            setSearchTerm(value);
+                            setPage(1);
+                        }}
+                        showFilter={false}
+                        placeholder="Search monthly specials by month..."
                     />
-                    {searchTerm && (
-                        <Button
-                            type="button"
-                            className="clear-search"
-                            onClick={() => {
-                                setSearchTerm('');
-                                setPage(1);
-                            }}
-                            aria-label="Clear search"
-                        >
-                            ×
-                        </Button>
-                    )}
                 </div>
 
                 <div className="news-list">
@@ -206,7 +196,7 @@ const MonthlySpecial = () => {
                             </div>
                         </div>
                     )}
-                </div>                
+                </div>
 
                 <ConfirmDialog
                     isOpen={confirmDialog.isOpen}

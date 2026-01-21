@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 
 const Services = () => {
     const navigate = useNavigate();
@@ -153,27 +154,15 @@ const Services = () => {
                 </div>
 
                 <div className="search-bar">
-                    <input
-                        type="text"
-                        placeholder="Search gift cards by name, code, or description..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="search-input"
+                    <SearchAndFilter
+                        searchValue={searchTerm}
+                        onSearchChange={value => {
+                            setSearchTerm(value);
+                            setPage(1);
+                        }}
+                        showFilter={false}
+                        placeholder="Search services by name, code, or description..."
                     />
-                    {searchTerm && (
-                        <Button
-                            type="button"
-                            className="clear-search"
-                            onClick={() => {
-                                setSearchTerm('');
-                                setPage(1);
-                            }}
-                            aria-label="Clear search"
-                            variant="secondary"
-                        >
-                            ×
-                        </Button>
-                    )}
                 </div>
 
                 <div className="product-table-wrapper">

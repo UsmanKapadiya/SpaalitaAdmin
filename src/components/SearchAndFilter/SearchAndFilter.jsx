@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../Button/Button';
+import CloseIcon from '@mui/icons-material/Close';
 import './SearchAndFilter.css';
 
 /**
@@ -48,21 +49,15 @@ const SearchAndFilter = memo(({
                         aria-label="Search"
                     />
                     <div className="search-input__icons">
-                        {!searchValue && (
-                            <span className="search-input__search-icon" aria-hidden="true">
-                                🔍
-                            </span>
-                        )}
                         {searchValue && (
                             <Button
                                 type="button"
                                 onClick={handleSearchClear}
-                                className="search-input__clear-btn"
-                                variant="secondary"
+                                className="clear-search"
                                 aria-label="Clear search"
                                 disabled={disabled}
                             >
-                                ✕
+                                <CloseIcon />
                             </Button>
                         )}
                     </div>
@@ -90,12 +85,12 @@ const SearchAndFilter = memo(({
                             <Button
                                 type="button"
                                 onClick={handleFilterClear}
-                                className="filter-clear-btn"
-                                variant="secondary"
+                                className="clear-search"
+                                style={{marginRight:15}}
                                 aria-label="Clear filter"
                                 disabled={disabled}
                             >
-                                ✕
+                                 <CloseIcon />
                             </Button>
                         )}
                     </div>

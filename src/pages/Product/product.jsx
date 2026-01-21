@@ -12,6 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Button from '../../components/Button/Button';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import ArticleIcon from '@mui/icons-material/Article';
 import Pagination from '../../components/Pagination/Pagination';
 import './product.css';
@@ -246,26 +247,15 @@ const Product = () => {
               </div>
 
               <div className="search-bar">
-                <input
-                  type="text"
+                <SearchAndFilter
+                  searchValue={searchTerm}
+                  onSearchChange={value => {
+                    setSearchTerm(value);
+                    setPage(1);
+                  }}
+                  showFilter={false}
                   placeholder="Search products by name, SKU, or description..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="search-input"
                 />
-                {searchTerm && (
-                  <Button
-                    className="clear-search"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setPage(1);
-                    }}
-                    aria-label="Clear search"
-                    // variant="secondary"
-                  >
-                    ×
-                  </Button>
-                )}
               </div>
 
               <div className="product-table-wrapper">
