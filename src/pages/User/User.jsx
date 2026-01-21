@@ -7,10 +7,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import mockUsers from '../../data/mockUsers';
 import { useNavigate } from 'react-router-dom';
 import './user.css';
+import Pagination from '../../components/Pagination/Pagination';
 
 const User = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [page, setPage] = useState(1);
+    const pageSize = 2;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,6 +29,18 @@ const User = () => {
             user.role.toLowerCase().includes(search)
         );
     }, [searchTerm, users]);
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredUsers.length / pageSize);
+    const paginatedUsers = useMemo(() => {
+        const start = (page - 1) * pageSize;
+        return filteredUsers.slice(start, start + pageSize);
+    }, [filteredUsers, page, pageSize]);
+
+    // Reset to first page when search changes
+    useEffect(() => {
+        setPage(1);
+    }, [searchTerm]);
 
     const handleEdit = (id) => {
         navigate(`/user/edit/${id}`);
@@ -90,10 +105,10 @@ const User = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredUsers.length > 0 ? (
-                                filteredUsers.map((user, idx) => (
+                            {paginatedUsers.length > 0 ? (
+                                paginatedUsers.map((user, idx) => (
                                     <tr key={user.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '10px 8px' }}>{idx + 1}</td>
+                                        <td style={{ padding: '10px 8px' }}>{(page - 1) * pageSize + idx + 1}</td>
                                         <td style={{ padding: '10px 8px' }}>
                                             {user.profilePicture ? (
                                                 <img
@@ -154,6 +169,15 @@ const User = () => {
                         </tbody>
                     </table>
                 </div>
+                {totalPages > 1 && (
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={setPage}
+                        showInfo={true}
+                        showJumper={totalPages > 10}
+                    />
+                )}
             </div>
         </DashboardLayout>
     );

@@ -20,7 +20,7 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [page, setPage] = useState(1);
     const { orderStats: statistics, loading: isLoading } = useOrder(mockOrders);
 
-    const itemsPerPage = 10;
+    const itemsPerPage = 2;
 
     const filteredOrders = useMemo(() => {
         let filtered = mockOrders;

@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
-import Pagination from '@mui/material/Pagination';
+import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
@@ -21,7 +21,6 @@ const MonthlySpecial = () => {
     const [expandedItems, setExpandedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
-    const [itemsPerPage] = useState(10);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         itemId: null,
@@ -30,8 +29,6 @@ const MonthlySpecial = () => {
     const [specials, setSpecials] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
 
     useEffect(() => {
         const fetchSpecials = async () => {
@@ -43,7 +40,7 @@ const MonthlySpecial = () => {
             setLoading(false);
         };
         fetchSpecials();
-    }, [page, itemsPerPage]);
+    }, [page]);
 
     // Memoized filtered and sorted data (client-side search only)
     const filteredSpecials = useMemo(() => {
@@ -209,21 +206,7 @@ const MonthlySpecial = () => {
                             </div>
                         </div>
                     )}
-                </div>
-
-                {totalPages > 1 && (
-                    <div className="pagination-container">
-                        <Pagination
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="large"
-                            showFirstButton
-                            showLastButton
-                        />
-                    </div>
-                )}
+                </div>                
 
                 <ConfirmDialog
                     isOpen={confirmDialog.isOpen}

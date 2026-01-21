@@ -3,7 +3,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import dayjs from 'dayjs';
 import ArticleIcon from '@mui/icons-material/Article';
 import Button from '../../components/Button/Button';
-import Pagination from '@mui/material/Pagination';
+import Pagination from '../../components/Pagination/Pagination';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -14,7 +14,7 @@ const Services = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
-    const itemsPerPage = 10;
+    const itemsPerPage = 2;
     const [loading] = useState(false);
     const [error] = useState(null);
 
@@ -224,17 +224,15 @@ const Services = () => {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="pagination-container">
+                    // <div className="pagination-container">
                         <Pagination
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="large"
-                            showFirstButton
-                            showLastButton
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={(newPage) => handlePageChange(null, newPage)}
+                            showInfo={true}
+                            showJumper={totalPages > 10}
                         />
-                    </div>
+                    // </div>
                 )}
 
                 <ConfirmDialog

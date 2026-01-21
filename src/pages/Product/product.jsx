@@ -13,7 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Button from '../../components/Button/Button';
 import ArticleIcon from '@mui/icons-material/Article';
-import Pagination from '@mui/material/Pagination';
+import Pagination from '../../components/Pagination/Pagination';
 import './product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 
@@ -318,18 +318,14 @@ const Product = () => {
                 )}
               </div>
 
-              {totalPages > 1 && (
-                <div className="pagination-container">
+              {totalPages > 1 && (                
                   <Pagination
-                    count={totalPages}
-                    page={page}
-                    onChange={handlePageChange}
-                    color="primary"
-                    size="large"
-                    showFirstButton
-                    showLastButton
-                  />
-                </div>
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={(newPage) => handlePageChange(null, newPage)}
+                    showInfo={true}
+                    showJumper={totalPages > 10}
+                  />                
               )}
 
               <ConfirmDialog

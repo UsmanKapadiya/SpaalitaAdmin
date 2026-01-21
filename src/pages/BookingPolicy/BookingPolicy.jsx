@@ -5,7 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
-import Pagination from '@mui/material/Pagination';
+import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
@@ -28,8 +28,6 @@ const BookingPolicy = () => {
     const [policies, setPolicies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalItems, setTotalItems] = useState(0);
     const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
 
     useEffect(() => {
@@ -231,20 +229,6 @@ const BookingPolicy = () => {
                         </div>
                     )}
                 </div>
-
-                {totalPages > 1 && (
-                    <div className="pagination-container">
-                        <Pagination
-                            count={totalPages}
-                            page={page}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="large"
-                            showFirstButton
-                            showLastButton
-                        />
-                    </div>
-                )}
 
                 <ConfirmDialog
                     isOpen={confirmDialog.isOpen}

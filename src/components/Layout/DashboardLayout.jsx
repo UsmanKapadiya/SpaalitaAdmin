@@ -43,13 +43,14 @@ const DashboardLayout = ({ children }) => {
             items: [
                 { path: '/dashboard', icon: <DashboardIcon />, label: 'Dashboard' },
                 { path: '/orders', icon: <ShoppingCartIcon />, label: 'Orders' },
-                { path: '/product', icon: <LocalOfferIcon />, label: 'Product' },
+                { path: '/user', icon: <PeopleIcon />, label: 'Users' },
+                { path: '/product', icon: <LocalOfferIcon />, label: 'Product' },                
                 { path: '/giftCards', icon: <CardGiftcardIcon />, label: 'GiftCard' },
                 { path: '/services', icon: <BuildIcon />, label: 'Services' },
                 { path: '/bookingPolicy', icon: <PolicyIcon />, label: 'BookingPolicy' },
                 { path: '/monthly-special', icon: <EventNoteIcon />, label: 'MonthlySpecial' },
                 { path: '/gallery', icon: <PhotoLibraryIcon />, label: 'Gallery' },
-                { path: '/user', icon: <PeopleIcon />, label: 'Users' },
+                
             ]
         }
     ];
