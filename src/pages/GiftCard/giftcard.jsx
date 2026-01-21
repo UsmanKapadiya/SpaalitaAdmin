@@ -19,6 +19,7 @@ import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Product/product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
+import Table from '../../components/Table/Table';
 
 const GiftCard = () => {
   const navigate = useNavigate();
@@ -390,41 +391,33 @@ const GiftCard = () => {
           {error ? (
             <div className="empty-state">{error}</div>
           ) : filteredGiftCards.length > 0 ? (
-            <table className="product-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Value</th>
-                  <th>Qty</th>
-                  <th>Description</th>
-                  <th>Created</th>
-                  {/* <th>Updated</th> */}
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGiftCards.map(item => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.code}</td>
-                    <td>${item.value}</td>
-                    <td>{item.qty}</td>              
-                    <td>{item.description && item.description.length > 40 ? item.description.slice(0, 40) + '...' : item.description}</td>
-                    <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
-                    {/* <td>{item.updatedAt ? dayjs(item.updatedAt).format('DD-MMM-YYYY') : ''}</td> */}
-                    <td>
-                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title="Edit" aria-label={`Edit ${item.name}`} variant="icon">
+            <Table
+              tableClassName="product-table"
+              columns={[
+                { key: 'name', label: 'Name' },
+                { key: 'code', label: 'Code' },
+                { key: 'value', label: 'Value', render: value => `$${value}` },
+                { key: 'qty', label: 'Qty' },
+                { key: 'description', label: 'Description', render: value => value && value.length > 40 ? value.slice(0, 40) + '...' : value },
+                { key: 'createdAt', label: 'Created', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
+                // { key: 'updatedAt', label: 'Updated', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  render: (value, item) => (
+                    <>
+                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="icon">
                         <EditIcon />
                       </Button>
-                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title="Delete" aria-label={`Delete ${item.name}`} variant="danger">
+                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger">
                         <DeleteIcon />
                       </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </>
+                  )
+                }
+              ]}
+              data={filteredGiftCards}
+            />
           ) : (
             <EmptyState
               icon={<CardGiftcardIcon style={{ fontSize: 48 }} />}

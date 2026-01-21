@@ -18,6 +18,7 @@ import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import './product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
+import Table from '../../components/Table/Table';
 
 const Product = () => {
   const navigate = useNavigate();
@@ -226,121 +227,118 @@ const Product = () => {
   }, []);
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <DashboardLayout>
-            <div className="product-page">
-              <div className="page-header">
-                <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <h1 className="page-title">Products</h1>
-                    <p className="page-subtitle">Manage your product inventory</p>
-                  </div>
-                  <div className="product-actions" style={{ marginLeft: 'auto' }}>
-                    <Button className="btn-add" onClick={() => navigate('/products/edit/new')}>
-                      <AddIcon style={{ marginRight: 6 }} />
-                      Add Product
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="search-bar">
-                <SearchAndFilter
-                  searchValue={searchTerm}
-                  onSearchChange={value => {
-                    setSearchTerm(value);
-                    setPage(1);
-                  }}
-                  showFilter={false}
-                  placeholder="Search products by name, SKU, or description..."
-                />
-              </div>
-
-              <div className="product-table-wrapper order-list__table-container">
-                {loading && <GlobalLoader text="Loading..." />}
-                {error ? (
-                  <div className="empty-state">{error}</div>
-                ) : filteredProducts.length > 0 ? (
-                  <table className="product-table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>SKU</th>
-                        <th>Price</th>
-                        <th>Qty</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredProducts.map(item => (
-                        <tr key={item.id}>
-                          <td>{item.name}</td>
-                          <td>{item.sku}</td>
-                          <td>${item.price}</td>
-                          <td>{item.qty}</td>
-                          <td>{item.description && item.description.length > 40 ? item.description.slice(0, 40) + '...' : item.description}</td>
-                          <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
-                          <td>
-                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-                              <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{ padding: 4, minWidth: 0, height: 32 }}>
-                                <EditIcon />
-                              </Button>
-                              <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{ padding: 4, minWidth: 0, height: 32 }}>
-                                <DeleteIcon />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <EmptyState
-                    icon={<LocalOfferIcon style={{ fontSize: 48 }} />}
-                    title="No Products Found"
-                    description={searchTerm ? 'No products found' : 'No products yet'}
-                  />
-                )}
-              </div>
-
-              {totalPages > 1 && (
-                <Pagination
-                  currentPage={page}
-                  totalPages={totalPages}
-                  onPageChange={(newPage) => handlePageChange(null, newPage)}
-                  showInfo={true}
-                  showJumper={totalPages > 10}
-                />
-              )}
-
-              <ConfirmDialog
-                isOpen={confirmDialog.isOpen}
-                onClose={closeConfirmDialog}
-                onConfirm={confirmDelete}
-                title="Delete Product"
-                message={`Are you sure you want to delete "${confirmDialog.itemName}"? This action cannot be undone.`}
-                confirmText="Delete"
-                cancelText="Cancel"
-                type="danger"
-              />
+    <DashboardLayout>
+      <div className="product-page">
+        <div className="page-header">
+          <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h1 className="page-title">Products</h1>
+              <p className="page-subtitle">Manage your product inventory</p>
             </div>
-          </DashboardLayout>
-        }
-      />
-      <Route
-        path="/edit/:id"
-        element={<ProductForm products={productData} setProducts={setProductData} />}
-      />
-      <Route
-        path="/edit/new"
-        element={<ProductForm products={productData} setProducts={setProductData} />}
-      />
-    </Routes>
+            <div className="product-actions" style={{ marginLeft: 'auto' }}>
+              <Button className="btn-add" onClick={() => navigate('/products/edit/new')}>
+                <AddIcon style={{ marginRight: 6 }} />
+                Add Product
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="search-bar">
+          <SearchAndFilter
+            searchValue={searchTerm}
+            onSearchChange={value => {
+              setSearchTerm(value);
+              setPage(1);
+            }}
+            showFilter={false}
+            placeholder="Search products by name, SKU, or description..."
+          />
+        </div>
+
+        <div className="product-table-wrapper order-list__table-container">
+          {loading && <GlobalLoader text="Loading..." />}
+          {error ? (
+            <div className="empty-state">{error}</div>
+          ) : filteredProducts.length > 0 ? (
+            <Table
+              tableClassName="product-table"
+              columns={[
+                {
+                  key: 'name',
+                  label: 'Name',
+                },
+                {
+                  key: 'sku',
+                  label: 'SKU',
+                },
+                {
+                  key: 'price',
+                  label: 'Price',
+                  render: (value) => `$${value}`,
+                },
+                {
+                  key: 'qty',
+                  label: 'Qty',
+                },
+                {
+                  key: 'description',
+                  label: 'Description',
+                  render: (value) => value && value.length > 40 ? value.slice(0, 40) + '...' : value,
+                },
+                {
+                  key: 'createdAt',
+                  label: 'Created',
+                  render: (value) => value ? dayjs(value).format('DD-MMM-YYYY') : '',
+                },
+                {
+                  key: 'actions',
+                  label: 'Actions',
+                  render: (value, item) => (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{ padding: 4, minWidth: 0, height: 32 }}>
+                        <EditIcon />
+                      </Button>
+                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{ padding: 4, minWidth: 0, height: 32 }}>
+                        <DeleteIcon />
+                      </Button>
+                    </div>
+                  ),
+                },
+              ]}
+              data={filteredProducts}
+            />
+          ) : (
+            <EmptyState
+              icon={<LocalOfferIcon style={{ fontSize: 48 }} />}
+              title="No Products Found"
+              description={searchTerm ? 'No products found' : 'No products yet'}
+            />
+          )}
+        </div>
+
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={(newPage) => handlePageChange(null, newPage)}
+            showInfo={true}
+            showJumper={totalPages > 10}
+          />
+        )}
+
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={closeConfirmDialog}
+          onConfirm={confirmDelete}
+          title="Delete Product"
+          message={`Are you sure you want to delete "${confirmDialog.itemName}"? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          type="danger"
+        />
+      </div>
+    </DashboardLayout>
   );
 };
 

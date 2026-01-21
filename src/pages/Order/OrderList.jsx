@@ -15,6 +15,8 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import './OrderList.css';
 import EmptyState from '../../components/EmptyState/EmptyState';
+import Table from '../../components/Table/Table';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 
 const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +24,23 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [page, setPage] = useState(1);
     const { orderStats: statistics, loading: isLoading } = useOrder(mockOrders);
 
-    const itemsPerPage = 2;
+    const itemsPerPage = 3;
+
+    // State for confirm dialog
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [orderToDelete, setOrderToDelete] = useState(null);
+
+    const handleDeleteClick = (order) => {
+        setOrderToDelete(order);
+        setConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        // TODO: Replace with actual delete logic
+        // Example: setOrders(prev => prev.filter(o => o.id !== orderToDelete.id));
+        setConfirmOpen(false);
+        setOrderToDelete(null);
+    };
 
     const filteredOrders = useMemo(() => {
         let filtered = mockOrders;
@@ -134,94 +152,99 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                 {/* Orders Table */}
                 <div className="order-list__table-container">
                     {filteredOrders.items.length > 0 ? (
-                        <table className="order-list__table">
-                            <thead className="order-list__table-header">
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Items</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th className="order-list__actions-cell">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredOrders.items.map((order) => (
-                                    <tr key={order.id} className="order-list__table-row">
-                                        <td className="order-list__table-cell">
-                                            <span className="order-list__order-id">#{order.id}</span>
-                                        </td>
-                                        <td className="order-list__table-cell">
-                                            <div className="order-list__customer-info">
-                                                <span className="order-list__customer-name">
-                                                    {order.customerName}
-                                                </span>
-                                                {order.customerEmail && (
-                                                    <span className="order-list__customer-email">
-                                                        {order.customerEmail}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="order-list__table-cell">
-                                            <span className="order-list__items-preview">
-                                                {order.items.map(item => item.name).join(', ')}
-                                            </span>
-                                        </td>
-                                        <td className="order-list__table-cell">
-                                            <StatusBadge status={order.status} />
-                                        </td>
-                                        <td className="order-list__table-cell">
-                                            <span className="order-list__amount">
-                                                {formatCurrency(order.total || order.totalAmount || 0)}
-                                            </span>
-                                        </td>
-                                        <td className="order-list__table-cell">
-                                            <span className="order-list__date">
-                                                {formatDate(order.createdAt)}
-                                            </span>
-                                        </td>
-                                        <td className="order-list__actions-cell">
-                                            <div className="order-list__action-buttons">
-                                                <Button
-                                                    onClick={() => onSelectOrder(order.id)}
-                                                    className="order-list__action-btn order-list__action-btn--view"
-                                                    variant="secondary"
-                                                    title="View Order"
-                                                >
-                                                    <VisibilityIcon fontSize="small" />
-                                                </Button>
-                                                <Button
-                                                    onClick={() => onEditOrder(order.id)}
-                                                    className="order-list__action-btn order-list__action-btn--edit"
-                                                    variant="secondary"
-                                                    title="Edit Order"
-                                                >
-                                                    <EditIcon fontSize="small" />
-                                                </Button>
-                                                <Button
-                                                    onClick={() => {
-                                                        if (window.confirm('Are you sure you want to delete this order?')) {
-                                                            // Handle delete logic here
-                                                        }
-                                                    }}
-                                                    className="order-list__action-btn order-list__action-btn--delete"
-                                                    variant="secondary"
-                                                    title="Delete Order"
-                                                >
-                                                    <DeleteIcon fontSize="small" />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <Table
+                            tableClassName="order-list__table"
+                            theadClassName="order-list__table-header"
+                            tbodyClassName=""
+                            trClassName="order-list__table-row"
+                            thClassName=""
+                            tdClassName="order-list__table-cell"
+                            columns={[
+                                {
+                                    key: 'id',
+                                    label: 'Order ID',
+                                    render: (value, row) => (
+                                        <span className="order-list__order-id">#{row.id}</span>
+                                    ),
+                                },
+                                {
+                                    key: 'customer',
+                                    label: 'Customer',
+                                    render: (value, row) => (
+                                        <div className="order-list__customer-info">
+                                            <span className="order-list__customer-name">{row.customerName}</span>
+                                            {row.customerEmail && (
+                                                <span className="order-list__customer-email">{row.customerEmail}</span>
+                                            )}
+                                        </div>
+                                    ),
+                                },
+                                {
+                                    key: 'items',
+                                    label: 'Items',
+                                    render: (value, row) => (
+                                        <span className="order-list__items-preview">{row.items.map(item => item.name).join(', ')}</span>
+                                    ),
+                                },
+                                {
+                                    key: 'status',
+                                    label: 'Status',
+                                    render: (value, row) => <StatusBadge status={row.status} />,
+                                },
+                                {
+                                    key: 'amount',
+                                    label: 'Amount',
+                                    render: (value, row) => (
+                                        <span className="order-list__amount">{formatCurrency(row.total || row.totalAmount || 0)}</span>
+                                    ),
+                                },
+                                {
+                                    key: 'date',
+                                    label: 'Date',
+                                    render: (value, row) => (
+                                        <span className="order-list__date">{formatDate(row.createdAt)}</span>
+                                    ),
+                                },
+                                {
+                                    key: 'actions',
+                                    label: <span className="order-list__actions-cell">Actions</span>,
+                                    thClassName: 'order-list__actions-cell',
+                                    tdClassName: 'order-list__actions-cell',
+                                    render: (value, row) => (
+                                        <div className="order-list__action-buttons">
+                                            <Button
+                                                onClick={() => onSelectOrder(row.id)}
+                                                className="order-list__action-btn order-list__action-btn--view"
+                                                variant="secondary"
+                                                title="View Order"
+                                            >
+                                                <VisibilityIcon fontSize="small" />
+                                            </Button>
+                                            <Button
+                                                onClick={() => onEditOrder(row.id)}
+                                                className="order-list__action-btn order-list__action-btn--edit"
+                                                variant="secondary"
+                                                title="Edit Order"
+                                            >
+                                                <EditIcon fontSize="small" />
+                                            </Button>
+                                            <Button
+                                                onClick={() => handleDeleteClick(row)}
+                                                className="order-list__action-btn order-list__action-btn--delete"
+                                                variant="secondary"
+                                                title="Delete Order"
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </Button>
+                                        </div>
+                                    ),
+                                },
+                            ]}
+                            data={filteredOrders.items}
+                        />
                     ) : (
                         <EmptyState
-                            icon={<ShoppingCartIcon
-                                 style={{ fontSize: 48 }} />}
+                            icon={<ShoppingCartIcon style={{ fontSize: 48 }} />}
                             title="No Orders Found"
                             description={
                                 searchTerm || statusFilter
@@ -243,6 +266,17 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                     />
                 )}
             </div>
+        {/* Confirm Delete Dialog */}
+        <ConfirmDialog
+            isOpen={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title="Delete Order"
+            message={orderToDelete ? `Are you sure you want to delete order #${orderToDelete.id}?` : ''}
+            confirmText="Delete"
+            cancelText="Cancel"
+            type="danger"
+        />
         </DashboardLayout>
     )
 };

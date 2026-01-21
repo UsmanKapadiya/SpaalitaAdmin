@@ -11,6 +11,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
+import Table from '../../components/Table/Table';
 
 const Services = () => {
     const navigate = useNavigate();
@@ -171,38 +172,45 @@ const Services = () => {
                     {error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredServices.length > 0 ? (
-                        <table className="product-table">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredServices.map(item => (
-                                    <tr key={item.id}>
-                                        <td>
-                                            <img src={item.thumbnail} alt={item.name} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} />
-                                        </td>
-                                        <td>{item.name}</td>
-                                        <td>{item.description && item.description.length > 40 ? item.description.slice(0, 40) + '...' : item.description}</td>
-                                        <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
-                                        {/* <td>{item.updatedAt ? dayjs(item.updatedAt).format('DD-MMM-YYYY') : ''}</td> */}
-                                        <td>
-                                            <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title="Edit" aria-label={`Edit ${item.name}`} variant="icon">
+                        <Table
+                            tableClassName="product-table"
+                            columns={[
+                                {
+                                    key: 'thumbnail',
+                                    label: 'Image',
+                                    render: (value, item) => (
+                                        <img src={item.thumbnail} alt={item.name} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} />
+                                    ),
+                                },
+                                { key: 'name', label: 'Name' },
+                                {
+                                    key: 'description',
+                                    label: 'Description',
+                                    render: value => value && value.length > 40 ? value.slice(0, 40) + '...' : value,
+                                },
+                                {
+                                    key: 'createdAt',
+                                    label: 'Created',
+                                    render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '',
+                                },
+                                // { key: 'updatedAt', label: 'Updated', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    render: (value, item) => (
+                                        <>
+                                            <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="icon">
                                                 <EditIcon />
                                             </Button>
-                                            <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title="Delete" aria-label={`Delete ${item.name}`} variant="danger">
+                                            <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger">
                                                 <DeleteIcon />
                                             </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                        </>
+                                    ),
+                                },
+                            ]}
+                            data={filteredServices}
+                        />
                     ) : (
                         <EmptyState
                             icon={<ArticleIcon style={{ fontSize: 48 }} />}

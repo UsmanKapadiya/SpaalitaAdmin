@@ -1,0 +1,30 @@
+.custom-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 1rem;
+}
+
+.custom-table th, .custom-table td {
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.custom-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+}
+
+.custom-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.custom-table tr:hover {
+  background: #f0f8ff;
+}

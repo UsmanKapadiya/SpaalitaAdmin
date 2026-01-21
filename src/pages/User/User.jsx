@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import './user.css';
 import Pagination from '../../components/Pagination/Pagination';
 import PeopleIcon from '@mui/icons-material/People';
+import Table from '../../components/Table/Table';
 
 const User = () => {
     const [users, setUsers] = useState([]);
@@ -82,74 +83,90 @@ const User = () => {
                 </div>
                 <div className="user-table-wrapper order-list__table-container">
                     {paginatedUsers.length > 0 ? (
-                        <table className="user-table" style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
-                            <thead>
-                                <tr style={{ background: '#f5f5f5' }}>
-                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>#</th>
-                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Profile</th>
-                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Name</th>
-                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Email</th>
-                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Role</th>
-                                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {paginatedUsers.map((user, idx) => (
-                                    <tr key={user.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '10px 8px' }}>{(page - 1) * pageSize + idx + 1}</td>
-                                        <td style={{ padding: '10px 8px' }}>
-                                            {user.profilePicture ? (
-                                                <img
-                                                    src={user.profilePicture}
-                                                    alt={user.name || user.username || 'User'}
-                                                    style={{
-                                                        width: 36,
-                                                        height: 36,
-                                                        borderRadius: '50%',
-                                                        objectFit: 'cover',
-                                                        display: 'block',
-                                                        margin: '0 auto',
-                                                        background: '#e0e0e0'
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div style={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    borderRadius: '50%',
-                                                    background: '#e0e0e0',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    fontWeight: 600,
-                                                    fontSize: 16,
-                                                    color: '#555',
-                                                    textTransform: 'uppercase',
-                                                    margin: '0 auto'
-                                                }}>
-                                                    {(user.firstName && user.lastName)
-                                                        ? `${user.firstName[0]}${user.lastName[0]}`
-                                                        : (user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : '?')}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td style={{ padding: '10px 8px' }}>{user.name}</td>
-                                        <td style={{ padding: '10px 8px' }}>{user.email}</td>
-                                        <td style={{ padding: '10px 8px' }}>{user.role}</td>
-                                        <td style={{ padding: '10px 8px' }}>{user.created_at}</td>
-                                        <td>
-                                            <Button className="btn-icon edit" onClick={e => handleEdit(user.id, e)} title="Edit" aria-label={`Edit ${user.name}`} variant="icon">
+                        <Table
+                            tableClassName="user-table"
+                            theadClassName=""
+                            tbodyClassName=""
+                            trClassName=""
+                            thClassName=""
+                            tdClassName=""
+                            columns={[
+                                {
+                                    key: 'index',
+                                    label: '#',
+                                    render: (value, row, idx) => (page - 1) * pageSize + idx + 1,
+                                },
+                                {
+                                    key: 'profile',
+                                    label: 'Profile',
+                                    render: (value, user) => user.profilePicture ? (
+                                        <img
+                                            src={user.profilePicture}
+                                            alt={user.name || user.username || 'User'}
+                                            style={{
+                                                width: 36,
+                                                height: 36,
+                                                borderRadius: '50%',
+                                                objectFit: 'cover',
+                                                display: 'block',
+                                                margin: '0 auto',
+                                                background: '#e0e0e0'
+                                            }}
+                                        />
+                                    ) : (
+                                        <div style={{
+                                            width: 36,
+                                            height: 36,
+                                            borderRadius: '50%',
+                                            background: '#e0e0e0',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 600,
+                                            fontSize: 16,
+                                            color: '#555',
+                                            textTransform: 'uppercase',
+                                            margin: '0 auto'
+                                        }}>
+                                            {(user.firstName && user.lastName)
+                                                ? `${user.firstName[0]}${user.lastName[0]}`
+                                                : (user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : '?')}
+                                        </div>
+                                    ),
+                                },
+                                {
+                                    key: 'name',
+                                    label: 'Name',
+                                },
+                                {
+                                    key: 'email',
+                                    label: 'Email',
+                                },
+                                {
+                                    key: 'role',
+                                    label: 'Role',
+                                },
+                                {
+                                    key: 'created_at',
+                                    label: 'Created At',
+                                },
+                                {
+                                    key: 'actions',
+                                    label: 'Actions',
+                                    render: (value, user) => (
+                                        <>
+                                            <Button className="btn-icon edit" onClick={e => handleEdit(user.id, e)} title={`Edit ${user.name}`} aria-label={`Edit ${user.name}`} variant="icon">
                                                 <EditIcon />
                                             </Button>
-                                            <Button className="btn-icon delete" onClick={e => handleDelete(user.id, e)} title="Delete" aria-label={`Delete ${user.name}`} variant="danger">
+                                            <Button className="btn-icon delete" onClick={e => handleDelete(user.id, e)} title={`Delete ${user.name}`} aria-label={`Delete ${user.name}`} variant="danger">
                                                 <DeleteIcon />
                                             </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-
-                            </tbody>
-                        </table>
+                                        </>
+                                    ),
+                                },
+                            ]}
+                            data={paginatedUsers}
+                        />
                     ) : (
                         <EmptyState
                             icon={<PeopleIcon style={{ fontSize: 48 }} />}
