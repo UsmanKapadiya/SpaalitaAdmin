@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import mockOrders from '../../data/mockOrders';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
@@ -18,11 +18,14 @@ import EmptyState from '../../components/EmptyState/EmptyState';
 import Table from '../../components/Table/Table';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
 
 const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+
     const { orderStats: statistics, loading: isLoading } = useOrder(mockOrders);
 
     const itemsPerPage = 3;
@@ -30,6 +33,11 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     // State for confirm dialog
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => setLoading(false), 600);
+    }, []);
 
     const handleDeleteClick = (order) => {
         setOrderToDelete(order);
@@ -86,17 +94,6 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
         setPage(newPage);
     }, []);
 
-    if (isLoading) {
-        return (
-            <DashboardLayout>
-                <div className="order-list__loading">
-                    <div className="order-list__loading-spinner"></div>
-                    Loading orders...
-                </div>
-            </DashboardLayout>
-        );
-    }
-
     return (
         <DashboardLayout>
             <div className="news-page">
@@ -107,7 +104,6 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                     buttonLabel="Add Order"
                     onButtonClick={onCreateOrder}
                 />
-
                 {/* Statistics Cards */}
                 {statistics && (
                     <div className="order-list__statistics">
@@ -129,8 +125,6 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                         </div>
                     </div>
                 )}
-
-                {/* Search and Filter */}
                 <div className="order-list__filters">
                     <SearchAndFilter
                         searchValue={searchTerm}
@@ -143,10 +137,13 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                         showFilter={true}
                     />
                 </div>
-
-                {/* Orders Table */}
                 <div className="order-list__table-container">
-                    {filteredOrders.items.length > 0 ? (
+                    {loading ? (
+                        <>
+                            <GlobalLoader text="Loading orders..." />
+
+                        </>
+                    ) : filteredOrders.items.length > 0 ? (
                         <Table
                             tableClassName="order-list__table"
                             theadClassName="order-list__table-header"
@@ -249,9 +246,7 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                         />
                     )}
                 </div>
-
-                {/* Pagination */}
-                {filteredOrders.total > itemsPerPage && (
+                {filteredOrders.total > itemsPerPage && !loading && (
                     <Pagination
                         currentPage={page}
                         totalPages={totalPages}
@@ -261,17 +256,16 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                     />
                 )}
             </div>
-        {/* Confirm Delete Dialog */}
-        <ConfirmDialog
-            isOpen={confirmOpen}
-            onClose={() => setConfirmOpen(false)}
-            onConfirm={handleConfirmDelete}
-            title="Delete Order"
-            message={orderToDelete ? `Are you sure you want to delete order #${orderToDelete.id}?` : ''}
-            confirmText="Delete"
-            cancelText="Cancel"
-            type="danger"
-        />
+            <ConfirmDialog
+                isOpen={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete Order"
+                message={orderToDelete ? `Are you sure you want to delete order #${orderToDelete.id}?` : ''}
+                confirmText="Delete"
+                cancelText="Cancel"
+                type="danger"
+            />
         </DashboardLayout>
     )
 };

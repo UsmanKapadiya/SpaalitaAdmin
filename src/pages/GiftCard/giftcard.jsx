@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +25,7 @@ import PageTitle from '../../components/PageTitle/PageTitle';
 const GiftCard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
   // Simulated paginated API response for gift cards
   const allGiftCards = [
     {
@@ -282,8 +283,11 @@ const GiftCard = () => {
   const [giftCardData, setGiftCardData] = useState(allGiftCards);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
-  const [loading] = useState(false);
   const [error] = useState(null);
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 600);
+  }, []);
 
   // Filter and paginate gift cards
   const filteredGiftCards = useMemo(() => {
@@ -379,11 +383,11 @@ const GiftCard = () => {
             placeholder="Search gift cards by name, code, or description..."
           />
         </div>
-
         <div className="product-table-wrapper order-list__table-container">
-          {loading && <GlobalLoader text="Loading..." />}
-          {error ? (
-            <div className="empty-state">{error}</div>
+          {loading ? (
+            <GlobalLoader text="Loading gift cards..." />
+          ) : error ? (
+            <div className="empty-state" > {error}</div>
           ) : filteredGiftCards.length > 0 ? (
             <Table
               tableClassName="product-table"
@@ -420,8 +424,7 @@ const GiftCard = () => {
             />
           )}
         </div>
-
-        {totalPages > 1 && (
+        {totalPages > 1 && !loading && (
           <Pagination
             currentPage={page}
             totalPages={totalPages}
@@ -430,7 +433,6 @@ const GiftCard = () => {
             showJumper={totalPages > 10}
           />
         )}
-
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
           onClose={closeConfirmDialog}
@@ -442,7 +444,7 @@ const GiftCard = () => {
           type="danger"
         />
       </div>
-    </DashboardLayout>
+    </DashboardLayout >
   );
 };
 

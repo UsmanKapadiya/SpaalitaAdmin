@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import dayjs from 'dayjs';
 import ArticleIcon from '@mui/icons-material/Article';
@@ -19,7 +20,11 @@ const Services = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const itemsPerPage = 2;
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => setLoading(false), 600); // Simulate loading
+    }, []);
     const [error] = useState(null);
 
     const allServices = [
@@ -161,8 +166,9 @@ const Services = () => {
                 </div>
 
                 <div className="product-table-wrapper order-list__table-container">
-                    {loading && <GlobalLoader text="Loading..." />}
-                    {error ? (
+                    {loading ? (
+                        <GlobalLoader text="Loading services..." />
+                    ) : error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredServices.length > 0 ? (
                         <Table
@@ -212,9 +218,7 @@ const Services = () => {
                         />
                     )}
                 </div>
-
-                {totalPages > 1 && (
-                    // <div className="pagination-container">
+                {totalPages > 1 && !loading && (
                     <Pagination
                         currentPage={page}
                         totalPages={totalPages}
@@ -222,9 +226,7 @@ const Services = () => {
                         showInfo={true}
                         showJumper={totalPages > 10}
                     />
-                    // </div>
                 )}
-
                 <ConfirmDialog
                     isOpen={confirmDialog.isOpen}
                     onClose={closeConfirmDialog}

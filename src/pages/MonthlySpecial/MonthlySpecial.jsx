@@ -30,9 +30,17 @@ const MonthlySpecial = () => {
         itemId: null,
         itemName: '',
     });
-    const [specials, setSpecials] = useState(mockMonthlySpecials);
-    const [loading, setLoading] = useState(false);
+    const [specials, setSpecials] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => {
+            setSpecials(mockMonthlySpecials);
+            setLoading(false);
+        }, 600);
+    }, []);
 
     // Memoized filtered and sorted data (client-side search only)
     const filteredSpecials = useMemo(() => {
@@ -163,20 +171,21 @@ const MonthlySpecial = () => {
                 </div>
 
                 <div className="news-list order-list__table-container">
-                    {loading && <GlobalLoader text="Loading..." />}
-                    {error ? (
-                        <div className="empty-state">{error}</div>
-                    ) : filteredSpecials.length > 0 ? (
-                        filteredSpecials.map(renderSpecialItem)
+                    {loading ? (
+                        <GlobalLoader text="Loading monthly specials..." />
                     ) : (
-                        <EmptyState
-                            icon={<EventNoteIcon style={{ fontSize: 48 }} />}
-                            title="No Monthly Specials Item Found"
-                            description={searchTerm ? 'No Monthly Specials Item found' : 'No monthly specials yet'}
-                        />
-                    )}
+                        error ? (
+                            <div className="empty-state">{error}</div>
+                        ) : filteredSpecials.length > 0 ? (
+                            filteredSpecials.map(renderSpecialItem)
+                        ) : (
+                            <EmptyState
+                                icon={<EventNoteIcon style={{ fontSize: 48 }} />}
+                                title="No Monthly Specials Item Found"
+                                description={searchTerm ? 'No Monthly Specials Item found' : 'No monthly specials yet'}
+                            />
+                        ))}
                 </div>
-
                 <ConfirmDialog
                     isOpen={confirmDialog.isOpen}
                     onClose={closeConfirmDialog}

@@ -17,6 +17,7 @@ import Card from '../../components/Card/Card';
 import { mockBookingPolicies } from '../../data/mockBookingPolicies';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
 
 
 
@@ -35,6 +36,10 @@ const BookingPolicy = () => {
     const [error, setError] = useState(null);
     const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
 
+    useEffect(() => {
+        setLoading(true);
+        setTimeout(() => setLoading(false), 600);
+    }, []);
     // Memoized filtered and sorted data (client-side search only)
     const filteredPolicies = useMemo(() => {
         if (!searchTerm.trim()) return policies;
@@ -185,17 +190,22 @@ const BookingPolicy = () => {
 
                 <div className="news-list order-list__table-container">
                     {/* {loading && <GlobalLoader text="Loading..." />} */}
-                    {error ? (
-                        <div className="empty-state">{error}</div>
-                    ) : filteredPolicies.length > 0 ? (
-                        filteredPolicies.map(renderPolicyItem)
-                    ) : (
-                        <EmptyState
-                            icon={<PolicyIcon style={{ fontSize: 48 }} />}
-                            title="No Policies Found"
-                            description={searchTerm ? 'No policies found' : 'No policies yet'}
-                        />
-                    )}
+                    {loading ? (
+                        <>
+                            <GlobalLoader text="Loading Booking Policy..." />
+                        </>
+                    ) :
+                        error ? (
+                            <div className="empty-state">{error}</div>
+                        ) : filteredPolicies.length > 0 ? (
+                            filteredPolicies.map(renderPolicyItem)
+                        ) : (
+                            <EmptyState
+                                icon={<PolicyIcon style={{ fontSize: 48 }} />}
+                                title="No Policies Found"
+                                description={searchTerm ? 'No policies found' : 'No policies yet'}
+                            />
+                        )}
                 </div>
 
                 <ConfirmDialog

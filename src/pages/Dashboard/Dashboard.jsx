@@ -12,12 +12,14 @@ import mockOrders from '../../data/mockOrders';
 import mockGiftCards from '../../data/mockGiftCards';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
 
 
 const Dashboard = () => {
   const [aboutData, setAboutData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
 
   useEffect(() => {
     const fetchDashboardStats = async () => {
@@ -33,7 +35,7 @@ const Dashboard = () => {
       } catch (error) {
         setError(error.message || 'Failed to fetch about list');
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 600);
       }
     };
     fetchDashboardStats();
@@ -85,26 +87,25 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <PageTitle
-        title={`Dashboard`}
-        subTitle={`Welcome back! Here's what's happening with your business today.`}
+        title="Dashboard"
+        subTitle="Welcome back! Here's what's happening with your business today."
         button={false}
       />
-      <div className="stats-grid">
-        {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className="stat-header">
-              <div className={`stat-icon ${stat.color}`}>
-                {stat.icon}
+      {loading ? (
+        <GlobalLoader text="Loading dashboard..." />
+      ) : (
+        <div className="stats-grid">
+          {stats.map((stat, index) => (
+            <div key={index} className="stat-card">
+              <div className="stat-header">
+                <div className={`stat-icon ${stat.color}`}>{stat.icon}</div>
               </div>
+              <div className="stat-value">{stat.value}</div>
+              <div className="stat-label">{stat.label}</div>
             </div>
-            <div className="stat-value">{stat.value}</div>
-            <div className="stat-label">{stat.label}</div>
-            {/* <div className={`stat-change ${stat.positive ? 'positive' : 'negative'}`}>
-              {stat.change} from last month
-            </div> */}
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </DashboardLayout>
   );
 };

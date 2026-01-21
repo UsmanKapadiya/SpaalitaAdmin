@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ProductForm from './ProductForm';
 import dayjs from 'dayjs';
@@ -152,9 +152,13 @@ const Product = () => {
   const [productData, setProductData] = useState(allProducts);
   const [page, setPage] = useState(1);
   const itemsPerPage = 5;
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error] = useState(null);
 
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 600);
+  }, []);
   // Filter and paginate products
   const filteredProducts = useMemo(() => {
     let filtered = productData;
@@ -249,9 +253,11 @@ const Product = () => {
           />
         </div>
 
+
         <div className="product-table-wrapper order-list__table-container">
-          {loading && <GlobalLoader text="Loading..." />}
-          {error ? (
+          {loading ? (
+              <GlobalLoader text="Loading products..." />            
+          ) : error ? (
             <div className="empty-state">{error}</div>
           ) : filteredProducts.length > 0 ? (
             <Table
@@ -310,7 +316,7 @@ const Product = () => {
           )}
         </div>
 
-        {totalPages > 1 && (
+        {totalPages > 1 && !loading && (
           <Pagination
             currentPage={page}
             totalPages={totalPages}

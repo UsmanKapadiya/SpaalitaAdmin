@@ -22,12 +22,14 @@ const Gallery = () => {
     useEffect(() => {
         setLoading(true);
         setError(null);
-        setImages(mockGallery.map(item => ({
-            id: item.id,
-            image: item.image,
-            created_at: item.created_at
-        })).filter(item => !!item.image));
-        setLoading(false);
+        setTimeout(() => {
+            setImages(mockGallery.map(item => ({
+                id: item.id,
+                image: item.image,
+                created_at: item.created_at
+            })).filter(item => !!item.image));
+            setLoading(false);
+        }, 600);
     }, []);
 
     const handleEdit = (id) => {
@@ -69,8 +71,9 @@ const Gallery = () => {
                 />
 
                 <div className="gallery-grid news-list order-list__table-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
-                    {loading && <GlobalLoader text="Loading..." />}
-                    {error ? (
+                    {loading ? (
+                        <GlobalLoader text="Loading gallery..." />
+                    ) : error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredImages.length > 0 ? (
                         filteredImages.map((item, idx) => (

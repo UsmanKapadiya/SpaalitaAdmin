@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
 import EmptyState from '../../components/EmptyState/EmptyState';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
@@ -17,11 +18,16 @@ const User = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const pageSize = 2;
     const navigate = useNavigate();
 
     useEffect(() => {
-        setUsers(mockUsers);
+        setLoading(true);
+        setTimeout(() => {
+            setUsers(mockUsers);
+            setLoading(false);
+        }, 600);
     }, []);
 
     const filteredUsers = useMemo(() => {
@@ -74,8 +80,14 @@ const User = () => {
                         placeholder="Search by name, email, or role..."
                     />
                 </div>
+
                 <div className="user-table-wrapper order-list__table-container">
-                    {paginatedUsers.length > 0 ? (
+                    {loading ? (
+                        <>
+                            <GlobalLoader text="Loading users..." />
+
+                        </>
+                    ) : paginatedUsers.length > 0 ? (
                         <Table
                             tableClassName="user-table"
                             theadClassName=""
@@ -168,7 +180,7 @@ const User = () => {
                         />
                     )}
                 </div>
-                {totalPages > 1 && (
+                {totalPages > 1 && !loading && (
                     <Pagination
                         currentPage={page}
                         totalPages={totalPages}
