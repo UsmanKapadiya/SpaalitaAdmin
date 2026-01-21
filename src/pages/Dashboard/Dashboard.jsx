@@ -5,7 +5,13 @@ import PeopleIcon from '@mui/icons-material/People';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { getDashboardStats } from '../../services/authService';
-import { ImageOutlined, NewspaperOutlined, VideoLibraryOutlined } from '@mui/icons-material';
+import { ImageOutlined,  VideoLibraryOutlined } from '@mui/icons-material';
+import mockUsers from '../../data/mockUsers';
+import mockProducts from '../../data/mockProducts';
+import mockOrders from '../../data/mockOrders';
+import mockGiftCards from '../../data/mockGiftCards';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+
 
 const Dashboard = () => {
   const [aboutData, setAboutData] = useState([]);
@@ -32,23 +38,48 @@ const Dashboard = () => {
     fetchDashboardStats();
   }, []);
 
-    const stats = [
-      {
-        icon: <NewspaperOutlined/>,
-        value: aboutData?.activatedNewsCount ?? '-',
-        label: 'Activated News',
-      },
-      {
-        icon: <ImageOutlined />,
-        value: aboutData?.imagesCount ?? '-',
-        label: 'Total Uploaded Images',
-      },
-      {
-        icon: <VideoLibraryOutlined />,
-        value: aboutData?.videosCount ?? '-',
-        label: 'Total Uploaded Videos',
-      }
-    ];
+  // Dashboard stats from mock data
+  const activeUsers = mockUsers.filter(u => u.status === 'active').length;
+  const totalOrders = mockOrders.length;
+  const activeProducts = mockProducts.length;
+  const activeGiftCards = mockGiftCards.length;
+
+  const stats = [
+    {
+      icon: <ShoppingCartIcon />,
+      value: totalOrders,
+      label: 'Total Orders',
+      color: 'success',
+    },
+    {
+      icon: <PeopleIcon />,
+      value: activeUsers,
+      label: 'Active Users',
+      color: 'info',
+    },
+    {
+      icon: <TrendingUpIcon />,
+      value: activeProducts,
+      label: 'Active Products',
+      color: 'primary',
+    },
+    // Existing stats
+    {
+      icon: <CardGiftcardIcon />,
+      value: activeGiftCards,
+      label: 'Activate GiftCards',
+    },
+    // {
+    //   icon: <ImageOutlined />,
+    //   value: aboutData?.imagesCount ?? '-',
+    //   label: 'Total Uploaded Images',
+    // },
+    // {
+    //   icon: <VideoLibraryOutlined />,
+    //   value: aboutData?.videosCount ?? '-',
+    //   label: 'Total Uploaded Videos',
+    // }
+  ];
 
   return (
     <DashboardLayout>
