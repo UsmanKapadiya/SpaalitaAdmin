@@ -12,6 +12,7 @@ import Card from '../../components/Card/Card';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockGallery from '../../data/mockGallery';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 
 const Gallery = () => {
     const [images, setImages] = useState([]);
@@ -67,29 +68,13 @@ const Gallery = () => {
                     </div>
                 </div>
 
-                <div className="search-bar">
-                    <input
-                        type="text"
-                        placeholder="Search by date or id..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                        className="search-input"
-                    />
-                    {searchTerm && (
-                        <Button
-                            type="button"
-                            className="clear-search"
-                            onClick={() => {
-                                setSearchTerm('');
-                                setPage(1);
-                            }}
-                            aria-label="Clear search"
-                            variant="secondary"
-                        >
-                            ×
-                        </Button>
-                    )}
-                </div>
+                <SearchAndFilter
+                    searchValue={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    placeholder="Search by date or id..."
+                    showFilter={false}
+
+                />
 
                 <div className="gallery-grid news-list order-list__table-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                     {loading && <GlobalLoader text="Loading..." />}
