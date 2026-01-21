@@ -13,6 +13,7 @@ import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
 import Switch from '@mui/material/Switch';
+import Card from '../../components/Card/Card';
 import { mockBookingPolicies } from '../../data/mockBookingPolicies';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 
@@ -23,28 +24,15 @@ const BookingPolicy = () => {
     const [expandedItems, setExpandedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
-    const [itemsPerPage] = useState(10);
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         itemId: null,
         itemName: '',
     });
-    const [policies, setPolicies] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [policies, setPolicies] = useState(mockBookingPolicies);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
-
-    useEffect(() => {
-        const fetchPolicies = async () => {
-            setLoading(true);
-            setError(null);
-            setPolicies(mockBookingPolicies);
-            setTotalPages(1);
-            setTotalItems(mockBookingPolicies.length);
-            setLoading(false);
-        };
-        fetchPolicies();
-    }, [page, itemsPerPage]);
 
     // Memoized filtered and sorted data (client-side search only)
     const filteredPolicies = useMemo(() => {
@@ -117,12 +105,8 @@ const BookingPolicy = () => {
     const renderPolicyItem = useCallback((item) => {
         const isExpanded = expandedItems.includes(item._id);
         return (
-            <div className="news-item-wrapper" key={item._id}>
-                <div
-                    className="news-item"
-                    style={{margin:10}}
-                    onClick={() => toggleExpand(item._id)}
-                >
+            <Card className="news-item-wrapper" key={item._id} style={{ margin: 10 }} onClick={() => toggleExpand(item._id)}>
+                <div className='news-item'>
                     <div className="news-item-header">
                         <div className="news-item-info">
                             <div className="news-item-title">{item.title}</div>
@@ -172,7 +156,7 @@ const BookingPolicy = () => {
                         </div>
                     )}
                 </div>
-            </div>
+            </Card>
         );
     }, [expandedItems, toggleExpand, handleEdit, handleDelete, handleToggleActive]);
 
@@ -211,9 +195,7 @@ const BookingPolicy = () => {
                     {error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredPolicies.length > 0 ? (
-                        filteredPolicies.map(item => (
-                            <div key={item._id}>{renderPolicyItem(item)}</div>
-                        ))
+                        filteredPolicies.map(renderPolicyItem)
                     ) : (
                         <EmptyState
                             icon={<PolicyIcon style={{ fontSize: 48 }} />}

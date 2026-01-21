@@ -8,6 +8,7 @@ import GlobalLoader from '../../components/Loader/GlobalLoader';
 import ArticleIcon from '@mui/icons-material/Article';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import EmptyState from '../../components/EmptyState/EmptyState';
+import Card from '../../components/Card/Card';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockGallery from '../../data/mockGallery';
@@ -96,8 +97,8 @@ const Gallery = () => {
                         <div className="empty-state">{error}</div>
                     ) : filteredImages.length > 0 ? (
                         filteredImages.map((item, idx) => (
-                            <div className="news-item-wrapper" key={item.id}>
-                                <div className="news-item" style={{margin:10, cursor: 'default', position: 'relative', padding: 16 }}>
+                            <Card className="news-item-wrapper" key={item.id} style={{ margin: 10, cursor: 'default', position: 'relative', padding: 16 }}>
+                                <div className='news-item'>
                                     <div className="news-item-header" style={{ marginBottom: 8 }}>
                                         <div className="news-item-info">
                                             <div className="news-item-title">{item.created_at}</div>
@@ -111,13 +112,14 @@ const Gallery = () => {
                                             </Button>
                                         </div>
                                     </div>
+
                                     <div className="news-item-description">
                                         <div className="gallery-img-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
                                             <img src={item.image} alt={`Gallery ${item.id}`} className="gallery-img" style={{ maxHeight: 160, borderRadius: 6 }} />
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </Card>
                         ))
                     ) : (
                         <EmptyState

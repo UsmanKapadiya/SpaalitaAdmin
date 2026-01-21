@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import GlobalLoader from '../../components/Loader/GlobalLoader';
+import Card from '../../components/Card/Card';
 import mockMonthlySpecials from '../../data/mockMonthlySpecials';
 
 const MonthlySpecial = () => {
@@ -28,21 +29,9 @@ const MonthlySpecial = () => {
         itemId: null,
         itemName: '',
     });
-    const [specials, setSpecials] = useState([]);
+    const [specials, setSpecials] = useState(mockMonthlySpecials);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const fetchSpecials = async () => {
-            setLoading(false);
-            setError(null);
-            setSpecials(mockMonthlySpecials);
-            setTotalPages(1);
-            setTotalItems(mockMonthlySpecials.length);
-            setLoading(false);
-        };
-        fetchSpecials();
-    }, [page]);
 
     // Memoized filtered and sorted data (client-side search only)
     const filteredSpecials = useMemo(() => {
@@ -100,12 +89,8 @@ const MonthlySpecial = () => {
     const renderSpecialItem = useCallback((item) => {
         const isExpanded = expandedItems.includes(item.id);
         return (
-            <div className="news-item-wrapper" key={item.id}>
-                <div
-                    className="news-item"
-                    style={{margin:10}}
-                    onClick={() => toggleExpand(item.id)}
-                >
+            <Card className="news-item-wrapper" key={item.id} style={{ margin: 10 }} onClick={() => toggleExpand(item.id)}>
+                <div className='news-item'>
                     <div className="news-item-header">
                         <div className="news-item-info">
                             <div className="news-item-title">{item.month}</div>
@@ -150,7 +135,7 @@ const MonthlySpecial = () => {
                         </div>
                     )}
                 </div>
-            </div>
+            </Card>
         );
     }, [expandedItems, toggleExpand, handleEdit, handleDelete]);
 
@@ -187,9 +172,7 @@ const MonthlySpecial = () => {
                     {error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredSpecials.length > 0 ? (
-                        filteredSpecials.map(item => (
-                            <div key={item.id}>{renderSpecialItem(item)}</div>
-                        ))
+                        filteredSpecials.map(renderSpecialItem)
                     ) : (
                         <EmptyState
                             icon={<EventNoteIcon style={{ fontSize: 48 }} />}
