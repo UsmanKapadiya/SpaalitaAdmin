@@ -13,7 +13,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
-import ArticleIcon from '@mui/icons-material/Article';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import './product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
@@ -258,7 +259,7 @@ const Product = () => {
                 />
               </div>
 
-              <div className="product-table-wrapper">
+              <div className="product-table-wrapper order-list__table-container">
                 {loading && <GlobalLoader text="Loading..." />}
                 {error ? (
                   <div className="empty-state">{error}</div>
@@ -271,7 +272,7 @@ const Product = () => {
                         <th>Price</th>
                         <th>Qty</th>
                         <th>Description</th>
-                        <th>Created</th>                      
+                        <th>Created</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -286,10 +287,10 @@ const Product = () => {
                           <td>{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</td>
                           <td>
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-                              <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{padding: 4, minWidth: 0, height: 32}}>
+                              <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{ padding: 4, minWidth: 0, height: 32 }}>
                                 <EditIcon />
                               </Button>
-                              <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{padding: 4, minWidth: 0, height: 32}}>
+                              <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{ padding: 4, minWidth: 0, height: 32 }}>
                                 <DeleteIcon />
                               </Button>
                             </div>
@@ -299,23 +300,22 @@ const Product = () => {
                     </tbody>
                   </table>
                 ) : (
-                  <div className="empty-state">
-                    <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
-                    <div className="empty-state-text">
-                      {searchTerm ? 'No products found' : 'No products yet'}
-                    </div>
-                  </div>
+                  <EmptyState
+                    icon={<LocalOfferIcon style={{ fontSize: 48 }} />}
+                    title="No Products Found"
+                    description={searchTerm ? 'No products found' : 'No products yet'}
+                  />
                 )}
               </div>
 
-              {totalPages > 1 && (                
-                  <Pagination
-                    currentPage={page}
-                    totalPages={totalPages}
-                    onPageChange={(newPage) => handlePageChange(null, newPage)}
-                    showInfo={true}
-                    showJumper={totalPages > 10}
-                  />                
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onPageChange={(newPage) => handlePageChange(null, newPage)}
+                  showInfo={true}
+                  showJumper={totalPages > 10}
+                />
               )}
 
               <ConfirmDialog

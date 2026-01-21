@@ -12,7 +12,9 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import './OrderList.css';
+import EmptyState from '../../components/EmptyState/EmptyState';
 
 const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -217,21 +219,16 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                             </tbody>
                         </table>
                     ) : (
-                        <div className="order-list__empty-state">
-                            <div className="order-list__empty-icon">📦</div>
-                            <h3 className="order-list__empty-title">No Orders Found</h3>
-                            <p className="order-list__empty-description">
-                                {searchTerm || statusFilter
+                        <EmptyState
+                            icon={<ShoppingCartIcon
+                                 style={{ fontSize: 48 }} />}
+                            title="No Orders Found"
+                            description={
+                                searchTerm || statusFilter
                                     ? 'No orders match your current search criteria.'
                                     : 'No orders have been created yet. Create your first order to get started.'
-                                }
-                            </p>
-                            {!searchTerm && !statusFilter && (
-                                <Button onClick={onCreateOrder} variant="primary">
-                                    Create First Order
-                                </Button>
-                            )}
-                        </div>
+                            }
+                        />
                     )}
                 </div>
 

@@ -5,6 +5,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
+import PolicyIcon from '@mui/icons-material/Policy';
+
+import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
@@ -117,6 +120,7 @@ const BookingPolicy = () => {
             <div className="news-item-wrapper" key={item._id}>
                 <div
                     className="news-item"
+                    style={{margin:10}}
                     onClick={() => toggleExpand(item._id)}
                 >
                     <div className="news-item-header">
@@ -202,7 +206,7 @@ const BookingPolicy = () => {
                     />
                 </div>
 
-                <div className="news-list">
+                <div className="news-list order-list__table-container">
                     {/* {loading && <GlobalLoader text="Loading..." />} */}
                     {error ? (
                         <div className="empty-state">{error}</div>
@@ -211,12 +215,11 @@ const BookingPolicy = () => {
                             <div key={item._id}>{renderPolicyItem(item)}</div>
                         ))
                     ) : (
-                        <div className="empty-state">
-                            <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
-                            <div className="empty-state-text">
-                                {searchTerm ? 'No policies found' : 'No policies yet'}
-                            </div>
-                        </div>
+                        <EmptyState
+                            icon={<PolicyIcon style={{ fontSize: 48 }} />}
+                            title="No Policies Found"
+                            description={searchTerm ? 'No policies found' : 'No policies yet'}
+                        />
                     )}
                 </div>
 

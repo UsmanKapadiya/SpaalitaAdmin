@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
@@ -9,6 +10,7 @@ import mockUsers from '../../data/mockUsers';
 import { useNavigate } from 'react-router-dom';
 import './user.css';
 import Pagination from '../../components/Pagination/Pagination';
+import PeopleIcon from '@mui/icons-material/People';
 
 const User = () => {
     const [users, setUsers] = useState([]);
@@ -78,21 +80,21 @@ const User = () => {
                         placeholder="Search by name, email, or role..."
                     />
                 </div>
-                <div className="user-table-wrapper">
-                    <table className="user-table" style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
-                        <thead>
-                            <tr style={{ background: '#f5f5f5' }}>
-                                <th style={{ padding: '12px 8px', textAlign: 'left' }}>#</th>
-                                <th style={{ padding: '12px 8px', textAlign: 'left' }}>Profile</th>
-                                <th style={{ padding: '12px 8px', textAlign: 'left' }}>Name</th>
-                                <th style={{ padding: '12px 8px', textAlign: 'left' }}>Email</th>
-                                <th style={{ padding: '12px 8px', textAlign: 'left' }}>Role</th>
-                                <th style={{ padding: '12px 8px', textAlign: 'center' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedUsers.length > 0 ? (
-                                paginatedUsers.map((user, idx) => (
+                <div className="user-table-wrapper order-list__table-container">
+                    {paginatedUsers.length > 0 ? (
+                        <table className="user-table" style={{ width: '100%', borderCollapse: 'collapse', background: '#fff', borderRadius: 8, overflow: 'hidden' }}>
+                            <thead>
+                                <tr style={{ background: '#f5f5f5' }}>
+                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>#</th>
+                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Profile</th>
+                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Name</th>
+                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Email</th>
+                                    <th style={{ padding: '12px 8px', textAlign: 'left' }}>Role</th>
+                                    <th style={{ padding: '12px 8px', textAlign: 'center' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedUsers.map((user, idx) => (
                                     <tr key={user.id} style={{ borderBottom: '1px solid #eee' }}>
                                         <td style={{ padding: '10px 8px' }}>{(page - 1) * pageSize + idx + 1}</td>
                                         <td style={{ padding: '10px 8px' }}>
@@ -144,16 +146,17 @@ const User = () => {
                                             </Button>
                                         </td>
                                     </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={6} style={{ textAlign: 'center', padding: 24 }}>
-                                        No users found
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                ))}
+
+                            </tbody>
+                        </table>
+                    ) : (
+                        <EmptyState
+                            icon={<PeopleIcon style={{ fontSize: 48 }} />}
+                            title="No Users Found"
+                            description={searchTerm ? 'No users match your search.' : 'No users have been added yet.'}
+                        />
+                    )}
                 </div>
                 {totalPages > 1 && (
                     <Pagination

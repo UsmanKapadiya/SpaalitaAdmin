@@ -6,6 +6,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import ArticleIcon from '@mui/icons-material/Article';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockGallery from '../../data/mockGallery';
@@ -88,14 +90,14 @@ const Gallery = () => {
                     )}
                 </div>
 
-                <div className="gallery-grid news-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
+                <div className="gallery-grid news-list order-list__table-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 24 }}>
                     {loading && <GlobalLoader text="Loading..." />}
                     {error ? (
                         <div className="empty-state">{error}</div>
                     ) : filteredImages.length > 0 ? (
                         filteredImages.map((item, idx) => (
                             <div className="news-item-wrapper" key={item.id}>
-                                <div className="news-item" style={{ cursor: 'default', position: 'relative', padding: 16 }}>
+                                <div className="news-item" style={{margin:10, cursor: 'default', position: 'relative', padding: 16 }}>
                                     <div className="news-item-header" style={{ marginBottom: 8 }}>
                                         <div className="news-item-info">
                                             <div className="news-item-title">{item.created_at}</div>
@@ -118,12 +120,11 @@ const Gallery = () => {
                             </div>
                         ))
                     ) : (
-                        <div className="empty-state">
-                            <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
-                            <div className="empty-state-text">
-                                {searchTerm ? 'No images found' : 'No images yet'}
-                            </div>
-                        </div>
+                        <EmptyState
+                            icon={<CollectionsIcon style={{ fontSize: 48 }} />}
+                            title="No Images Found"
+                            description={searchTerm ? 'No images found' : 'No images yet'}
+                        />
                     )}
                 </div>
             </div>

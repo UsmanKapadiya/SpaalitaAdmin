@@ -13,6 +13,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+
+import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Product/product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
@@ -382,7 +385,7 @@ const GiftCard = () => {
           />
         </div>
 
-        <div className="product-table-wrapper">
+        <div className="product-table-wrapper order-list__table-container">
           {loading && <GlobalLoader text="Loading..." />}
           {error ? (
             <div className="empty-state">{error}</div>
@@ -423,12 +426,11 @@ const GiftCard = () => {
               </tbody>
             </table>
           ) : (
-            <div className="empty-state">
-              <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
-              <div className="empty-state-text">
-                {searchTerm ? 'No gift cards found' : 'No gift cards yet'}
-              </div>
-            </div>
+            <EmptyState
+              icon={<CardGiftcardIcon style={{ fontSize: 48 }} />}
+              title="No Gift Cards Found"
+              description={searchTerm ? 'No gift cards found' : 'No gift cards yet'}
+            />
           )}
         </div>
 

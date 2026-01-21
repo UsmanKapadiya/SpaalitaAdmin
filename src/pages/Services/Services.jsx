@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import dayjs from 'dayjs';
 import ArticleIcon from '@mui/icons-material/Article';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
 import EditIcon from '@mui/icons-material/Edit';
@@ -165,7 +166,7 @@ const Services = () => {
                     />
                 </div>
 
-                <div className="product-table-wrapper">
+                <div className="product-table-wrapper order-list__table-container">
                     {loading && <GlobalLoader text="Loading..." />}
                     {error ? (
                         <div className="empty-state">{error}</div>
@@ -203,12 +204,11 @@ const Services = () => {
                             </tbody>
                         </table>
                     ) : (
-                        <div className="empty-state">
-                            <div className="empty-state-icon"><ArticleIcon style={{ fontSize: 48 }} /></div>
-                            <div className="empty-state-text">
-                                {searchTerm ? 'No services found' : 'No services yet'}
-                            </div>
-                        </div>
+                        <EmptyState
+                            icon={<ArticleIcon style={{ fontSize: 48 }} />}
+                            title="No Services Found"
+                            description={searchTerm ? 'No services found' : 'No services yet'}
+                        />
                     )}
                 </div>
 
