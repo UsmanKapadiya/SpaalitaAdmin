@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import Table from '../../components/Table/Table';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const Services = () => {
     const navigate = useNavigate();
@@ -139,22 +140,14 @@ const Services = () => {
 
     return (
         <DashboardLayout>
-            <div className="product-page">
-                <div className="page-header">
-                    <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div>
-                            <h1 className="page-title">Services</h1>
-                            <p className="page-subtitle">Manage your Services inventory</p>
-                        </div>
-                        <div className="product-actions" style={{ marginLeft: 'auto' }}>
-                            <Button className="btn-add" onClick={() => navigate('/services/edit/new')} variant="primary">
-                                <AddIcon />
-                                Add Service
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
+            <div className="news-page">
+                <PageTitle
+                    title="Services"
+                    subTitle="Manage your Services inventory."
+                    button={true}
+                    buttonLabel="Add Service"
+                    onButtonClick={() => navigate('/services/edit/new')}
+                />
                 <div className="search-bar">
                     <SearchAndFilter
                         searchValue={searchTerm}
@@ -222,13 +215,13 @@ const Services = () => {
 
                 {totalPages > 1 && (
                     // <div className="pagination-container">
-                        <Pagination
-                            currentPage={page}
-                            totalPages={totalPages}
-                            onPageChange={(newPage) => handlePageChange(null, newPage)}
-                            showInfo={true}
-                            showJumper={totalPages > 10}
-                        />
+                    <Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        onPageChange={(newPage) => handlePageChange(null, newPage)}
+                        showInfo={true}
+                        showJumper={totalPages > 10}
+                    />
                     // </div>
                 )}
 

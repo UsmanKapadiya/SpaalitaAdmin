@@ -16,6 +16,7 @@ import Switch from '@mui/material/Switch';
 import Card from '../../components/Card/Card';
 import { mockBookingPolicies } from '../../data/mockBookingPolicies';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 
 
@@ -163,21 +164,13 @@ const BookingPolicy = () => {
     return (
         <DashboardLayout>
             <div className="news-page">
-                <div className="page-header">
-                    <div className="news-header">
-                        <div>
-                            <h1 className="page-title">BookingPolicy</h1>
-                            <p className="page-subtitle">Manage announcements and upcoming events</p>
-                        </div>
-                        <div className="news-actions">
-                            <Button className="btn-add" type="button" onClick={() => navigate('/bookingPolicy/edit/new')}>
-                                <AddIcon />
-                                Add Booking Policy
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
+                <PageTitle
+                    title="Booking Policy"
+                    subTitle="Manage Booking Policy."
+                    button={true}
+                    buttonLabel="Add Booking Policy"
+                    onButtonClick={() => navigate('/bookingPolicy/edit/new')}
+                />
                 <div className="search-bar">
                     <SearchAndFilter
                         searchValue={searchTerm}
@@ -186,7 +179,7 @@ const BookingPolicy = () => {
                             setPage(1);
                         }}
                         showFilter={false}
-                        placeholder="Search bookingPolicy by title, description, or date..."
+                        placeholder="Search booking Policy by title, description, or date..."
                     />
                 </div>
 

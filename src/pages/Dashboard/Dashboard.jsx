@@ -5,12 +5,13 @@ import PeopleIcon from '@mui/icons-material/People';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { getDashboardStats } from '../../services/authService';
-import { ImageOutlined,  VideoLibraryOutlined } from '@mui/icons-material';
+import { ImageOutlined, VideoLibraryOutlined } from '@mui/icons-material';
 import mockUsers from '../../data/mockUsers';
 import mockProducts from '../../data/mockProducts';
 import mockOrders from '../../data/mockOrders';
 import mockGiftCards from '../../data/mockGiftCards';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 
 const Dashboard = () => {
@@ -83,11 +84,11 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <p className="page-subtitle">Welcome back! Here's what's happening with your business today.</p>
-      </div>
-
+      <PageTitle
+        title={`Dashboard`}
+        subTitle={`Welcome back! Here's what's happening with your business today.`}
+        button={false}
+      />
       <div className="stats-grid">
         {stats.map((stat, index) => (
           <div key={index} className="stat-card">

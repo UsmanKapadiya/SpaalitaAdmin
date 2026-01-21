@@ -19,6 +19,7 @@ import Pagination from '../../components/Pagination/Pagination';
 import './product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Table from '../../components/Table/Table';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const Product = () => {
   const navigate = useNavigate();
@@ -228,22 +229,14 @@ const Product = () => {
 
   return (
     <DashboardLayout>
-      <div className="product-page">
-        <div className="page-header">
-          <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h1 className="page-title">Products</h1>
-              <p className="page-subtitle">Manage your product inventory</p>
-            </div>
-            <div className="product-actions" style={{ marginLeft: 'auto' }}>
-              <Button className="btn-add" onClick={() => navigate('/products/edit/new')}>
-                <AddIcon style={{ marginRight: 6 }} />
-                Add Product
-              </Button>
-            </div>
-          </div>
-        </div>
-
+      <div className="news-page">
+        <PageTitle
+          title="Products"
+          subTitle="Manage your product inventory."
+          button={true}
+          buttonLabel="Add Product"
+          onButtonClick={() => navigate('/products/edit/new')}
+        />
         <div className="search-bar">
           <SearchAndFilter
             searchValue={searchTerm}

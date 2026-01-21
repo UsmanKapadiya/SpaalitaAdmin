@@ -18,6 +18,7 @@ dayjs.extend(relativeTime);
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Card from '../../components/Card/Card';
 import mockMonthlySpecials from '../../data/mockMonthlySpecials';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const MonthlySpecial = () => {
     const navigate = useNavigate();
@@ -142,19 +143,13 @@ const MonthlySpecial = () => {
     return (
         <DashboardLayout>
             <div className="news-page">
-                <div className="news-header">
-                    <div>
-                        <h1 className="page-title">Monthly Specials</h1>
-                        <p className="page-subtitle">Manage monthly special offers</p>
-                    </div>
-                    <div className="news-actions">
-                        <Button className="btn-add" type="button" onClick={() => navigate('/monthly-special/edit/new')}>
-                            <AddIcon />
-                            Add Monthly Special
-                        </Button>
-                    </div>
-                </div>
-
+                <PageTitle
+                    title="Monthly Special"
+                    subTitle="Manage Monthly Special offers."
+                    button={true}
+                    buttonLabel="Add Monthly Special"
+                    onButtonClick={() => navigate('/monthly-special/edit/new')}
+                />
                 <div className="search-bar">
                     <SearchAndFilter
                         searchValue={searchTerm}

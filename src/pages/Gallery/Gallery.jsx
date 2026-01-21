@@ -1,11 +1,8 @@
-import Button from '../../components/Button/Button';
-import AddIcon from '@mui/icons-material/Add';
-import { useNavigate } from 'react-router-dom';
-
 import React, { useEffect, useState, useMemo } from 'react';
+import Button from '../../components/Button/Button';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
-import ArticleIcon from '@mui/icons-material/Article';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import EmptyState from '../../components/EmptyState/EmptyState';
 import Card from '../../components/Card/Card';
@@ -13,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockGallery from '../../data/mockGallery';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const Gallery = () => {
     const [images, setImages] = useState([]);
@@ -54,19 +52,13 @@ const Gallery = () => {
     return (
         <DashboardLayout>
             <div className="news-page">
-
-                <div className="news-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h1 className="page-title">Gallery</h1>
-                        <p className="page-subtitle">Browse all uploaded images</p>
-                    </div>
-                    <div className="news-actions">
-                        <Button className="btn-add" type="button" onClick={() => navigate('/gallery/edit/new')}>
-                            <AddIcon />
-                            Add Gallery
-                        </Button>
-                    </div>
-                </div>
+                <PageTitle
+                    title="Gallery"
+                    subTitle="Browse all uploaded images."
+                    button={true}
+                    buttonLabel="Add Gallery"
+                    onButtonClick={() => navigate('/gallery/edit/new')}
+                />
 
                 <SearchAndFilter
                     searchValue={searchTerm}

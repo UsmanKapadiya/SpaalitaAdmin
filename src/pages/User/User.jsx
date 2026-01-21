@@ -3,7 +3,6 @@ import EmptyState from '../../components/EmptyState/EmptyState';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockUsers from '../../data/mockUsers';
@@ -12,6 +11,7 @@ import './user.css';
 import Pagination from '../../components/Pagination/Pagination';
 import PeopleIcon from '@mui/icons-material/People';
 import Table from '../../components/Table/Table';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const User = () => {
     const [users, setUsers] = useState([]);
@@ -59,20 +59,13 @@ const User = () => {
     return (
         <DashboardLayout>
             <div className="news-page">
-                <div className="page-header">
-                    <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div>
-                            <h1 className="page-title">Users</h1>
-                            <p className="page-subtitle">Manage all users and their roles</p>
-                        </div>
-                        <div className="product-actions" style={{ marginLeft: 'auto' }}>
-                            <Button className="btn-add" onClick={() => navigate('/user/edit/new')} variant="primary">
-                                <AddIcon />
-                                Add User
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                <PageTitle
+                    title="Users"
+                    subTitle="Manage all users and their roles."
+                    button={true}
+                    buttonLabel="Add User"
+                    onButtonClick={() => navigate('/user/edit/new')}
+                />
                 <div className="search-bar">
                     <SearchAndFilter
                         searchValue={searchTerm}

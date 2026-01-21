@@ -17,6 +17,7 @@ import './OrderList.css';
 import EmptyState from '../../components/EmptyState/EmptyState';
 import Table from '../../components/Table/Table';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -98,20 +99,14 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
 
     return (
         <DashboardLayout>
-            <div className="order-list">
-                {/* Header */}
-                <div className="order-list__header">
-                    <h1 className="order-list__title">Orders</h1>
-                    <div className="order-list__actions">
-                        <Button
-                            onClick={onCreateOrder}
-                            variant="primary"
-                            icon={<AddIcon />}
-                        >
-                            Add Order
-                        </Button>
-                    </div>
-                </div>
+            <div className="news-page">
+                <PageTitle
+                    title="Orders"
+                    subTitle="Manage all order."
+                    button={true}
+                    buttonLabel="Add Order"
+                    onButtonClick={onCreateOrder}
+                />
 
                 {/* Statistics Cards */}
                 {statistics && (

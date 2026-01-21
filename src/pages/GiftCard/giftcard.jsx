@@ -20,6 +20,7 @@ import Pagination from '../../components/Pagination/Pagination';
 import '../Product/product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Table from '../../components/Table/Table';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const GiftCard = () => {
   const navigate = useNavigate();
@@ -358,21 +359,14 @@ const GiftCard = () => {
 
   return (
     <DashboardLayout>
-      <div className="product-page">
-        <div className="page-header">
-          <div className="product-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <h1 className="page-title">Gift Cards</h1>
-              <p className="page-subtitle">Manage your gift card inventory</p>
-            </div>
-            <div className="product-actions" style={{ marginLeft: 'auto' }}>
-              <Button className="btn-add" onClick={() => navigate('/giftCards/edit/new')} variant="primary">
-                <AddIcon />
-                Add Gift Card
-              </Button>
-            </div>
-          </div>
-        </div>
+      <div className="news-page">
+        <PageTitle
+          title="Gift Cards"
+          subTitle="Manage your gift card inventory."
+          button={true}
+          buttonLabel="Add Gift Card"
+          onButtonClick={() => navigate('/giftCards/edit/new')}
+        />
 
         <div className="search-bar">
           <SearchAndFilter
@@ -427,14 +421,14 @@ const GiftCard = () => {
           )}
         </div>
 
-        {totalPages > 1 && (         
-            <Pagination
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setPage}
-              showInfo={true}
-              showJumper={totalPages > 10}
-            />          
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            showInfo={true}
+            showJumper={totalPages > 10}
+          />
         )}
 
         <ConfirmDialog
