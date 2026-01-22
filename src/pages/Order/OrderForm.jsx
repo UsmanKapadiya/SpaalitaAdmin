@@ -8,6 +8,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import EditIcon from '@mui/icons-material/Edit';
 import './OrderForm.css';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const OrderForm = ({ orderId, onSave, onCancel }) => {
     const { orders, getOrderById, createOrder, updateOrder } = useOrder(mockOrders);
@@ -20,8 +21,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
         if (orderId) {
             const order = getOrderById(orderId);
             if (order) {
-                setForm({ 
-                    ...DEFAULT_ORDER, 
+                setForm({
+                    ...DEFAULT_ORDER,
                     ...order,
                     // Ensure addresses exist with defaults
                     billingAddress: {
@@ -60,7 +61,7 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        
+
         try {
             if (orderId) {
                 // Update existing order
@@ -73,10 +74,10 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                 }
             } else {
                 // Create new order
-                const newOrder = { 
-                    ...form, 
-                    id: Date.now(), 
-                    status: 'pending', 
+                const newOrder = {
+                    ...form,
+                    id: Date.now(),
+                    status: 'pending',
                     createdAt: new Date().toISOString(),
                     total: form.total || 0
                 };
@@ -98,8 +99,10 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
     return (
         <DashboardLayout>
             <div className="form-card">
-                <form onSubmit={handleSubmit} className="order-form">
-                    <h2 className="order-form-title">{orderId ? 'Edit Order' : 'Create Order'}</h2>
+                <PageTitle
+                    title={orderId ? 'Edit Order' : 'Create Order'}                    
+                />
+                <form onSubmit={handleSubmit} className="order-form">            
                     <section className="order-form-section">
                         <h3 className="order-form-section-title">
                             Order #{form?.orderId} details<br />
@@ -111,7 +114,7 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                     <div className="order-form-row">
                         <div className='news-item'>
                             <div className="news-item-header">
-                                <span className="news-item-header-title">                                
+                                <span className="news-item-header-title">
                                     <span style={{ fontWeight: 600, fontSize: 18 }}>General</span>
                                 </span>
                             </div>

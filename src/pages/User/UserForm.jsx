@@ -4,6 +4,7 @@ import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import mockUsers from '../../data/mockUsers';
 import './user.css';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const roleOptions = ['Customer', 'Shop Manager', 'Administrator'];
 const statusOptions = ['active', 'inactive'];
@@ -95,8 +96,10 @@ const UserForm = () => {
         return (
             <DashboardLayout>
                 <div className="edit-form-card">
+                    <PageTitle
+                        title={isEdit ? 'Edit User' : 'Add User'}                        
+                    />
                     <form className="edit-form" onSubmit={handleSubmit}>
-                        <h1 className="edit-form-title">{isEdit ? 'Edit User' : 'Add User'}</h1>
                         {(error || success) && (
                             <div style={{ marginBottom: 16 }}>
                                 {error && <div className="form-error">{error}</div>}

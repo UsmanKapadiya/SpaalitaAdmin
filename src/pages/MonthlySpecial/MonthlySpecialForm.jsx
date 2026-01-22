@@ -8,6 +8,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import { toast } from 'react-toastify';
 import '../GiftCard/EditGiftCard.css';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const monthOptions = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -96,15 +97,11 @@ const MonthlySpecialForm = () => {
         <DashboardLayout>
             <div className="edit-product-page">
                 <div className="edit-form-card">
-                    <div className="edit-form-header">
-                        <h1 className="edit-form-title">
-                            {isEdit ? 'Update Monthly Special' : 'Add Monthly Special'}
-                        </h1>
-                        <p className="edit-form-subtitle">
-                            {isEdit ? 'Edit monthly special image and save changes.' : 'Fill in the details to add a new monthly special.'}
-                        </p>
-                    </div>
-
+                    <PageTitle
+                        title={isEdit ? 'Update Monthly Special' : 'Add Monthly Special'}
+                        subTitle={isEdit ? 'Edit monthly special image and save changes.' : 'Fill in the details to add a new monthly special.'}
+                        button={false}
+                    />
                     {error && <div className="error-banner">{error}</div>}
                     {success && <div className="success-banner">{success}</div>}
 

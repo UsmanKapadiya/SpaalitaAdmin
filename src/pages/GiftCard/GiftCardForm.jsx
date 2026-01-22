@@ -10,6 +10,7 @@ import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockGiftCards from '../../data/mockGiftCards';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const initialForm = {
   name: '',
@@ -71,16 +72,12 @@ const GiftCardForm = () => {
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">
-          <div className="edit-form-header">
-            <h1 className="edit-form-title">
-              {isEdit ? 'Update Gift Card' : 'Add Gift Card'}
-            </h1>
-            <p className="edit-form-subtitle">
-              {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
-            </p>
-          </div>
-
+        <div className="edit-form-card">          
+          <PageTitle
+            title= {isEdit ? 'Update Gift Card' : 'Add Gift Card'}
+            subTitle= {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
+            button={false}
+          />
           {error && error !== '' && (
             <div className="error-banner">{typeof error === 'string' ? error : error.message}</div>
           )}
@@ -99,7 +96,7 @@ const GiftCardForm = () => {
                   value={form.name}
                   onChange={handleChange}
                   required
-                />              
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="code" className="form-label form-label-required">Code</label>
@@ -112,7 +109,7 @@ const GiftCardForm = () => {
                   value={form.code}
                   onChange={handleChange}
                   required
-                />            
+                />
               </div>
             </div>
             <div className="form-row">
@@ -128,7 +125,7 @@ const GiftCardForm = () => {
                   value={form.value}
                   onChange={handleChange}
                   required
-                />              
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="qty" className="form-label form-label-required">Quantity</label>
@@ -194,7 +191,7 @@ const GiftCardForm = () => {
                   ]}
                   style={{ height: '180px' }}
                 />
-              </div>        
+              </div>
             </div>
             <div className="form-actions">
               <Button

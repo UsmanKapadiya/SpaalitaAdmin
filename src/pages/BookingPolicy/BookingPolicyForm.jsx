@@ -4,11 +4,11 @@ import Switch from '@mui/material/Switch';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
+import PageTitle from '../../components/PageTitle/PageTitle';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
-
 const initialForm = {
   title: '',
   description: '',
@@ -86,16 +86,12 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">
-          <div className="edit-form-header">
-            <h1 className="edit-form-title">
-              {isEdit ? 'Update Booking Policy' : 'Add Booking Policy'}
-            </h1>
-            <p className="edit-form-subtitle">
-              {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
-            </p>
-          </div>
-
+        <div className="edit-form-card">         
+          <PageTitle
+            title={isEdit ? 'Update Booking Policy' : 'Add Booking Policy'}
+            subTitle= {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
+            button={false}        
+          />
           {error && <div className="error-banner">{error}</div>}
           {success && <div className="success-banner">{success}</div>}
 
@@ -161,7 +157,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
                   ]}
                   style={{ height: '180px' }}
                 />
-              </div>        
+              </div>
             </div>
             <div className="form-actions">
               <Button

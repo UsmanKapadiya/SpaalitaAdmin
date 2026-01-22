@@ -10,6 +10,7 @@ import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockServices from '../../data/mockServices';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const initialForm = {
     name: '',
@@ -72,15 +73,11 @@ const ServicesForm = () => {
         <DashboardLayout>
             <div className="edit-product-page">
                 <div className="edit-form-card">
-                    <div className="edit-form-header">
-                        <h1 className="edit-form-title">
-                            {isEdit ? 'Update Service' : 'Add Service'}
-                        </h1>
-                        <p className="edit-form-subtitle">
-                            {isEdit ? 'Edit service details and save changes.' : 'Fill in the details to add a new service.'}
-                        </p>
-                    </div>
-
+                    <PageTitle
+                        title={isEdit ? 'Update Service' : 'Add Service'}
+                        subTitle={isEdit ? 'Edit service details and save changes.' : 'Fill in the details to add a new service.'}
+                        button={false}
+                    />
                     {error && error !== '' && (
                         <div className="error-banner">{typeof error === 'string' ? error : error.message}</div>
                     )}
@@ -109,8 +106,8 @@ const ServicesForm = () => {
                                     <option value="Brows and Lashes">Brows and Lashes</option>
                                     <option value="Spa Packages">Spa Packages</option>
                                 </select>
-                            </div>                    
-                        </div>                    
+                            </div>
+                        </div>
                         <div className="form-row">
                             <div className="form-group form-group-full">
                                 <label htmlFor="image" className="form-label">Service Image</label>

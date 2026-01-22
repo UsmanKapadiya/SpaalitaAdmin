@@ -9,6 +9,7 @@ import './EditProduct.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockProducts from '../../data/mockProducts';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 const initialForm = {
   name: '',
@@ -114,15 +115,14 @@ const ProductForm = () => {
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">
-          <div className="edit-form-header">
-            <h1 className="edit-form-title">{isEdit ? 'Add Product' : 'Update Product'}</h1>
-            <p className="edit-form-subtitle">
-              {isEdit
+        <div className="edit-form-card">        
+          <PageTitle
+            title={isEdit ? 'Update Product' : ' Add Product'}
+            subTitle={isEdit
                 ? 'Fill in the details to add a new product.'
                 : 'Edit product details and save changes.'}
-            </p>
-          </div>
+            button={false}
+          />
           {success && <div className="success-banner">{success}</div>}
           <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">
             <div className="single-product-form">
@@ -292,7 +292,7 @@ const ProductForm = () => {
                 type="button"
                 className="btn-secondary"
                 onClick={() => navigate('/products')}
-                disabled={loading}     
+                disabled={loading}
               >
                 Cancel
               </Button>

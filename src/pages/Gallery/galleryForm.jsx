@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import { toast } from 'react-toastify';
+import PageTitle from '../../components/PageTitle/PageTitle';
 
 
 
@@ -81,15 +82,11 @@ const GalleryForm = () => {
         <DashboardLayout>
             <div className="edit-product-page">
                 <div className="edit-form-card">
-                    <div className="edit-form-header">
-                        <h1 className="edit-form-title">
-                            {isEdit ? 'Update Gallery Image' : 'Add Gallery Image'}
-                        </h1>
-                        <p className="edit-form-subtitle">
-                            {isEdit ? 'Edit gallery image and save changes.' : 'Fill in the details to add a new gallery image.'}
-                        </p>
-                    </div>
-
+                    <PageTitle
+                        title={isEdit ? 'Update Gallery Image' : 'Add Gallery Image'}
+                        subTitle={isEdit ? 'Edit gallery image and save changes.' : 'Fill in the details to add a new gallery image.'}
+                        button={false}
+                    />
                     {error && <div className="error-banner">{error}</div>}
                     {success && <div className="success-banner">{success}</div>}
 
