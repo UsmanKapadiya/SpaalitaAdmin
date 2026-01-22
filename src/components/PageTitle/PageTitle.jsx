@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from '../Button/Button';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 
 /**
  * PageTitle component with optional right-side action/button
@@ -10,25 +11,37 @@ import AddIcon from '@mui/icons-material/Add';
  * @param {string} buttonLabel - Button text
  * @param {function} onButtonClick - Button click handler
  */
-const PageTitle = ({ title, subTitle, button, buttonLabel, onButtonClick }) => (
+const PageTitle = ({ title, subTitle, button, buttonLabel, onButtonClick, backButton, backButtonLabel, onBackButtonClick }) => (
     <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
                 <h1 className="page-title">{title}</h1>
                 {subTitle && <p className="page-subtitle">{subTitle}</p>}
             </div>
-            {button && (
-                <div className="news-actions">
+
+            <div className="news-actions">
+                {backButton && (
+
+                    <Button
+                        variant='secondary'
+                        type="button"
+                        onClick={onBackButtonClick}
+                    >
+                        {backButtonLabel}
+                    </Button>
+                )}
+                {button && (
                     <Button
                         className="btn-add"
                         type="button"
                         onClick={onButtonClick}
                     >
-                        <AddIcon />
+                        {backButton ? <EditIcon /> : <AddIcon />}
                         {buttonLabel}
                     </Button>
-                </div>
-            )}
+                )}
+            </div>
+
         </div>
     </div>
 );
