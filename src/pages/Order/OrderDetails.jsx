@@ -4,6 +4,7 @@ import Button from '../../components/Button/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import HomeIcon from '@mui/icons-material/Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import PageTitle from '../../components/PageTitle/PageTitle';
 const styles = {
     header: {
         display: 'flex',
@@ -134,21 +135,15 @@ function OrderDetails({ order, onBack, onEditOrder }) {
     return (
         <DashboardLayout>
             <div className="order-details-container">
-                <div style={styles.header}>
-                    <h2 style={styles.headerTitle}>Order Details</h2>
-                    <div style={styles.headerActions}>
-                        <Button onClick={onBack} variant="secondary">Back to Orders</Button>
-                        <Button
-                            className="btn-add"
-                            onClick={() => onEditOrder(order.id)}
-                            variant="primary"
-                            disabled={isEditDisabled}
-                        >
-                            <EditIcon style={{ marginRight: 6 }} />
-                            Edit Order
-                        </Button>
-                    </div>
-                </div>
+                <PageTitle
+                    title="Order Details"
+                    button={true}
+                    buttonLabel="Edit Order"
+                    onButtonClick={() => onEditOrder(order.id)}
+                    backButton={true}
+                    backButtonLabel="Back to Orders"
+                    onBackButtonClick={onBack}
+                />
                 <table className="product-table news-item" style={styles.table}>
                     <tbody>
                         <tr>
