@@ -88,7 +88,7 @@ const OrderDetails = ({ order, onBack, onEditOrder, orders }) => {
                 <div style={{ display: 'flex', gap: 32, marginTop: 40, flexWrap: 'wrap' }}>
                     <div className='news-item' style={{ flex: 1, position: 'relative' }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
-                            <HomeIcon style={{ color: '#1976d2', marginRight: 8 }} />
+                            <HomeIcon style={{ marginRight: 8 }} />
                             <span style={{ fontWeight: 600, fontSize: 18 }}>Billing Address</span>
                         </div>
                         <div style={{ color: '#333', lineHeight: 2, fontSize: 15, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -102,7 +102,7 @@ const OrderDetails = ({ order, onBack, onEditOrder, orders }) => {
                     </div>
                     <div className='news-item' style={{ flex: 1, position: 'relative' }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
-                            <LocalShippingIcon style={{ color: '#43a047', marginRight: 8 }} />
+                            <LocalShippingIcon style={{ marginRight: 8 }} />
                             <span style={{ fontWeight: 600, fontSize: 18 }}>Shipping Address</span>
                         </div>
                         <div style={{ color: '#333', lineHeight: 2, fontSize: 15, display: 'flex', flexDirection: 'column', gap: 2 }}>

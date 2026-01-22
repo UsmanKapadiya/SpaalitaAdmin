@@ -206,7 +206,8 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                                         <div className="order-list__action-buttons">
                                             <Button
                                                 onClick={() => onSelectOrder(row.id)}
-                                                className="order-list__action-btn order-list__action-btn--view"
+                                                // className="order-list__action-btn order-list__action-btn--view"
+                                                className="btn-icon edit"
                                                 variant="secondary"
                                                 title="View Order"
                                             >
@@ -214,7 +215,8 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                                             </Button>
                                             <Button
                                                 onClick={() => onEditOrder(row.id)}
-                                                className="order-list__action-btn order-list__action-btn--edit"
+                                                // className="order-list__action-btn order-list__action-btn--edit"
+                                                className="btn-icon edit"
                                                 variant="secondary"
                                                 title="Edit Order"
                                             >
@@ -222,7 +224,8 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                                             </Button>
                                             <Button
                                                 onClick={() => handleDeleteClick(row)}
-                                                className="order-list__action-btn order-list__action-btn--delete"
+                                                // className="order-list__action-btn order-list__action-btn--delete"
+                                                className="btn-icon edit"
                                                 variant="secondary"
                                                 title="Delete Order"
                                             >
