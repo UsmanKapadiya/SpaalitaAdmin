@@ -1,12 +1,123 @@
 
-import React from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import HomeIcon from '@mui/icons-material/Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-const OrderDetails = ({ order, onBack, onEditOrder, orders }) => {
-    console.log(order)
+const styles = {
+    header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        margin: 0,
+    },
+    headerActions: {
+        display: 'flex',
+        gap: 12,
+    },
+    table: {
+        margin: '24px auto',
+        width: '100%',
+        overflow: 'hidden',
+        borderCollapse: 'separate',
+    },
+    thId: {
+        width: 180,
+    },
+    itemImage: {
+        width: 32,
+        height: 32,
+        borderRadius: 4,
+        objectFit: 'cover',
+        border: '1px solid #eee',
+    },
+    addressContainer: {
+        display: 'flex',
+        gap: 32,
+        marginTop: 40,
+        flexWrap: 'wrap',
+    },
+    addressBox: {
+        flex: 1,
+        position: 'relative',
+    },
+    addressHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+    addressTitle: {
+        fontWeight: 600,
+        fontSize: 18,
+    },
+    addressDetails: {
+        color: '#333',
+        lineHeight: 2,
+        fontSize: 15,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+    },
+    notProvided: {
+        color: '#aaa',
+    },
+};
+
+function NotProvided() {
+    return <span style={styles.notProvided}>Not Provided</span>;
+}
+
+function AddressSection({ icon: Icon, title, address }) {
+    return (
+        <div className="news-item" style={styles.addressBox}>
+            <div style={styles.addressHeader}>
+                <Icon style={{ marginRight: 8 }} />
+                <span style={styles.addressTitle}>{title}</span>
+            </div>
+            <div style={styles.addressDetails}>
+                <div><b>Name:</b> {address?.name || <NotProvided />}</div>
+                <div><b>Address:</b> {address?.address || <NotProvided />}</div>
+                <div><b>City:</b> {address?.city || <NotProvided />}</div>
+                <div><b>State:</b> {address?.state || <NotProvided />}</div>
+                <div><b>ZIP:</b> {address?.zip || <NotProvided />}</div>
+                <div><b>Country:</b> {address?.country || <NotProvided />}</div>
+            </div>
+        </div>
+    );
+}
+
+
+
+function ItemsTable({ items }) {
+    return (
+        <table style={{ width: '100%' }}>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {items.map((item, idx) => (
+                    <tr key={idx}>
+                        <td>{item.image && <img src={item.image} alt={item.name} style={styles.itemImage} />}</td>
+                        <td>{item.name}</td>
+                        <td>{item.quantity}</td>
+                        <td>${item.price}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+}
+
+
+
+function OrderDetails({ order, onBack, onEditOrder }) {
     if (!order) {
         return (
             <DashboardLayout>
@@ -17,28 +128,31 @@ const OrderDetails = ({ order, onBack, onEditOrder, orders }) => {
             </DashboardLayout>
         );
     }
+
+    const isEditDisabled = order.status === 'Cancelled' || order.status === 'Completed';
+
     return (
         <DashboardLayout>
             <div className="order-details-container">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h2 style={{ margin: 0 }}>Order Details</h2>
-                    <div style={{ display: 'flex', gap: 12 }}>
+                <div style={styles.header}>
+                    <h2 style={styles.headerTitle}>Order Details</h2>
+                    <div style={styles.headerActions}>
                         <Button onClick={onBack} variant="secondary">Back to Orders</Button>
                         <Button
                             className="btn-add"
                             onClick={() => onEditOrder(order.id)}
                             variant="primary"
-                            disabled={order.status === 'Cancelled' || order.status === 'Completed'}
+                            disabled={isEditDisabled}
                         >
                             <EditIcon style={{ marginRight: 6 }} />
                             Edit Order
                         </Button>
                     </div>
                 </div>
-                <table className="product-table news-item" style={{ margin: '24px auto', width: '100%', overflow: 'hidden', borderCollapse: 'separate' }}>
+                <table className="product-table news-item" style={styles.table}>
                     <tbody>
                         <tr>
-                            <th style={{ width: 180 }}>Order ID</th>
+                            <th style={styles.thId}>Order ID</th>
                             <td>{order.id}</td>
                         </tr>
                         <tr>
@@ -60,64 +174,21 @@ const OrderDetails = ({ order, onBack, onEditOrder, orders }) => {
                         <tr>
                             <th>Items</th>
                             <td>
-                                <table style={{ width: '100%' }}>
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Name</th>
-                                            <th>Qty</th>
-                                            <th>Price</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {order.items.map((item, idx) => (
-                                            <tr key={idx}>
-                                                <td>{item.image && <img src={item.image} alt={item.name} style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', border: '1px solid #eee' }} />}</td>
-                                                <td>{item.name}</td>
-                                                <td>{item.quantity}</td>
-                                                <td>${item.price}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                <ItemsTable items={order.items} />
                             </td>
                         </tr>
                     </tbody>
                 </table>
                 {/* Billing & Shipping Address */}
-                <div style={{ display: 'flex', gap: 32, marginTop: 40, flexWrap: 'wrap' }}>
-                    <div className='news-item' style={{ flex: 1, position: 'relative' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
-                            <HomeIcon style={{ marginRight: 8 }} />
-                            <span style={{ fontWeight: 600, fontSize: 18 }}>Billing Address</span>
-                        </div>
-                        <div style={{ color: '#333', lineHeight: 2, fontSize: 15, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <div><b>Name:</b> {order.billingAddress?.name || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>Address:</b> {order.billingAddress?.address || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>City:</b> {order.billingAddress?.city || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>State:</b> {order.billingAddress?.state || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>ZIP:</b> {order.billingAddress?.zip || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>Country:</b> {order.billingAddress?.country || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                        </div>
-                    </div>
-                    <div className='news-item' style={{ flex: 1, position: 'relative' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 14 }}>
-                            <LocalShippingIcon style={{ marginRight: 8 }} />
-                            <span style={{ fontWeight: 600, fontSize: 18 }}>Shipping Address</span>
-                        </div>
-                        <div style={{ color: '#333', lineHeight: 2, fontSize: 15, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                            <div><b>Name:</b> {order.shippingAddress?.name || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>Address:</b> {order.shippingAddress?.address || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>City:</b> {order.shippingAddress?.city || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>State:</b> {order.shippingAddress?.state || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>ZIP:</b> {order.shippingAddress?.zip || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                            <div><b>Country:</b> {order.shippingAddress?.country || <span style={{ color: '#aaa' }}>Not Provided</span>}</div>
-                        </div>
-                    </div>
+                <div style={styles.addressContainer}>
+                    <AddressSection icon={HomeIcon} title="Billing Address" address={order.billingAddress} />
+                    <AddressSection icon={LocalShippingIcon} title="Shipping Address" address={order.shippingAddress} />
                 </div>
             </div>
         </DashboardLayout>
     );
-};
+}
+
+
 
 export default OrderDetails;
