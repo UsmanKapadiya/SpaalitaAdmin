@@ -39,7 +39,13 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                 setForm(DEFAULT_ORDER);
             }
         } else {
-            setForm(DEFAULT_ORDER);
+            // Generate a temporary order ID for display and set current date/time
+            const now = new Date();
+            setForm(f => ({
+                ...DEFAULT_ORDER,
+                id: f.id || `T${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000)}`,
+                createdAt: now.toISOString(),
+            }));
         }
     }, [orderId, getOrderById]);
 
@@ -100,14 +106,17 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
         <DashboardLayout>
             <div className="form-card">
                 <PageTitle
-                    title={orderId ? 'Edit Order' : 'Create Order'}                    
+                    title={orderId ? 'Edit Order' : 'Create Order'}
                 />
-                <form onSubmit={handleSubmit} className="order-form">            
+                <form onSubmit={handleSubmit} className="order-form">
                     <section className="order-form-section">
                         <h3 className="order-form-section-title">
-                            Order #{form?.orderId} details<br />
-                            Payment via Credit / Debit Card ({form?.paymentOption}).
-                            {/* Paid on May 4, 2024 @ 2:10 pm. */}
+                            Order #{orderId ? form?.orderId || orderId : form?.id || 'New'} details
+                            {orderId && form?.paymentOption && (
+                                <div style={{ marginTop: 6, color: '#555', fontSize: 15 }}>
+                                    Payment via Credit / Debit Card ({form.paymentOption})
+                                </div>
+                            )}
                         </h3>
                     </section>
                     {/* Billing & Shipping Address */}
@@ -261,20 +270,37 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                     </div>
                                 ) : (
                                     <>
-                                        <div>
-                                            {form.billingAddress?.firstName}  {form.billingAddress?.lastName}<br />
-                                            {form.billingAddress?.address}<br />
-                                            {form.billingAddress?.city} {form.billingAddress?.zip}<br />
-                                            {form.billingAddress?.country} {form.billingAddress?.state}
-                                        </div>
-                                        <div style={{ marginTop: 5 }}>
-                                            <label className="address-label">Email Address</label> <br />
-                                            {form?.billingAddress?.email}
-                                        </div>
-                                        <div style={{ marginTop: 5 }}>
-                                            <label className="address-label">Phone</label> <br />
-                                            {form?.billingAddress?.phone}
-                                        </div>
+                                        {(
+                                            !form.billingAddress?.firstName &&
+                                            !form.billingAddress?.lastName &&
+                                            !form.billingAddress?.address &&
+                                            !form.billingAddress?.city &&
+                                            !form.billingAddress?.zip &&
+                                            !form.billingAddress?.country &&
+                                            !form.billingAddress?.state &&
+                                            !form.billingAddress?.email
+                                        ) ? (
+                                            <div style={{ color: '#aaa', marginTop: 5 }}>No billing address set.</div>
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    {form.billingAddress?.firstName}  {form.billingAddress?.lastName}<br />
+                                                    {form.billingAddress?.address}<br />
+                                                    {form.billingAddress?.city} {form.billingAddress?.zip}<br />
+                                                    {form.billingAddress?.country} {form.billingAddress?.state}
+                                                </div>
+                                                <div style={{ marginTop: 5 }}>
+                                                    <label className="address-label">Email Address</label> <br />
+                                                    {form?.billingAddress?.email}
+                                                </div>
+                                                {form?.billingAddress?.phone && (
+                                                    <div style={{ marginTop: 5 }}>
+                                                        <label className="address-label">Phone</label> <br />
+                                                        {form?.billingAddress?.phone}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -296,8 +322,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">First Name</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.firstName || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'firstName', e.target.value)}
+                                                value={form.billingAddress?.firstName || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'firstName', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -305,8 +331,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Last Name</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.lastName || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'lastName', e.target.value)}
+                                                value={form.billingAddress?.lastName || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'lastName', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -314,8 +340,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Address</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.address || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'address', e.target.value)}
+                                                value={form.billingAddress?.address || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'address', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -323,8 +349,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">City</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.city || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'city', e.target.value)}
+                                                value={form.billingAddress?.city || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'city', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -332,8 +358,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">ZIP</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.zip || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'zip', e.target.value)}
+                                                value={form.billingAddress?.zip || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'zip', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -341,8 +367,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Country</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.country || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'country', e.target.value)}
+                                                value={form.billingAddress?.country || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'country', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -350,8 +376,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">State</label>
                                             <input
                                                 type="text"
-                                                value={form.shippingAddress?.state || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'state', e.target.value)}
+                                                value={form.billingAddress?.state || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'state', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -359,8 +385,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Email Address</label>
                                             <input
                                                 type="email"
-                                                value={form.shippingAddress?.email || ''}
-                                                onChange={e => handleAddressChange('shippingAddress', 'email', e.target.value)}
+                                                value={form.billingAddress?.email || ''}
+                                                onChange={e => handleAddressChange('billingAddress', 'email', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -376,20 +402,37 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                     </div>
                                 ) : (
                                     <>
-                                        <div>
-                                            {form.shippingAddress?.firstName}  {form.shippingAddress?.lastName}<br />
-                                            {form.shippingAddress?.address}<br />
-                                            {form.shippingAddress?.city} {form.shippingAddress?.zip}<br />
-                                            {form.shippingAddress?.country} {form.shippingAddress?.state}
-                                        </div>
-                                        <div style={{ marginTop: 5 }}>
-                                            <label className="address-label">Email Address</label> <br />
-                                            {form?.shippingAddress?.email}
-                                        </div>
-                                        <div style={{ marginTop: 5 }}>
-                                            <label className="address-label">Phone</label> <br />
-                                            {form?.shippingAddress?.phone}
-                                        </div>
+                                        {(
+                                            !form.shippingAddress?.firstName &&
+                                            !form.shippingAddress?.lastName &&
+                                            !form.shippingAddress?.address &&
+                                            !form.shippingAddress?.city &&
+                                            !form.shippingAddress?.zip &&
+                                            !form.shippingAddress?.country &&
+                                            !form.shippingAddress?.state &&
+                                            !form.shippingAddress?.email
+                                        ) ? (
+                                            <div style={{ color: '#aaa', marginTop: 5 }}>No shipping address set.</div>
+                                        ) : (
+                                            <>
+                                                <div>
+                                                    {form.shippingAddress?.firstName}  {form.shippingAddress?.lastName}<br />
+                                                    {form.shippingAddress?.address}<br />
+                                                    {form.shippingAddress?.city} {form.shippingAddress?.zip}<br />
+                                                    {form.shippingAddress?.country} {form.shippingAddress?.state}
+                                                </div>
+                                                <div style={{ marginTop: 5 }}>
+                                                    <label className="address-label">Email Address</label> <br />
+                                                    {form?.shippingAddress?.email}
+                                                </div>
+                                                {form?.shippingAddress?.phone && (
+                                                    <div style={{ marginTop: 5 }}>
+                                                        <label className="address-label">Phone</label> <br />
+                                                        {form?.shippingAddress?.phone}
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </>
                                 )}
                             </div>
