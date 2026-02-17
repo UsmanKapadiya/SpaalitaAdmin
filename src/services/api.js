@@ -1,42 +1,86 @@
-// Base API configuration
-const API_BASE_URL = 'http://localhost:5000/api';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
-// API client with common configuration
-const apiClient = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+const instance = axios.create({
+  baseURL: `http://localhost:5000/api`,
+  timeout: 50000,
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+});
 
-  // Only set Content-Type to application/json if not sending FormData
-  let headers = { ...options.headers };
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+
+instance.interceptors.request.use(function (config) {
+  let token;
+  if (Cookies.get('userToken')) {
+    token = JSON.parse(Cookies.get('userToken')).token; // Ensure you're accessing the correct field
+  }
+  const isAuthenticated = localStorage.getItem('token');
+  //console.log("TOKEN ====>>", token);
+
+  if (isAuthenticated && !config.headers['Authorization']) {
+    config.headers['Authorization'] = `Bearer ${isAuthenticated}`;
   }
 
-  const config = {
-    headers,
-    ...options,
-  };
+  return config;
+}, function (error) {
+  // Handle request errors
+  return Promise.reject(error);
+});
 
-  // Add token to headers if it exists
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
-  }
+// Response Interceptor
+instance.interceptors.response.use(
+  response => response, // If response is successful, return it
+  error => {
+    if (error.response && error.response.status === 401) {
+      // Clear authentication data (cookies/localStorage)
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
+      Cookies.remove('authToken');
 
-  try {
-    const response = await fetch(url, config);
-    const data = await response.json();
+      window.location.href = '/';
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Something went wrong');
+      // Optionally, you can redirect to the login page
     }
-
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: error.message || 'Network error occurred'
-    };
+    return Promise.reject(error);
   }
+);
+
+const responseBody = (response) => response.data;
+
+const requests = {
+  get: (url, body, headers) =>
+    instance.get(url, body, headers).then(responseBody),
+
+  post: (url, body) => instance.post(url, body).then(responseBody),
+  uploadPosts: (url, body) => instance.post(url, body, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  }).then(responseBody),
+
+  customPost: (url, body, token) => {
+    return instance.post(url, body, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    }).then(responseBody);
+  },
+
+  put: (url, body) =>
+    instance.put(url, body).then(responseBody),
+
+  patch: (url, body) => instance.patch(url, body).then(responseBody),
+
+  delete: (url, body) => instance.delete(url, body).then(responseBody),
+  upload: (url, formData) =>
+    instance.post(url, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }).then(responseBody),
 };
 
-export default apiClient;
+export default requests;

@@ -33,7 +33,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    // Simulate logout (API commented out)
+    try {
+      await import('../services/authService').then(mod => mod.default.adminLogout());
+    } catch (error) {
+      // Optionally handle error, but proceed to clear user
+      console.error('Logout API error:', error);
+    }
     setUser(null);
     localStorage.removeItem('user');
   };

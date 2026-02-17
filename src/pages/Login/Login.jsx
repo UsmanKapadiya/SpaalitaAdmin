@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import logo from '../../assets/logo.png'
 import './Login.css';
+import AuthService from '../../services/authService';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -12,7 +13,7 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -28,18 +29,38 @@ const Login = () => {
       return;
     }
 
-    // Simulate successful login: set dummy user in localStorage and context
-    const dummyUser = { username };
-    localStorage.setItem('user', JSON.stringify(dummyUser));
-    if (typeof login === 'function') {
-      await login(username, password); // This will set user in context if login is from AuthContext
+    try {
+      const loginData = {
+        username,
+        password,
+      };
+      const resp = await AuthService.adminLogin(loginData);
+      console.log(resp);
+      if (resp?.success === true) {
+        localStorage.setItem('user', JSON.stringify(resp?.data));
+        toast.success('Login successful! Welcome back.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+        setLoading(false);
+        // Wait for 2 seconds before redirecting to dashboard
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        setLoading(false);
+        toast.error(resp?.message || 'Login failed. Please check your credentials.', {
+          position: 'top-right',
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      toast.error('An unexpected error occurred. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     }
-    toast.success('Login successful! Welcome back.', {
-      position: 'top-right',
-      autoClose: 3000,
-    });
-    navigate('/dashboard');
-    setLoading(false);
   };
 
   return (
