@@ -36,17 +36,16 @@ const Login = () => {
       };
       const resp = await AuthService.adminLogin(loginData);
       console.log(resp);
-      if (resp?.success === true) {
-        localStorage.setItem('user', JSON.stringify(resp?.data));
-        toast.success('Login successful! Welcome back.', {
-          position: 'top-right',
-          autoClose: 3000,
-        });
-        setLoading(false);
-        // Wait for 2 seconds before redirecting to dashboard
-        setTimeout(() => {
+        if (resp?.success === true) {
+          localStorage.setItem('user', JSON.stringify(resp?.data));
+          localStorage.setItem('authToken', JSON.stringify(resp?.token));
+          toast.success('Login successful! Welcome back.', {
+            position: 'top-right',
+            autoClose: 3000,
+          });
+          await login(username, password); // update context
+          setLoading(false);
           navigate('/dashboard');
-        }, 2000);
       } else {
         setLoading(false);
         toast.error(resp?.message || 'Login failed. Please check your credentials.', {
