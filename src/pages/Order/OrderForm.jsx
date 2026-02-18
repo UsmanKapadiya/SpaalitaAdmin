@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
@@ -9,50 +10,23 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import EditIcon from '@mui/icons-material/Edit';
 import './OrderForm.css';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import OrderService from '../../services/orderService';
+import { toast } from 'react-toastify';
 
-const OrderForm = ({ orderId, onSave, onCancel }) => {
-    const { orders, getOrderById, createOrder, updateOrder } = useOrder(mockOrders);
+
+const OrderForm = ({ order, onSave, onCancel }) => {
+    // Remove useOrder and mockOrders for editing existing orders
     const [form, setForm] = useState(DEFAULT_ORDER);
     const [editBilling, setEditBilling] = useState(false);
     const [editShipping, setEditShipping] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (orderId) {
-            const order = getOrderById(orderId);
-            if (order) {
-                setForm({
-                    ...DEFAULT_ORDER,
-                    ...order,
-                    // Ensure addresses exist with defaults
-                    billingAddress: {
-                        ...DEFAULT_ORDER.billingAddress,
-                        ...(order.billingAddress || {})
-                    },
-                    shippingAddress: {
-                        ...DEFAULT_ORDER.shippingAddress,
-                        ...(order.shippingAddress || {})
-                    }
-                });
-            } else {
-                console.warn(`Order with ID ${orderId} not found`);
-                setForm(DEFAULT_ORDER);
-            }
-        } else {
-            // Generate a temporary order ID for display and set current date/time
-            const now = new Date();
-            setForm(f => ({
-                ...DEFAULT_ORDER,
-                id: f.id || `T${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000)}`,
-                createdAt: now.toISOString(),
-            }));
-        }
-    }, [orderId, getOrderById]);
-
+    // Handle input changes for top-level fields
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // Handle address field changes for billing and shipping
     const handleAddressChange = (type, field, value) => {
         setForm(prev => ({
             ...prev,
@@ -63,21 +37,60 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
         }));
     };
 
-    // For simplicity, items and total are handled as text fields
+
+    useEffect(() => {
+        if (order && order._id) {
+            // Remove customerName, use user object
+            const { customerName, ...orderData } = order;
+            setForm({
+                ...DEFAULT_ORDER,
+                ...orderData,
+                billingAddress: {
+                    ...DEFAULT_ORDER.billingAddress,
+                    ...(order.billingAddress || {})
+                },
+                shippingAddress: {
+                    ...DEFAULT_ORDER.shippingAddress,
+                    ...(order.shippingAddress || {})
+                },
+                items: order.items || [],
+                totalAmount: order.totalAmount || 0,
+                status: order.status || '',
+                createdAt: order.createdAt || '',
+            });
+        } else {
+            // New order
+            const now = new Date();
+            setForm(f => ({
+                ...DEFAULT_ORDER,
+                id: f.id || `T${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000)}`,
+                createdAt: now.toISOString(),
+            }));
+        }
+    }, [order]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            if (orderId) {
+            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            if (order && order._id) {
                 // Update existing order
-                const success = await updateOrder(orderId, form);
-                if (success) {
-                    console.log('Updated Order:', form);
-                    onSave();
+                // Remove customerName from update payload
+                const { customerName, ...updatePayload } = form;
+                updatePayload.user = order.user;
+                const resp = await OrderService.UpdateOrder(token, updatePayload, updatePayload?._id);
+                if (resp?.success) {
+                    toast.success(resp?.message, {
+                        position: 'top-right',
+                        autoClose: 3000,
+                    });
+                    onSave(updatePayload);
                 } else {
-                    console.error('Failed to update order');
+                    notifyError("Please try again.");
                 }
+
             } else {
                 // Create new order
                 const newOrder = {
@@ -87,13 +100,9 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                     createdAt: new Date().toISOString(),
                     total: form.total || 0
                 };
-                const success = await createOrder(newOrder);
-                if (success) {
-                    console.log('Created Order:', newOrder);
-                    onSave();
-                } else {
-                    console.error('Failed to create order');
-                }
+                // const success = await createOrder(newOrder);
+                console.log('Created Order:', newOrder);
+                onSave(newOrder);
             }
         } catch (error) {
             console.error('Error saving order:', error);
@@ -101,18 +110,19 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
             setLoading(false);
         }
     };
-    console.log(form)
+    // console.log(form);
+    // console.log(order);
     return (
         <DashboardLayout>
             <div className="form-card">
                 <PageTitle
-                    title={orderId ? 'Edit Order' : 'Create Order'}
+                    title={order?._id ? 'Edit Order' : 'Create Order'}
                 />
                 <form onSubmit={handleSubmit} className="order-form">
                     <section className="order-form-section">
                         <h3 className="order-form-section-title">
-                            Order #{orderId ? form?.orderId || orderId : form?.id || 'New'} details
-                            {orderId && form?.paymentOption && (
+                            Order #{order?._id ? form?.orderId || order?._id : form?.id || 'New'} details
+                            {order?._id && form?.paymentOption && (
                                 <div style={{ marginTop: 6, color: '#555', fontSize: 15 }}>
                                     Payment via Credit / Debit Card ({form.paymentOption})
                                 </div>
@@ -322,8 +332,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">First Name</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.firstName || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'firstName', e.target.value)}
+                                                value={form.shippingAddress?.firstName || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'firstName', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -331,8 +341,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Last Name</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.lastName || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'lastName', e.target.value)}
+                                                value={form.shippingAddress?.lastName || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'lastName', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -340,8 +350,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Address</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.address || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'address', e.target.value)}
+                                                value={form.shippingAddress?.address || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'address', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -349,8 +359,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">City</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.city || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'city', e.target.value)}
+                                                value={form.shippingAddress?.city || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'city', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -358,8 +368,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">ZIP</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.zip || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'zip', e.target.value)}
+                                                value={form.shippingAddress?.zip || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'zip', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -367,8 +377,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Country</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.country || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'country', e.target.value)}
+                                                value={form.shippingAddress?.country || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'country', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -376,8 +386,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">State</label>
                                             <input
                                                 type="text"
-                                                value={form.billingAddress?.state || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'state', e.target.value)}
+                                                value={form.shippingAddress?.state || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'state', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -385,8 +395,8 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <label className="address-label">Email Address</label>
                                             <input
                                                 type="email"
-                                                value={form.billingAddress?.email || ''}
-                                                onChange={e => handleAddressChange('billingAddress', 'email', e.target.value)}
+                                                value={form.shippingAddress?.email || ''}
+                                                onChange={e => handleAddressChange('shippingAddress', 'email', e.target.value)}
                                                 className="address-input"
                                             />
                                         </div>
@@ -451,20 +461,22 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                         </tr>
                                     </thead>
                                     <tbody className="order-items-tbody">
-                                        {form.items.map((item, idx) => (
-                                            <tr className="order-item-row" key={idx}>
-                                                <td>{item.image && <img src={item.image} alt={item.name} style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', border: '1px solid #eee' }} />}</td>
-                                                <td>{item.name}</td>
-                                                <td>{item.quantity}</td>
-                                                <td className="order-item-price">${item.price}</td>
-                                            </tr>
-                                        ))}
+                                        {form.items.map((item, idx) => {
+                                            return (
+                                                <tr className="order-item-row" key={idx}>
+                                                    <td>{item.image && <img src={item.image} alt={item.name} style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', border: '1px solid #eee' }} />}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.qty ?? item.qty}</td>
+                                                    <td className="order-item-price">${(parseFloat(item.price) * ((item.qty ?? item.qty) || 1)).toFixed(2)}</td>
+                                                </tr>
+                                            )
+                                        })}
                                         {/* Subtotal row */}
                                         <tr className="order-summary-row">
                                             <td colSpan={2}></td>
                                             <td className="order-summary-label">Item Subtotal:</td>
                                             <td className="order-summary-value order-item-price">
-                                                ${form.items.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0).toFixed(2)}
+                                                ${form.items.reduce((sum, item) => sum + (parseFloat(item.price) * (item.qty || 1)), 0).toFixed(2)}
                                             </td>
                                         </tr>
                                         {/* Shipping row */}
@@ -485,10 +497,7 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                                             <td colSpan={2}></td>
                                             <td className="order-summary-label">Order Total:</td>
                                             <td className="order-summary-value order-item-price">
-                                                ${(
-                                                    form.items.reduce((sum, item) => sum + (parseFloat(item.price) * (item.quantity || 1)), 0) +
-                                                    (parseFloat(form.shippingPrice) || 0)
-                                                ).toFixed(2)}
+                                                ${order?.totalAmount}
                                             </td>
                                         </tr>
                                         {/* Paid row */}
@@ -514,7 +523,7 @@ const OrderForm = ({ orderId, onSave, onCancel }) => {
                             className="btn-add"
                             disabled={loading}
                         >
-                            {loading ? (orderId ? 'Updating...' : 'Creating...') : (orderId ? 'Update' : 'Create')}
+                            {loading ? (order?._id ? 'Updating...' : 'Creating...') : (order?._id ? 'Update' : 'Create')}
                         </Button>
                         <Button
                             type="button"

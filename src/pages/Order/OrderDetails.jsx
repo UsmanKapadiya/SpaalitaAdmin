@@ -89,8 +89,6 @@ function AddressSection({ icon: Icon, title, address }) {
     );
 }
 
-
-
 function ItemsTable({ items }) {
     return (
         <table style={{ width: '100%' }}>
@@ -105,10 +103,10 @@ function ItemsTable({ items }) {
             <tbody>
                 {items.map((item, idx) => (
                     <tr key={idx}>
-                        <td>{item.image && <img src={item.image} alt={item.name} style={styles.itemImage} />}</td>
-                        <td>{item.name}</td>
-                        <td>{item.quantity}</td>
-                        <td>${item.price}</td>
+                        <td>{item.image ? <img src={item.image} alt={item.name} style={styles.itemImage} /> : <></>}</td>
+                        <td>{item.productId?.productName || item.productName || ''}</td>
+                        <td>{item.qty}</td>
+                        <td>{item?.price}</td>
                     </tr>
                 ))}
             </tbody>
@@ -117,8 +115,8 @@ function ItemsTable({ items }) {
 }
 
 
-
 function OrderDetails({ order, onBack, onEditOrder }) {
+    console.log("Order", order);
     if (!order) {
         return (
             <DashboardLayout>
@@ -139,7 +137,7 @@ function OrderDetails({ order, onBack, onEditOrder }) {
                     title="Order Details"
                     button={true}
                     buttonLabel="Edit Order"
-                    onButtonClick={() => onEditOrder(order.id)}
+                    onButtonClick={() => onEditOrder(order)}
                     backButton={true}
                     backButtonLabel="Back to Orders"
                     onBackButtonClick={onBack}
@@ -148,11 +146,18 @@ function OrderDetails({ order, onBack, onEditOrder }) {
                     <tbody>
                         <tr>
                             <th style={styles.thId}>Order ID</th>
-                            <td>{order.id}</td>
+                            <td>{order._id}</td>
                         </tr>
                         <tr>
-                            <th>Customer</th>
-                            <td>{order.customerName}</td>
+                            <th>User</th>
+                            <td>
+                                {order.user ? (
+                                    <>
+                                        <div><b>Name:</b> {order.user.userName || order.user.username || 'N/A'}</div>
+                                        <div><b>Email:</b> {order.user.email || 'N/A'}</div>
+                                    </>
+                                ) : 'N/A'}
+                            </td>
                         </tr>
                         <tr>
                             <th>Status</th>
@@ -160,21 +165,29 @@ function OrderDetails({ order, onBack, onEditOrder }) {
                         </tr>
                         <tr>
                             <th>Total</th>
-                            <td>${order.total}</td>
+                            <td>${order.totalAmount}</td>
                         </tr>
                         <tr>
                             <th>Created At</th>
                             <td>{new Date(order.createdAt).toLocaleString()}</td>
                         </tr>
                         <tr>
-                            <th>Items</th>
+                            <th>Products</th>
                             <td>
                                 <ItemsTable items={order.items} />
                             </td>
                         </tr>
+                        {/* <tr>
+                            <th>Shipping Address</th>
+                            <td>{order.shippingAddress || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <th>Billing Address</th>
+                            <td>{order.billingAddress || 'N/A'}</td>
+                        </tr> */}
                     </tbody>
                 </table>
-                {/* Billing & Shipping Address */}
+                    {/* Billing & Shipping Address */}
                 <div style={styles.addressContainer}>
                     <AddressSection icon={HomeIcon} title="Billing Address" address={order.billingAddress} />
                     <AddressSection icon={LocalShippingIcon} title="Shipping Address" address={order.shippingAddress} />

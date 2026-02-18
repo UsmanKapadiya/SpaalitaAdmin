@@ -155,14 +155,17 @@ export const UI_CONFIG = {
 
 // Default Order Template
 export const DEFAULT_ORDER = {
-    customerName: '',
+    user: {
+      email: '',
+      userName: '',
+      _id:""
+    },
     items: [],
     total: 0,
     status: 'pending',
     paymentOption: 'Online Payment',
     paymentUrl: '',
     billingAddress: {
-        name: '',
         firstName: '',
         lastName: '',
         address: '',
@@ -173,8 +176,7 @@ export const DEFAULT_ORDER = {
         email: '',
         phone: ''
     },
-    shippingAddress: {
-        name: '',
+    shippingAddress: {        
         firstName: '',
         lastName: '',
         address: '',

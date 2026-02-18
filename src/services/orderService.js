@@ -1,26 +1,32 @@
-import mockOrders from '../data/mockOrders';
+import { Update } from "@mui/icons-material";
+import requests from "./api";
 
-let orders = [...mockOrders];
-
-export const getOrders = () => orders;
-
-export const getOrderById = (id) => orders.find(order => order.id === id);
-
-export const createOrder = (order) => {
-  const newOrder = { ...order, id: Date.now(), status: 'Pending', createdAt: new Date().toISOString() };
-  orders.push(newOrder);
-  return newOrder;
-};
-
-export const updateOrder = (id, updatedFields) => {
-  const idx = orders.findIndex(order => order.id === id);
-  if (idx !== -1) {
-    orders[idx] = { ...orders[idx], ...updatedFields };
-    return orders[idx];
+const OrderService = {
+  getOrderList: async (token, page, limit, searchTerm, statusFilter) => {
+    let url = `/orders?page=${page}&limit=${limit}`;
+    const params = [];
+    if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
+    if (statusFilter) params.push(`status=${encodeURIComponent(statusFilter)}`);
+    if (params.length) url += `&${params.join('&')}`;
+    return requests.get(url, null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+  UpdateOrder: async (token, body, id) => {
+    return requests.put(`/orders/${id}`, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+   DeleteOrder: async (token, id) => {
+    return requests.delete(`/orders/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   }
-  return null;
-};
-
-export const cancelOrder = (id) => {
-  return updateOrder(id, { status: 'Cancelled' });
-};
+}
+export default OrderService
