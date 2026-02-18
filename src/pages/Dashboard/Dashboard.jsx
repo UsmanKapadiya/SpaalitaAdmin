@@ -4,8 +4,6 @@ import PeopleIcon from '@mui/icons-material/People';
 
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { getDashboardStats } from '../../services/authService';
-import { ImageOutlined, VideoLibraryOutlined } from '@mui/icons-material';
 import mockUsers from '../../data/mockUsers';
 import mockProducts from '../../data/mockProducts';
 import mockOrders from '../../data/mockOrders';
@@ -17,35 +15,35 @@ import GlobalLoader from '../../components/Loader/GlobalLoader';
 
 const Dashboard = () => {
   const [aboutData, setAboutData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await getDashboardStats();
-        if (res.success) {
-          setAboutData(res.data?.data);
-        } else {
-          setError(res.error || 'Failed to fetch about list');
-        }
-      } catch (error) {
-        setError(error.message || 'Failed to fetch about list');
-      } finally {
-        setTimeout(() => setLoading(false), 600);
-      }
-    };
-    fetchDashboardStats();
+    // const fetchDashboardStats = async () => {
+    //   setLoading(true);
+    //   setError(null);
+    //   try {
+    //     const res = await getDashboardStats();
+    //     if (res.success) {
+    //       setAboutData(res.data?.data);
+    //     } else {
+    //       setError(res.error || 'Failed to fetch about list');
+    //     }
+    //   } catch (error) {
+    //     setError(error.message || 'Failed to fetch about list');
+    //   } finally {
+    //     setTimeout(() => setLoading(false), 600);
+    //   }
+    // };
+    // fetchDashboardStats();
   }, []);
 
   // Dashboard stats from mock data
-  const activeUsers = mockUsers.filter(u => u.status === 'active').length;
-  const totalOrders = mockOrders.length;
-  const activeProducts = mockProducts.length;
-  const activeGiftCards = mockGiftCards.length;
+  const activeUsers = mockUsers?.filter(u => u.status === 'active')?.length;
+  const totalOrders = mockOrders?.length;
+  const activeProducts = mockProducts?.length;
+  const activeGiftCards = mockGiftCards?.length;
 
   const stats = [
     {
