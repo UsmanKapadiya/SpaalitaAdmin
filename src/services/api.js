@@ -16,11 +16,12 @@ instance.interceptors.request.use(function (config) {
   if (Cookies.get('userToken')) {
     token = JSON.parse(Cookies.get('userToken')).token; // Ensure you're accessing the correct field
   }
-  const isAuthenticated = localStorage.getItem('token');
-  //console.log("TOKEN ====>>", token);
-
+  const isAuthenticated = localStorage.getItem('authToken');
+  // Remove quotes if present (e.g., if token is stored as '"tokenstring"')
+  const cleanToken = isAuthenticated ? isAuthenticated.replace(/^"|"$/g, '') : '';
+  
   if (isAuthenticated && !config.headers['Authorization']) {
-    config.headers['Authorization'] = `Bearer ${isAuthenticated}`;
+    config.headers['Authorization'] = `Bearer ${cleanToken}`;
   }
 
   return config;
@@ -39,7 +40,7 @@ instance.interceptors.response.use(
       localStorage.removeItem('userData');
       Cookies.remove('authToken');
 
-      window.location.href = '/';
+      // window.location.href = '/';
 
       // Optionally, you can redirect to the login page
     }
@@ -54,6 +55,7 @@ const requests = {
     instance.get(url, body, headers).then(responseBody),
 
   post: (url, body) => instance.post(url, body).then(responseBody),
+
   uploadPosts: (url, body) => instance.post(url, body, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -69,8 +71,7 @@ const requests = {
     }).then(responseBody);
   },
 
-  put: (url, body) =>
-    instance.put(url, body).then(responseBody),
+  put: (url, body) => instance.put(url, body).then(responseBody),
 
   patch: (url, body) => instance.patch(url, body).then(responseBody),
 
