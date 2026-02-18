@@ -11,7 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
  * @param {string} buttonLabel - Button text
  * @param {function} onButtonClick - Button click handler
  */
-const PageTitle = ({ title, subTitle, button, buttonLabel, onButtonClick, backButton, backButtonLabel, onBackButtonClick }) => (
+const PageTitle = ({ title, subTitle, button, buttonLabel, onButtonClick, backButton, backButtonLabel, onBackButtonClick, addBtnDisable }) => (
     <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
@@ -35,6 +35,7 @@ const PageTitle = ({ title, subTitle, button, buttonLabel, onButtonClick, backBu
                         className="btn-add"
                         type="button"
                         onClick={onButtonClick}
+                        disabled={addBtnDisable}
                     >
                         {backButton ? <EditIcon /> : <AddIcon />}
                         {buttonLabel}
