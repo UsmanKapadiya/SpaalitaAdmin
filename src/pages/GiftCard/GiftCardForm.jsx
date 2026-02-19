@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -9,13 +9,13 @@ import 'react-quill/dist/quill.snow.css';
 import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
-import mockGiftCards from '../../data/mockGiftCards';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { createGiftCard, getGiftCardById, updateGiftCard } from '../../services/giftCardServices';
 
 const initialForm = {
   name: '',
-  code: '',
-  value: '',
+  sku: '',
+  price: '',
   qty: '',
   description: '',
   image: '',
@@ -25,6 +25,7 @@ const GiftCardForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
+  const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
   const {
     form,
@@ -42,40 +43,82 @@ const GiftCardForm = () => {
     setImagePreview,
   } = useForm({
     initialForm,
-    data: mockGiftCards,
+    data: [], // Static data removed, ready for API integration
     id,
     isEdit,
-    fields: ['name', 'code', 'value', 'qty', 'description'],
-    onSubmit: (formData, { setError, setSuccess, setLoading }) => {
-      if (isEdit) {
-        setSuccess('Gift Card updated successfully!');
-        toast.success('Gift Card updated successfully!');
-      } else {
-        const newGiftCard = {
-          ...formData,
-          id: Date.now().toString(),
-          value: parseFloat(formData.value),
-          qty: parseInt(formData.qty),
-          createdAt: new Date().toISOString().slice(0, 10),
-          updatedAt: new Date().toISOString().slice(0, 10),
+    fields: ['name', 'sku', 'price', 'qty', 'description'],
+    onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
+      try {
+        const payload = {
+          productName: formData.name,
+          sku: formData.sku,
+          price: Number(formData.price),
+          qty: Number(formData.qty),
+          productImages: Array.isArray(formData.images) ? formData.images : [],
+          description: formData.description,
+          category: 'GiftCard', // Always static
         };
-        setSuccess('Gift Card added successfully!');
-        toast.success('Gift Card added successfully!');
+        let resp;
+        if (isEdit) {
+          resp = await updateGiftCard(id, token, payload);
+          setSuccess('Gift Card updated successfully!');
+          toast.success('Gift Card updated successfully!');
+        } else {
+          resp = await createGiftCard(token, payload);
+          setSuccess('Gift Card added successfully!');
+          toast.success('Gift Card added successfully!');
+        }
+        setLoading(false);
+        setTimeout(() => navigate('/giftCards'), 1200);
+      } catch (err) {
+        setLoading(false);
+        setError({ message: err?.response?.data?.message || 'Something went wrong', field: null });
+        toast.error(err?.response?.data?.message || 'Something went wrong');
       }
-      setLoading(false);
-      setTimeout(() => navigate('/giftCards'), 1200);
+      // setSuccess(isEdit ? 'Gift Card updated successfully!' : 'Gift Card added successfully!');
+      // toast.success(isEdit ? 'Gift Card updated successfully!' : 'Gift Card added successfully!');
+      // setLoading(false);
+      // setTimeout(() => navigate('/giftCards'), 1200);
     },
     imageField: 'image',
     descriptionField: 'description',
   });
 
+  // Fetch product details if editing
+  useEffect(() => {
+    const fetchGiftCard = async () => {
+      if (isEdit && id) {
+        try {
+          const resp = await getGiftCardById(id, token);
+          if (resp && resp.success && resp.data) {
+            const prod = resp.data;
+            setForm(f => ({
+              ...f,
+              name: prod.productName || '',
+              sku: prod.sku || '',
+              price: prod.price || '',
+              qty: prod.qty || '',
+              description: prod.description || '',
+              images: Array.isArray(prod.productImages) ? prod.productImages : [],
+              imagePreviews: Array.isArray(prod.productImages) ? prod.productImages : [],
+            }));
+          }
+        } catch (err) {
+          toast.error('Failed to fetch giftCard details');
+        }
+      }
+    };
+    fetchGiftCard();
+    // eslint-disable-next-line
+  }, [isEdit, id]);
+
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">          
+        <div className="edit-form-card">
           <PageTitle
-            title= {isEdit ? 'Update Gift Card' : 'Add Gift Card'}
-            subTitle= {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
+            title={isEdit ? 'Update Gift Card' : 'Add Gift Card'}
+            subTitle={isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
             button={false}
           />
           {error && error !== '' && (
@@ -99,14 +142,14 @@ const GiftCardForm = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="code" className="form-label form-label-required">Code</label>
+                <label htmlFor="sku" className="form-label form-label-required">Code</label>
                 <input
                   type="text"
-                  id="code"
-                  name="code"
+                  id="sku"
+                  name="sku"
                   className="form-input"
                   placeholder="Gift Card Code"
-                  value={form.code}
+                  value={form.sku}
                   onChange={handleChange}
                   required
                 />
@@ -117,12 +160,12 @@ const GiftCardForm = () => {
                 <label htmlFor="value" className="form-label form-label-required">Value</label>
                 <input
                   type="number"
-                  id="value"
-                  name="value"
+                  id="price"
+                  name="price"
                   className="form-input"
                   placeholder="0.00"
                   step="0.01"
-                  value={form.value}
+                  value={form.price}
                   onChange={handleChange}
                   required
                 />
@@ -161,7 +204,7 @@ const GiftCardForm = () => {
             </div>
             <div className="form-group form-group-full">
               <label htmlFor="description" className="form-label form-label-required">Description</label>
-              <div className="editor-wrapper">
+              <div className="editor-wrapper-quill">
                 <ReactQuill
                   theme="snow"
                   value={form.description || ''}
@@ -189,9 +232,24 @@ const GiftCardForm = () => {
                     'blockquote', 'code-block',
                     'indent'
                   ]}
-                  style={{ height: '180px' }}
+                  style={{ maxHeight: 300, overflow: 'auto' }}
                 />
               </div>
+              <style>{`
+                                .editor-wrapper-quill .ql-container {
+                                  max-height: 200px;
+                                }
+                                .editor-wrapper-quill .ql-editor {
+                                  max-height: 200px;
+                                  overflow-y: auto;
+                                }
+                                .editor-wrapper-quill .ql-toolbar {
+                                  position: sticky;
+                                  top: 0;
+                                  z-index: 2;
+                                  background: #fff;
+                                }
+                              `}</style>
             </div>
             <div className="form-actions">
               <Button
@@ -219,4 +277,3 @@ const GiftCardForm = () => {
 };
 
 export default GiftCardForm;
-// This file is now obsolete. All Gift Card add/edit logic is in GiftCard.jsx.

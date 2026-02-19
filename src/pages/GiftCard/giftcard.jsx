@@ -14,317 +14,52 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import ArticleIcon from '@mui/icons-material/Article';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
-
 import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
 import '../Product/product.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Table from '../../components/Table/Table';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { deleteGiftCard, getGiftCards } from '../../services/giftCardServices';
+import ImageNotFound from '../../assets/download.png'
 
 const GiftCard = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  // Simulated paginated API response for gift cards
-  const allGiftCards = [
-    {
-      id: '1',
-      name: 'Amazon Gift Card',
-      code: 'AMZ-100',
-      value: 100,
-      qty: 50,
-      description: 'Amazon eGift Card, redeemable online.',
-      createdAt: '2026-01-01',
-      updatedAt: '2026-01-10',
-    },
-    {
-      id: '2',
-      name: 'iTunes Gift Card',
-      code: 'ITN-50',
-      value: 50,
-      qty: 30,
-      description: 'iTunes digital gift card for music and apps.',
-      createdAt: '2025-12-15',
-      updatedAt: '2026-01-05',
-    },
-    {
-      id: '3',
-      name: 'Google Play Gift Card',
-      code: 'GPL-25',
-      value: 25,
-      qty: 100,
-      description: 'Google Play Store gift card for apps and games.',
-      createdAt: '2025-11-20',
-      updatedAt: '2025-12-01',
-    },
-    {
-      id: '4',
-      name: 'Steam Gift Card',
-      code: 'STM-20',
-      value: 20,
-      qty: 40,
-      description: 'Steam Wallet gift card for games.',
-      createdAt: '2025-10-10',
-      updatedAt: '2025-11-01',
-    },
-    {
-      id: '5',
-      name: 'Walmart Gift Card',
-      code: 'WMT-50',
-      value: 50,
-      qty: 60,
-      description: 'Walmart eGift Card for shopping.',
-      createdAt: '2025-09-15',
-      updatedAt: '2025-10-01',
-    },
-    {
-      id: '6',
-      name: 'Target Gift Card',
-      code: 'TGT-25',
-      value: 25,
-      qty: 80,
-      description: 'Target digital gift card for stores.',
-      createdAt: '2025-08-20',
-      updatedAt: '2025-09-01',
-    },
-    {
-      id: '7',
-      name: 'Best Buy Gift Card',
-      code: 'BBY-100',
-      value: 100,
-      qty: 20,
-      description: 'Best Buy eGift Card for electronics.',
-      createdAt: '2025-07-10',
-      updatedAt: '2025-08-01',
-    },
-    {
-      id: '8',
-      name: 'Uber Gift Card',
-      code: 'UBR-50',
-      value: 50,
-      qty: 35,
-      description: 'Uber digital gift card for rides.',
-      createdAt: '2025-06-15',
-      updatedAt: '2025-07-01',
-    },
-    {
-      id: '9',
-      name: 'Netflix Gift Card',
-      code: 'NFLX-30',
-      value: 30,
-      qty: 45,
-      description: 'Netflix eGift Card for streaming.',
-      createdAt: '2025-05-20',
-      updatedAt: '2025-06-01',
-    },
-    {
-      id: '10',
-      name: 'Spotify Gift Card',
-      code: 'SPFY-60',
-      value: 60,
-      qty: 25,
-      description: 'Spotify digital gift card for music.',
-      createdAt: '2025-04-10',
-      updatedAt: '2025-05-01',
-    },
-    {
-      id: '11',
-      name: 'Apple Store Gift Card',
-      code: 'APL-200',
-      value: 200,
-      qty: 10,
-      description: 'Apple Store eGift Card for devices.',
-      createdAt: '2025-03-15',
-      updatedAt: '2025-04-01',
-    },
-    {
-      id: '12',
-      name: 'PlayStation Gift Card',
-      code: 'PSN-50',
-      value: 50,
-      qty: 70,
-      description: 'PlayStation Network gift card for games.',
-      createdAt: '2025-02-20',
-      updatedAt: '2025-03-01',
-    },
-    {
-      id: '13',
-      name: 'Xbox Gift Card',
-      code: 'XBX-25',
-      value: 25,
-      qty: 90,
-      description: 'Xbox digital gift card for games.',
-      createdAt: '2025-01-10',
-      updatedAt: '2025-02-01',
-    },
-    {
-      id: '14',
-      name: 'Facebook Gift Card',
-      code: 'FBK-10',
-      value: 10,
-      qty: 100,
-      description: 'Facebook eGift Card for ads.',
-      createdAt: '2024-12-15',
-      updatedAt: '2025-01-01',
-    },
-    {
-      id: '15',
-      name: 'Disney+ Gift Card',
-      code: 'DSNY-40',
-      value: 40,
-      qty: 55,
-      description: 'Disney+ digital gift card for streaming.',
-      createdAt: '2024-11-20',
-      updatedAt: '2024-12-01',
-    },
-    {
-      id: '16',
-      name: 'eBay Gift Card',
-      code: 'EBY-75',
-      value: 75,
-      qty: 30,
-      description: 'eBay eGift Card for shopping.',
-      createdAt: '2024-10-10',
-      updatedAt: '2024-11-01',
-    },
-    {
-      id: '17',
-      name: 'Google Gift Card',
-      code: 'GOGL-100',
-      value: 100,
-      qty: 60,
-      description: 'Google eGift Card for services.',
-      createdAt: '2024-09-15',
-      updatedAt: '2024-10-01',
-    },
-    {
-      id: '18',
-      name: 'Amazon Prime Gift Card',
-      code: 'AMZP-120',
-      value: 120,
-      qty: 20,
-      description: 'Amazon Prime eGift Card for subscription.',
-      createdAt: '2024-08-20',
-      updatedAt: '2024-09-01',
-    },
-    {
-      id: '19',
-      name: 'Airbnb Gift Card',
-      code: 'AIRB-150',
-      value: 150,
-      qty: 15,
-      description: 'Airbnb digital gift card for stays.',
-      createdAt: '2024-07-10',
-      updatedAt: '2024-08-01',
-    },
-    {
-      id: '20',
-      name: 'Hulu Gift Card',
-      code: 'HULU-30',
-      value: 30,
-      qty: 50,
-      description: 'Hulu eGift Card for streaming.',
-      createdAt: '2024-06-15',
-      updatedAt: '2024-07-01',
-    },
-    {
-      id: '21',
-      name: 'DoorDash Gift Card',
-      code: 'DRDS-25',
-      value: 25,
-      qty: 80,
-      description: 'DoorDash digital gift card for food delivery.',
-      createdAt: '2024-05-20',
-      updatedAt: '2024-06-01',
-    },
-    {
-      id: '22',
-      name: 'Starbucks Gift Card',
-      code: 'SBKS-15',
-      value: 15,
-      qty: 100,
-      description: 'Starbucks eGift Card for coffee.',
-      createdAt: '2024-04-10',
-      updatedAt: '2024-05-01',
-    },
-    {
-      id: '23',
-      name: 'Visa Gift Card',
-      code: 'VISA-200',
-      value: 200,
-      qty: 10,
-      description: 'Visa digital gift card for payments.',
-      createdAt: '2024-03-15',
-      updatedAt: '2024-04-01',
-    },
-    {
-      id: '24',
-      name: 'Mastercard Gift Card',
-      code: 'MCARD-100',
-      value: 100,
-      qty: 20,
-      description: 'Mastercard eGift Card for payments.',
-      createdAt: '2024-02-20',
-      updatedAt: '2024-03-01',
-    },
-    {
-      id: '25',
-      name: 'Home Depot Gift Card',
-      code: 'HDPT-75',
-      value: 75,
-      qty: 30,
-      description: 'Home Depot digital gift card for home improvement.',
-      createdAt: '2024-01-10',
-      updatedAt: '2024-02-01',
-    },
-  ];
-
-  const [giftCardData, setGiftCardData] = useState(allGiftCards);
+  const [giftCardData, setGiftCardData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
   const [error] = useState(null);
-  useEffect(() => {
+  // Fetch gift cards from API
+  const fetchGiftCards = async () => {
     setLoading(true);
-    setTimeout(() => setLoading(false), 600);
-  }, []);
-
-  // Filter and paginate gift cards
-  const filteredGiftCards = useMemo(() => {
-    let filtered = giftCardData;
-    if (searchTerm.trim()) {
-      const search = searchTerm.toLowerCase();
-      filtered = giftCardData.filter(item =>
-        item.name.toLowerCase().includes(search) ||
-        item.code.toLowerCase().includes(search) ||
-        item.description.toLowerCase().includes(search)
-      );
+    const resp = await getGiftCards(page, itemsPerPage, searchTerm);
+    if (resp && resp.data) {
+      setGiftCardData(resp.data);
+      if (resp.pagination) {
+        setTotalItems(resp.pagination.total || resp.data.length);
+        setTotalPages(resp.pagination.pages || 1);
+      } else {
+        setTotalItems(resp.data.length);
+        setTotalPages(1);
+      }
+    } else {
+      setGiftCardData([]);
+      setTotalItems(0);
+      setTotalPages(1);
+      if (resp && resp.error) toast.error(resp.error);
     }
-    const startIdx = (page - 1) * itemsPerPage;
-    return filtered.slice(startIdx, startIdx + itemsPerPage);
-  }, [searchTerm, giftCardData, page]);
+    setLoading(false);
+  };
 
-  const totalItems = useMemo(() => {
-    if (!searchTerm.trim()) return giftCardData.length;
-    const search = searchTerm.toLowerCase();
-    return giftCardData.filter(item =>
-      item.name.toLowerCase().includes(search) ||
-      item.code.toLowerCase().includes(search) ||
-      item.description.toLowerCase().includes(search)
-    ).length;
-  }, [searchTerm, giftCardData]);
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  useEffect(() => {
+    fetchGiftCards();
+  }, [page, itemsPerPage, searchTerm]);
 
-  // Reset to page 1 when search changes
-  const handleSearchChange = useCallback((e) => {
-    setSearchTerm(e.target.value);
-    setPage(1);
-  }, []);
-
-  const handlePageChange = useCallback((event, value) => {
-    setPage(value);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  const filteredGiftCards = giftCardData;
 
   // Edit gift card
   const handleEdit = useCallback((id, e) => {
@@ -342,20 +77,32 @@ const GiftCard = () => {
   // Delete gift card
   const handleDelete = useCallback((id, e) => {
     e.stopPropagation();
-    const item = giftCardData.find(item => item.id === id);
+    const item = giftCardData.find(item => item._id === id);
     setConfirmDialog({
       isOpen: true,
       itemId: id,
-      itemName: item?.name || 'this gift card'
+      itemName: item?.productName || item?.name || 'this gift card'
     });
   }, [giftCardData]);
 
-  const confirmDelete = useCallback(() => {
+
+  const confirmDelete = useCallback(async () => {
     if (!confirmDialog.itemId) return;
-    setGiftCardData(prev => prev.filter(item => item.id !== confirmDialog.itemId));
-    setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-    toast.success('Gift Card deleted successfully!');
+    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    try {
+      const resp = await deleteGiftCard(confirmDialog.itemId, token);
+      if (resp && resp.success === false) {
+        throw new Error(resp.error || 'Delete failed');
+      }
+      toast.success('Gift Card deleted successfully!');
+      setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+      fetchGiftCards(); // Refresh list
+    } catch (err) {
+      toast.error('Failed to delete Gift Card');
+      setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+    }
   }, [confirmDialog.itemId]);
+
 
   const closeConfirmDialog = useCallback(() => {
     setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
@@ -392,22 +139,45 @@ const GiftCard = () => {
             <Table
               tableClassName="product-table"
               columns={[
-                { key: 'name', label: 'Name' },
-                { key: 'code', label: 'Code' },
-                { key: 'value', label: 'Value', render: value => `$${value}` },
+                {
+                  key: 'productImages',
+                  label: 'Image',
+                  render: (value) => {
+                    const imgSrc = Array.isArray(value) && value.length > 0
+                      ? value[0]
+                      : ImageNotFound;
+                    return (
+                      <img
+                        src={imgSrc}
+                        alt="Product"
+                        style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }}
+                        onError={e => { e.target.src = ImageNotFound; }}
+                      />
+                    );
+                  },
+                },
+                { key: 'productName', label: 'Name' },
+                { key: 'sku', label: 'Code' },
+                { key: 'price', label: 'Value', render: value => `$${value}` },
                 { key: 'qty', label: 'Qty' },
-                { key: 'description', label: 'Description', render: value => value && value.length > 40 ? value.slice(0, 40) + '...' : value },
+                {
+                  key: 'description', label: 'Description',
+                  render: (value) => {
+                    if (!value) return '';
+                    const plain = value.replace(/<[^>]+>/g, '');
+                    return plain.length > 40 ? plain.slice(0, 40) + '...' : plain;
+                  }
+                },
                 { key: 'createdAt', label: 'Created', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
-                // { key: 'updatedAt', label: 'Updated', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
                 {
                   key: 'actions',
                   label: 'Actions',
                   render: (value, item) => (
                     <>
-                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="icon">
+                      <Button className="btn-icon edit" onClick={e => handleEdit(item._id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="icon">
                         <EditIcon />
                       </Button>
-                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger">
+                      <Button className="btn-icon delete" onClick={e => handleDelete(item._id || item.id, e)} title={`Delete ${item.productName || item.name}`} aria-label={`Delete ${item.productName || item.name}`} variant="danger">
                         <DeleteIcon />
                       </Button>
                     </>
