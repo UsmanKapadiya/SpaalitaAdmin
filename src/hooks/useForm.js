@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-toastify';
 
 /**
  * useForm - A reusable form hook for CRUD forms with image and description support.
@@ -73,7 +74,9 @@ export default function useForm({
   const validate = () => {
     for (let field of fields) {
       if (!form[field]) {
-        setError('Please fill all required fields');
+        const fieldLabel = field.charAt(0).toUpperCase() + field.slice(1);
+        setError(`Please fill the required field: ${fieldLabel}`);
+        toast.error(`Please fill the required field: ${fieldLabel}`);
         return false;
       }
     }
@@ -81,11 +84,13 @@ export default function useForm({
   };
 
   const handleSubmit = async (e) => {
+    console.log('handleSubmit called');
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
     if (!validate()) {
+      console.log("validation Faild")
       setLoading(false);
       return;
     }

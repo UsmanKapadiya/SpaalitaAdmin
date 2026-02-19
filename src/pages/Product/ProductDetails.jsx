@@ -2,6 +2,11 @@ import React from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import ImageNotFound from '../../assets/download.png'
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
 
 const styles = {
   header: {
@@ -42,7 +47,7 @@ function ProductDetails({ product, onBack, onEditProduct }) {
   return (
     <DashboardLayout>
       <div className="order-details-container">
-         <PageTitle
+        <PageTitle
           title="Product Details"
           button={true}
           buttonLabel="Edit Product"
@@ -69,20 +74,25 @@ function ProductDetails({ product, onBack, onEditProduct }) {
               <th>Images</th>
               <td>
                 {Array.isArray(product.images) && product.images.length > 0 ? (
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {product.images.map((img, idx) => (
                       <img
                         key={idx}
                         src={img}
                         alt={`Product ${product.name} ${idx + 1}`}
                         style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }}
+                        onError={e => { e.target.src = ImageNotFound; }}
                       />
                     ))}
                   </div>
                 ) : (
-                  <span style={{ color: '#aaa' }}>No images</span>
+                  <img
+                    src={ImageNotFound}
+                    alt="Not found"
+                    style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }}
+                  />
                 )}
-              </td>
+              </td>          
             </tr>
             <tr>
               <th>Price</th>
@@ -94,15 +104,17 @@ function ProductDetails({ product, onBack, onEditProduct }) {
             </tr>
             <tr>
               <th>Description</th>
-              <td>{product.description}</td>
+              <td style={{ maxHeight: 250, overflowY: 'auto', display: 'block', whiteSpace: 'pre-wrap' }}>
+                {product.description ? product.description.replace(/<[^>]+>/g, '') : ''}
+              </td>
             </tr>
             <tr>
               <th>Created At</th>
-              <td>{product.createdAt}</td>
+              <td>{product.createdAt ? dayjs(product.createdAt).format('DD-MMM-YYYY') : ''}</td>
             </tr>
             <tr>
               <th>Updated At</th>
-              <td>{product.updatedAt}</td>
+              <td>{product.updatedAt ? dayjs(product.updatedAt).format('DD-MMM-YYYY') : ''}</td>
             </tr>
           </tbody>
         </table>

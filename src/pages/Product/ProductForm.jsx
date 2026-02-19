@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -9,6 +9,7 @@ import './EditProduct.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockProducts from '../../data/mockProducts';
+import { createProduct, updateProduct, getProductById } from '../../services/productService';
 import PageTitle from '../../components/PageTitle/PageTitle';
 
 const initialForm = {
@@ -26,6 +27,7 @@ const ProductForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
+  const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
   const {
     form,
@@ -44,29 +46,67 @@ const ProductForm = () => {
     data: mockProducts,
     id,
     isEdit,
-    fields: ['name', 'sku', 'price', 'qty', 'description'],
-    onSubmit: (formData, { setError, setSuccess, setLoading }) => {
-      if (isEdit) {
-        setSuccess('Product updated successfully!');
-        toast.success('Product updated successfully!');
-      } else {
-        const newProduct = {
-          ...formData,
-          id: Date.now().toString() + Math.random().toString(36).slice(2),
-          price: parseFloat(formData.price),
-          qty: parseInt(formData.qty),
-          createdAt: new Date().toISOString().slice(0, 10),
-          updatedAt: new Date().toISOString().slice(0, 10),
+    fields: ['name', 'sku', 'price', 'qty', 'description', 'images',],
+    onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
+      try {
+        const payload = {
+          productName: formData.name,
+          sku: formData.sku,
+          price: Number(formData.price),
+          qty: Number(formData.qty),
+          productImages: Array.isArray(formData.images) ? formData.images : [],
+          description: formData.description,
+          category: 'Product', // Always static
         };
-        setSuccess('Product added successfully!');
-        toast.success('Product added successfully!');
+        let resp;
+        if (isEdit) {
+          resp = await updateProduct(id, token, payload);
+          setSuccess('Product updated successfully!');
+          toast.success('Product updated successfully!');
+        } else {
+          resp = await createProduct(token, payload);
+          setSuccess('Product added successfully!');
+          toast.success('Product added successfully!');
+        }
+        setLoading(false);
+        setTimeout(() => navigate('/product'), 1200);
+      } catch (err) {
+        setLoading(false);
+        setError({ message: err?.response?.data?.message || 'Something went wrong', field: null });
+        toast.error(err?.response?.data?.message || 'Something went wrong');
       }
-      setLoading(false);
-      setTimeout(() => navigate('/products'), 1200);
     },
     imageField: 'images',
     descriptionField: 'description',
   });
+
+  // Fetch product details if editing
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (isEdit && id) {
+        try {
+          const resp = await getProductById(id);
+          if (resp && resp.success && resp.data) {
+            const prod = resp.data;
+            setForm(f => ({
+              ...f,
+              name: prod.productName || '',
+              sku: prod.sku || '',
+              price: prod.price || '',
+              qty: prod.qty || '',
+              description: prod.description || '',
+              images: Array.isArray(prod.productImages) ? prod.productImages : [],
+              imagePreviews: Array.isArray(prod.productImages) ? prod.productImages : [],
+            }));
+          }
+        } catch (err) {
+          toast.error('Failed to fetch product details');
+        }
+      }
+    };
+    fetchProduct();
+    // eslint-disable-next-line
+  }, [isEdit, id]);
 
   // Remove image by index
   const handleRemoveImage = idx => {
@@ -115,12 +155,12 @@ const ProductForm = () => {
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">        
+        <div className="edit-form-card">
           <PageTitle
             title={isEdit ? 'Update Product' : ' Add Product'}
             subTitle={isEdit
-                ? 'Fill in the details to add a new product.'
-                : 'Edit product details and save changes.'}
+              ? 'Fill in the details to add a new product.'
+              : 'Edit product details and save changes.'}
             button={false}
           />
           {success && <div className="success-banner">{success}</div>}
@@ -243,7 +283,7 @@ const ProductForm = () => {
               </div>
               <div className="form-group form-group-full">
                 <label className="form-label form-label-required">Description</label>
-                <div className="editor-wrapper">
+                <div className="editor-wrapper-quill">
                   <ReactQuill
                     theme="snow"
                     value={form.description || ''}
@@ -271,9 +311,24 @@ const ProductForm = () => {
                       'blockquote', 'code-block',
                       'indent'
                     ]}
-                    style={{ height: '180px' }}
+                    style={{ maxHeight: 300, overflow: 'auto' }}
                   />
                 </div>
+                <style>{`
+                  .editor-wrapper-quill .ql-container {
+                    max-height: 200px;
+                  }
+                  .editor-wrapper-quill .ql-editor {
+                    max-height: 200px;
+                    overflow-y: auto;
+                  }
+                  .editor-wrapper-quill .ql-toolbar {
+                    position: sticky;
+                    top: 0;
+                    z-index: 2;
+                    background: #fff;
+                  }
+                `}</style>
                 {error && error.field === 'description' && (
                   <div className="input-error">{error.message}</div>
                 )}
