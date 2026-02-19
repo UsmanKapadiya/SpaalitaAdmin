@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import EmptyState from '../../components/EmptyState/EmptyState';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -8,46 +8,65 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import mockUsers from '../../data/mockUsers';
 import { useNavigate } from 'react-router-dom';
-import './user.css';
+import { formatDate } from '../../utils/orderUtils';
 import Pagination from '../../components/Pagination/Pagination';
 import PeopleIcon from '@mui/icons-material/People';
 import Table from '../../components/Table/Table';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import UserService from '../../services/userService';
+import { toast } from 'react-toastify';
+import './user.css';
+import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
+
 
 const User = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const pageSize = 2;
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [userToDelete, setOrderToDelete] = useState(null);
+    const itemsPerPage = 10;
     const navigate = useNavigate();
 
+
+    // Fetch users when page or searchTerm changes
     useEffect(() => {
-        setLoading(true);
-        setTimeout(() => {
-            setUsers(mockUsers);
-            setLoading(false);
-        }, 600);
-    }, []);
+        getUserList();
+    }, [page, searchTerm]);
 
     const filteredUsers = useMemo(() => {
-        if (!searchTerm.trim()) return users;
-        const search = searchTerm.toLowerCase();
-        return users.filter(user =>
-            user.name.toLowerCase().includes(search) ||
-            user.email.toLowerCase().includes(search) ||
-            user.role.toLowerCase().includes(search)
-        );
-    }, [searchTerm, users]);
+        return {
+            items: users,
+            total: totalUsers
+        };
+    }, [users, totalUsers]);
 
-    // Pagination logic
-    const totalPages = Math.ceil(filteredUsers.length / pageSize);
-    const paginatedUsers = useMemo(() => {
-        const start = (page - 1) * pageSize;
-        return filteredUsers.slice(start, start + pageSize);
-    }, [filteredUsers, page, pageSize]);
+    const getUserList = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const resp = await UserService.getUserList(token, page, itemsPerPage, searchTerm);
+            if (resp?.success) {
+                setUsers(resp.data || []);
+                setTotalPages(resp.pagination?.totalPages || 1);
+                setTotalOrders(resp.pagination?.total || 0);
+            } else {
+                notifyError("Please try again.");
+            }
+        } catch (error) {
+            notifyError("An error occurred during fetch Data. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    // Reset to first page when search changes
+    const handlePageChange = useCallback((newPage) => {
+        setPage(newPage);
+    }, []);
+
     useEffect(() => {
         setPage(1);
     }, [searchTerm]);
@@ -56,9 +75,36 @@ const User = () => {
         navigate(`/user/edit/${id}`);
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this user?')) {
-            setUsers(prev => prev.filter(user => user.id !== id));
+     const handleDeleteClick = (user) => {
+        setOrderToDelete(user);
+        setConfirmOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!userToDelete || !userToDelete._id) {
+            setConfirmOpen(false);
+            setOrderToDelete(null);
+            return;
+        }
+        try {
+            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const resp = await UserService.DeleteOrder(token, userToDelete._id);
+            if (resp?.success) {
+                toast.success(resp?.message, {
+                    position: 'top-right',
+                    autoClose: 3000,
+                });
+                setUsers(prev => prev.filter(o => o._id !== userToDelete._id));
+
+            }
+            else {
+                console.error('Failed to delete order');
+            }
+        } catch (error) {
+            console.error('Error deleting order:', error);
+        } finally {
+            setConfirmOpen(false);
+            setOrderToDelete(null);
         }
     };
 
@@ -87,7 +133,7 @@ const User = () => {
                             <GlobalLoader text="Loading users..." />
 
                         </>
-                    ) : paginatedUsers.length > 0 ? (
+                    ) : filteredUsers.items.length > 0 ? (
                         <Table
                             tableClassName="user-table"
                             theadClassName=""
@@ -99,7 +145,7 @@ const User = () => {
                                 {
                                     key: 'index',
                                     label: '#',
-                                    render: (value, row, idx) => (page - 1) * pageSize + idx + 1,
+                                    render: (value, row, idx) => (page - 1) * itemsPerPage + idx + 1,
                                 },
                                 {
                                     key: 'profile',
@@ -135,12 +181,12 @@ const User = () => {
                                         }}>
                                             {(user.firstName && user.lastName)
                                                 ? `${user.firstName[0]}${user.lastName[0]}`
-                                                : (user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : '?')}
+                                                : (user.firstName ? user.firstName.split(' ').map(n => n[0]).join('').slice(0, 2) : '?')}
                                         </div>
                                     ),
                                 },
                                 {
-                                    key: 'name',
+                                    key: 'userName',
                                     label: 'Name',
                                 },
                                 {
@@ -152,25 +198,28 @@ const User = () => {
                                     label: 'Role',
                                 },
                                 {
-                                    key: 'created_at',
+                                    key: 'createdAt',
                                     label: 'Created At',
+                                    render: (value, row) => (
+                                        <span className="order-list__date">{formatDate(row.createdAt)}</span>
+                                    ),
                                 },
                                 {
                                     key: 'actions',
                                     label: 'Actions',
                                     render: (value, user) => (
                                         <>
-                                            <Button className="btn-icon edit" onClick={e => handleEdit(user.id, e)} title={`Edit ${user.name}`} aria-label={`Edit ${user.name}`} variant="icon">
+                                            <Button className="btn-icon edit" onClick={e => handleEdit(user._id, e)} title={`Edit ${user.name}`} aria-label={`Edit ${user.name}`} variant="icon">
                                                 <EditIcon />
                                             </Button>
-                                            <Button className="btn-icon delete" onClick={e => handleDelete(user.id, e)} title={`Delete ${user.name}`} aria-label={`Delete ${user.name}`} variant="danger">
+                                            <Button className="btn-icon delete" onClick={e => handleDeleteClick(user)} title={`Delete ${user.name}`} aria-label={`Delete ${user.name}`} variant="danger">
                                                 <DeleteIcon />
                                             </Button>
                                         </>
                                     ),
                                 },
                             ]}
-                            data={paginatedUsers}
+                            data={filteredUsers?.items}
                         />
                     ) : (
                         <EmptyState
@@ -184,12 +233,22 @@ const User = () => {
                     <Pagination
                         currentPage={page}
                         totalPages={totalPages}
-                        onPageChange={setPage}
+                        onPageChange={handlePageChange}
                         showInfo={true}
                         showJumper={totalPages > 10}
                     />
                 )}
             </div>
+            <ConfirmDialog
+                isOpen={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Delete User"
+                message={userToDelete ? `Are you sure you want to delete User ${userToDelete.userName}?` : ''}
+                confirmText="Delete"
+                cancelText="Cancel"
+                type="danger"
+            />
         </DashboardLayout>
     );
 };
