@@ -11,10 +11,10 @@
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.btn-primary {
+/* .btn-primary {
   background: var();
   color: #fff;
-}
+} */
 
 .btn-primary:disabled {
   background: #b3d7ff;
