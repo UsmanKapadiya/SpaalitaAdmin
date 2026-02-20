@@ -1,6 +1,6 @@
 
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -10,6 +10,8 @@ import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockServices from '../../data/mockServices';
+import { createService, getServiceById, updateService } from '../../services/services';
+import { useAuth } from '../../context/AuthContext';
 import PageTitle from '../../components/PageTitle/PageTitle';
 
 const initialForm = {
@@ -19,13 +21,16 @@ const initialForm = {
     qty: '',
     description: '',
     image: '',
+    buttonUrl: '', // Optional field for button url
 };
 
 const ServicesForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
-
+    const { user } = useAuth();
+    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    console.log(id)
     const {
         form,
         setForm,
@@ -45,29 +50,85 @@ const ServicesForm = () => {
         data: mockServices,
         id,
         isEdit,
-        fields: ['name', 'code', 'value', 'qty', 'description'],
-        onSubmit: (formData, { setError, setSuccess, setLoading }) => {
-            if (isEdit) {
-                setSuccess('Service updated successfully!');
-                toast.success('Service updated successfully!');
-            } else {
-                const newService = {
-                    ...formData,
-                    id: Date.now().toString(),
-                    value: parseFloat(formData.value),
-                    qty: parseInt(formData.qty),
-                    createdAt: new Date().toISOString().slice(0, 10),
-                    updatedAt: new Date().toISOString().slice(0, 10),
-                };
-                setSuccess('Service added successfully!');
-                toast.success('Service added successfully!');
+        fields: ['name', 'description',],
+        // fields removed: validation handled in useForm, buttonUrl is optional
+        onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
+            // Only pass the required keys in the payload
+            const payload = {
+                serviceName: formData.name,
+                serviceImage: formData.image,
+                serviceDescription: formData.description,
+                buttonUrl: formData.buttonUrl,
+            };
+            try {
+                let response;
+                if (isEdit) {
+                    response = await updateService(id, token, payload);
+                    if (response.success) {
+                        setSuccess('Service updated successfully!');
+                        toast.success('Service updated successfully!');
+                    } else {
+                        setError(response.error || 'Failed to update service');
+                        toast.error(response.error || 'Failed to update service');
+                        setLoading(false);
+                        return;
+                    }
+                } else {
+                    response = await createService(token, payload);
+                    if (response.success) {
+                        setSuccess('Service added successfully!');
+                        toast.success('Service added successfully!');
+                    } else {
+                        setError(response.error || 'Failed to add service');
+                        toast.error(response.error || 'Failed to add service');
+                        setLoading(false);
+                        return;
+                    }
+                }
+                setLoading(false);
+                setTimeout(() => navigate('/services'), 1200);
+            } catch (err) {
+                setError('An error occurred.');
+                toast.error('An error occurred.');
+                setLoading(false);
             }
-            setLoading(false);
-            setTimeout(() => navigate('/services'), 1200);
         },
         imageField: 'image',
         descriptionField: 'description',
     });
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            if (isEdit && id) {
+                try {
+                    const resp = await getServiceById(id);
+                    console.log(resp)
+                    if (resp && resp.success && resp.data) {
+                        const prod = resp.data;
+                        setForm(f => ({
+                            ...f,
+                            name: prod.serviceName || '',
+                            description: prod.serviceDescription || '',
+                            buttonUrl: prod.buttonUrl || '',
+                            image: prod.serviceImage || '',
+                        }));
+                        if (prod.serviceImage) {
+                            setImagePreview(prod.serviceImage);
+                        }
+                    }
+                } catch (err) {
+                    toast.error('Failed to fetch product details');
+                }
+            }
+        };
+        fetchServices();
+        // eslint-disable-next-line
+    }, [isEdit, id]);
+
+    function stripHtmlTags(str) {
+        if (!str) return '';
+        return str.replace(/<[^>]*>?/gm, '');
+    }
 
     return (
         <DashboardLayout>
@@ -126,12 +187,27 @@ const ServicesForm = () => {
                                 <p className="form-help-text">Upload a service image (optional, jpg/png/gif)</p>
                             </div>
                         </div>
+                        <div className="form-row">
+                            <div className="form-group form-group-full">
+                                <label htmlFor="buttonUrl" className="form-label">Button URL (optional)</label>
+                                <input
+                                    type="text"
+                                    id="buttonUrl"
+                                    name="buttonUrl"
+                                    className="form-input"
+                                    value={form.buttonUrl || ''}
+                                    onChange={handleChange}
+                                    placeholder="https://example.com"
+                                />
+                                <p className="form-help-text">Provide a URL for the service button (optional)</p>
+                            </div>
+                        </div>
                         <div className="form-group form-group-full">
                             <label htmlFor="description" className="form-label form-label-required">Service Description</label>
-                            <div className="editor-wrapper">
+                            <div className="editor-wrapper-quill">
                                 <ReactQuill
                                     theme="snow"
-                                    value={form.description || ''}
+                                    value={form.description}
                                     onChange={handleDescriptionChange}
                                     modules={{
                                         toolbar: [
@@ -156,9 +232,24 @@ const ServicesForm = () => {
                                         'blockquote', 'code-block',
                                         'indent'
                                     ]}
-                                    style={{ height: '180px' }}
+                                    style={{ maxHeight: 300, overflow: 'auto' }}
                                 />
                             </div>
+                            <style>{`
+                                             .editor-wrapper-quill .ql-container {
+                                               max-height: 200px;
+                                             }
+                                             .editor-wrapper-quill .ql-editor {
+                                               max-height: 200px;
+                                               overflow-y: auto;
+                                             }
+                                             .editor-wrapper-quill .ql-toolbar {
+                                               position: sticky;
+                                               top: 0;
+                                               z-index: 2;
+                                               background: #fff;
+                                             }
+                                           `}</style>
                         </div>
                         <div className="form-actions">
                             <Button

@@ -8,100 +8,57 @@ import Button from '../../components/Button/Button';
 import Pagination from '../../components/Pagination/Pagination';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import { useNavigate } from 'react-router-dom';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import Table from '../../components/Table/Table';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { toast } from 'react-toastify';
+import { getAllServices, deleteServices } from '../../services/services';
 
 const Services = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
-    const itemsPerPage = 2;
+    const itemsPerPage = 10;
+    const [serviceData, setServiceData] = useState([]);
     const [loading, setLoading] = useState(true);
-    useEffect(() => {
+    const [error, setError] = useState(null);
+    const [totalItems, setTotalItems] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+
+
+    const getAllService = async (pageNum = page, search = searchTerm) => {
         setLoading(true);
-        setTimeout(() => setLoading(false), 600); // Simulate loading
-    }, []);
-    const [error] = useState(null);
-
-    const allServices = [
-        {
-            id: '1',
-            name: 'FACIALS',
-            description: 'Professional web design services for businesses and individuals.',
-            thumbnail: 'https://spaalita.ca/wp-content/uploads/2021/06/ezgif.com-gif-maker.jpg',
-            createdAt: '2025-12-01',
-            updatedAt: '2026-01-10',
-        },
-        {
-            id: '2',
-            name: 'SEO Optimization',
-            description: 'Improve your website ranking with our SEO optimization service.',
-            thumbnail: 'https://via.placeholder.com/80x80?text=SEO',
-            createdAt: '2025-11-15',
-            updatedAt: '2025-12-20',
-        },
-        {
-            id: '3',
-            name: 'Content Writing',
-            description: 'High-quality content writing for blogs, websites, and more.',
-            thumbnail: 'https://via.placeholder.com/80x80?text=Content',
-            createdAt: '2025-10-10',
-            updatedAt: '2025-11-01',
-        },
-        {
-            id: '4',
-            name: 'Digital Marketing',
-            description: 'Comprehensive digital marketing solutions for your brand.',
-            thumbnail: 'https://via.placeholder.com/80x80?text=Marketing',
-            createdAt: '2025-09-05',
-            updatedAt: '2025-10-01',
-        },
-        {
-            id: '5',
-            name: 'App Development',
-            description: 'Custom mobile and web app development services.',
-            thumbnail: 'https://via.placeholder.com/80x80?text=App',
-            createdAt: '2025-08-01',
-            updatedAt: '2025-09-01',
-        },
-    ];
-    const [serviceData, setServiceData] = useState(allServices);
-
-    // Filter and paginate gift cards
-    const filteredServices = useMemo(() => {
-        let filtered = serviceData;
-        if (searchTerm.trim()) {
-            const search = searchTerm.toLowerCase();
-            filtered = serviceData.filter(item =>
-                item.name.toLowerCase().includes(search) ||
-                item.code?.toLowerCase().includes(search) ||
-                item.description.toLowerCase().includes(search)
-            );
+        setError(null);
+        try {
+            const resp = await getAllServices(pageNum, itemsPerPage, search);
+            let services = [];
+            if (resp && Array.isArray(resp.data)) {
+                services = resp.data.map(item => ({
+                    id: item._id || item.id,
+                    name: item.serviceName,
+                    image: item.serviceImage,
+                    description: item.serviceDescription,
+                    buttonUrl: item.buttonUrl,
+                    createdAt: item.createdAt,
+                    updatedAt: item.updatedAt,
+                }));
+            }
+            setServiceData(services);
+            setTotalItems(resp.pagination?.total || services.length);
+            setTotalPages(resp.pagination?.totalPages || 1);
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to load services.');
+            setLoading(false);
         }
-        const startIdx = (page - 1) * itemsPerPage;
-        return filtered.slice(startIdx, startIdx + itemsPerPage);
-    }, [searchTerm, serviceData, page]);
+    };
+    // Fetch all services from API on mount and when page/searchTerm changes
+    useEffect(() => {
+        getAllService(page, searchTerm);
+    }, [page, searchTerm]);
 
-    const totalItems = useMemo(() => {
-        if (!searchTerm.trim()) return serviceData.length;
-        const search = searchTerm.toLowerCase();
-        return serviceData.filter(item =>
-            item.name.toLowerCase().includes(search) ||
-            item.code?.toLowerCase().includes(search) ||
-            item.description.toLowerCase().includes(search)
-        ).length;
-    }, [searchTerm, serviceData]);
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    // Reset to page 1 when search changes
-    const handleSearchChange = useCallback((e) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
-    }, []);
 
     const handlePageChange = useCallback((event, value) => {
         setPage(value);
@@ -110,6 +67,7 @@ const Services = () => {
 
     // Edit gift card
     const handleEdit = useCallback((id, e) => {
+        console.log(id);
         e.stopPropagation();
         navigate(`/services/edit/${id}`);
     }, [navigate]);
@@ -132,11 +90,22 @@ const Services = () => {
         });
     }, [serviceData]);
 
-    const confirmDelete = useCallback(() => {
+    const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        setServiceData(prev => prev.filter(item => item.id !== confirmDialog.itemId));
-        setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-        toast.success('Service deleted successfully!');
+        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        try {
+            const response = await deleteServices(confirmDialog.itemId, token);
+            if (response && response.success) {
+                setServiceData(prev => prev.filter(item => item.id !== confirmDialog.itemId));
+                toast.success('Service deleted successfully!');
+            } else {
+                toast.error(response?.error || 'Failed to delete service.');
+            }
+        } catch (err) {
+            toast.error('An error occurred while deleting service.');
+        } finally {
+            setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+        }
     }, [confirmDialog.itemId]);
 
     const closeConfirmDialog = useCallback(() => {
@@ -163,36 +132,44 @@ const Services = () => {
                         showFilter={false}
                         placeholder="Search services by name, code, or description..."
                     />
-                </div>
-
-                <div className="product-table-wrapper order-list__table-container">
                     {loading ? (
-                        <GlobalLoader text="Loading services..." />
+                        <GlobalLoader text="Loading products..." />
                     ) : error ? (
                         <div className="empty-state">{error}</div>
-                    ) : filteredServices.length > 0 ? (
+                    ) : serviceData.length > 0 ? (
                         <Table
                             tableClassName="product-table"
                             columns={[
                                 {
-                                    key: 'thumbnail',
+                                    key: 'image',
                                     label: 'Image',
-                                    render: (value, item) => (
-                                        <img src={item.thumbnail} alt={item.name} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} />
-                                    ),
+                                    render: (value, item) => {
+                                        let src = item.image || item.serviceImage;
+                                        if (src && src.startsWith('data:image')) {
+                                            // already valid base64
+                                        } else if (src && !/^https?:\/\//.test(src) && !src.startsWith('/')) {
+                                            src = `/uploads/${src}`;
+                                        }
+                                        return (
+                                            <img src={src} alt={item.name || item.serviceName} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} />
+                                        );
+                                    },
                                 },
-                                { key: 'name', label: 'Name' },
+                                { key: 'name', label: 'Name', render: (value, item) => value || item.serviceName },
                                 {
                                     key: 'description',
                                     label: 'Description',
-                                    render: value => value && value.length > 40 ? value.slice(0, 40) + '...' : value,
+                                    render: (value) => {
+                                        if (!value) return '';
+                                        const plain = value.replace(/<[^>]+>/g, '');
+                                        return plain.length > 40 ? plain.slice(0, 40) + '...' : plain;
+                                    },
                                 },
                                 {
                                     key: 'createdAt',
                                     label: 'Created',
                                     render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '',
                                 },
-                                // { key: 'updatedAt', label: 'Updated', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
                                 {
                                     key: 'actions',
                                     label: 'Actions',
@@ -208,7 +185,7 @@ const Services = () => {
                                     ),
                                 },
                             ]}
-                            data={filteredServices}
+                            data={serviceData}
                         />
                     ) : (
                         <EmptyState
@@ -217,6 +194,7 @@ const Services = () => {
                             description={searchTerm ? 'No services found' : 'No services yet'}
                         />
                     )}
+
                 </div>
                 {totalPages > 1 && !loading && (
                     <Pagination
