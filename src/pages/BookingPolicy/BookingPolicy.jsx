@@ -3,18 +3,16 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import ArticleIcon from '@mui/icons-material/Article';
 import PolicyIcon from '@mui/icons-material/Policy';
-
+import { toast } from 'react-toastify';
 import EmptyState from '../../components/EmptyState/EmptyState';
-import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import dayjs from 'dayjs';
 import Switch from '@mui/material/Switch';
 import Card from '../../components/Card/Card';
-import { mockBookingPolicies } from '../../data/mockBookingPolicies';
+import { deleteBookingPolicy, getAllBookingPolicy } from '../../services/bookingPolicyService';
+import { updateBookingPolicy } from '../../services/bookingPolicyService';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
@@ -26,21 +24,38 @@ const BookingPolicy = () => {
     const [expandedItems, setExpandedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
+    const [policies, setPolicies] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         itemId: null,
         itemName: '',
     });
-    const [policies, setPolicies] = useState(mockBookingPolicies);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [toggleDialog, setToggleDialog] = useState({ isOpen: false, policyId: null });
-
+    
+    async function fetchPolicies() {
+        try {
+            const resp = await getAllBookingPolicy(page, 10, searchTerm);
+            if (resp && resp.success && Array.isArray(resp.data)) {
+                setPolicies(resp.data);
+                setError(null);
+            } else {
+                setPolicies([]);
+                setError(resp?.error || 'Failed to fetch booking policies');
+            }
+        } catch (err) {
+            setPolicies([]);
+            setError('Failed to fetch booking policies');
+        }
+        setLoading(false);
+    }
     useEffect(() => {
         setLoading(true);
-        setTimeout(() => setLoading(false), 600);
-    }, []);
-    // Memoized filtered and sorted data (client-side search only)
+        fetchPolicies();
+    }, [page, searchTerm]);
+
+
     const filteredPolicies = useMemo(() => {
         if (!searchTerm.trim()) return policies;
         const search = searchTerm.toLowerCase();
@@ -51,16 +66,18 @@ const BookingPolicy = () => {
         );
     }, [searchTerm, policies]);
 
-    // Reset to page 1 when search changes
-    const handleSearchChange = useCallback((e) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
-    }, []);
-
-    const handlePageChange = useCallback((event, value) => {
-        setPage(value);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    const updatePolicyStatus = async (selectedId) => {
+        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const selectedPolicy = policies.find(item => item._id === selectedId);
+        if (selectedPolicy && selectedPolicy.status !== 'active') {
+            const resp = await updateBookingPolicy(selectedId, token, { ...selectedPolicy, status: 'active' });
+            if (resp && resp.success) {
+                toast.success(`Policy "${selectedPolicy.title}" set to active.`);
+            } else {
+                toast.error(resp?.error || `Failed to update policy "${selectedPolicy.title}"`);
+            }
+        }
+    };
 
     const toggleExpand = useCallback((id) => {
         setExpandedItems(prev =>
@@ -85,10 +102,21 @@ const BookingPolicy = () => {
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        setLoading(true);
-        setPolicies(prev => prev.filter(item => item._id !== confirmDialog.itemId));
-        setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-        setLoading(false);
+        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        try {
+            const response = await deleteBookingPolicy(confirmDialog.itemId, token);
+            if (response && response.success) {
+                fetchPolicies();
+                //setPolicies(prev => prev.filter(item => item.id !== confirmDialog.itemId));
+                toast.success('BookingPolicy deleted successfully!');
+            } else {
+                toast.error(response?.error || 'Failed to delete BookingPolicy.');
+            }
+        } catch (err) {
+            toast.error('An error occurred while deleting BookingPolicy.');
+        } finally {
+            setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+        }
     }, [confirmDialog.itemId]);
 
     const closeConfirmDialog = useCallback(() => {
@@ -100,9 +128,12 @@ const BookingPolicy = () => {
     }, []);
 
     const confirmToggleActive = useCallback(() => {
-        setPolicies(prev => prev.map(item => ({ ...item, active: item._id === toggleDialog.policyId })));
-        setToggleDialog({ isOpen: false, policyId: null });
-    }, [toggleDialog.policyId]);
+        const selectedId = toggleDialog.policyId;
+        updatePolicyStatus(selectedId).then(() => {
+            setPolicies(prev => prev.map(item => ({ ...item, status: item._id === selectedId ? 'active' : 'inactive' })));
+            setToggleDialog({ isOpen: false, policyId: null });
+        });
+    }, [toggleDialog.policyId, policies]);
 
     const closeToggleDialog = useCallback(() => {
         setToggleDialog({ isOpen: false, policyId: null });
@@ -129,13 +160,13 @@ const BookingPolicy = () => {
                         </div>
                         <div className="news-item-actions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Switch
-                                checked={!!item.active}
+                                checked={item.status === 'active'}
                                 onClick={e => e.stopPropagation()}
                                 onChange={() => handleToggleActive(item._id)}
                                 color="primary"
-                                inputProps={{ 'aria-label': 'Active Policy Toggle' }}
+                                inputProps={{ 'aria-label': 'Status Policy Toggle' }}
                             />
-                            <span style={{ fontSize: 12, color: item.active ? '#388e3c' : '#888' }}>{item.active ? 'Active' : 'Inactive'}</span>
+                            <span style={{ fontSize: 12, color: item.status === 'active' ? '#388e3c' : '#888' }}>{item.status === 'active' ? 'Active' : 'Inactive'}</span>
                             <Button
                                 type="button"
                                 className="btn-icon edit"

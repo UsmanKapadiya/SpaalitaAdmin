@@ -9,10 +9,12 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../GiftCard/EditGiftCard.css';
 import { toast } from 'react-toastify';
+import { getBookingPolicyById, createBookingPolicy, updateBookingPolicy } from '../../services/bookingPolicyService';
 const initialForm = {
   title: '',
   description: '',
-  active: false,
+  buttonUrl: '',
+  status: false,
 };
 
 const BookingPolicyForm = ({ policies, setPolicies }) => {
@@ -20,23 +22,34 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
   const [form, setForm] = useState(initialForm);
-  // Removed imagePreview state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    if (isEdit && policies) {
-      const policy = policies.find(g => g.id === id);
-      if (policy) {
-        setForm({
-          title: policy.title || '',
-          description: policy.description || '',
-          active: !!policy.active,
-        });
+    async function fetchPolicy() {
+      if (isEdit && id) {
+        setLoading(true);
+        try {
+          const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+          const resp = await getBookingPolicyById(id, token);
+          if (resp && resp.success && resp.data) {
+            setForm({
+              title: resp.data.title || '',
+              description: resp.data.description || '',
+              buttonUrl: resp.data.buttonUrl || '',
+              status: resp.data.status === 'active',
+            });
+          } else {
+            setError(resp?.error || 'Failed to fetch booking policy');
+          }
+        } catch (err) {
+          setError('Failed to fetch booking policy');
+        }
+        setLoading(false);
       }
     }
+    fetchPolicy();
   }, [id, isEdit, policies]);
 
   const handleChange = e => {
@@ -64,33 +77,60 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
       setLoading(false);
       return;
     }
+    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    const apiForm = {
+      ...form,
+      status: form.status ? 'active' : 'Inactive',
+    };
     if (isEdit) {
-      // setPolicies(prev => prev.map(g => g.id === id ? { ...form, id } : g));
-      setSuccess('Booking Policy updated successfully!');
-      toast.success('Booking Policy updated successfully!');
+      updateBookingPolicy(id, token, apiForm)
+        .then(resp => {
+          if (resp && resp.success) {
+            setSuccess('Booking Policy updated successfully!');
+            toast.success('Booking Policy updated successfully!');
+          } else {
+            setError(resp?.error || 'Failed to update booking policy');
+            toast.error(resp?.error || 'Failed to update booking policy');
+          }
+        })
+        .catch(() => {
+          setError('Failed to update booking policy');
+          toast.error('Failed to update booking policy');
+        })
+        .finally(() => {
+          setLoading(false);
+          setTimeout(() => navigate('/bookingPolicy'), 1200);
+        });
     } else {
-      const newPolicy = {
-        ...form,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().slice(0, 10),
-        updatedAt: new Date().toISOString().slice(0, 10),
-      };
-      // setPolicies(prev => [newPolicy, ...prev]);
-      setSuccess('Booking Policy added successfully!');
-      toast.success('Booking Policy added successfully!');
+      createBookingPolicy(token, apiForm)
+        .then(resp => {
+          if (resp && resp.success) {
+            setSuccess('Booking Policy added successfully!');
+            toast.success('Booking Policy added successfully!');
+          } else {
+            setError(resp?.error || 'Failed to add booking policy');
+            toast.error(resp?.error || 'Failed to add booking policy');
+          }
+        })
+        .catch(() => {
+          setError('Failed to add booking policy');
+          toast.error('Failed to add booking policy');
+        })
+        .finally(() => {
+          setLoading(false);
+          setTimeout(() => navigate('/bookingPolicy'), 1200);
+        });
     }
-    setLoading(false);
-    setTimeout(() => navigate('/bookingPolicy'), 1200);
   };
 
   return (
     <DashboardLayout>
       <div className="edit-product-page">
-        <div className="edit-form-card">         
+        <div className="edit-form-card">
           <PageTitle
             title={isEdit ? 'Update Booking Policy' : 'Add Booking Policy'}
-            subTitle= {isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
-            button={false}        
+            subTitle={isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
+            button={false}
           />
           {error && <div className="error-banner">{error}</div>}
           {success && <div className="success-banner">{success}</div>}
@@ -112,25 +152,41 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
               </div>
             </div>
             <div className="form-row">
-              <div className="form-group form-group-full" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div className="form-group form-group-full" style={{ display: 'block', alignItems: 'center', gap: 12 }}>
                 <label htmlFor="active" className="form-label">Active</label>
-                <Switch
-                  id="active"
-                  name="active"
-                  checked={!!form.active}
+                <label htmlFor="status" className="form-label">Status</label>
+                  <Switch
+                    id="status"
+                    name="status"
+                    checked={!!form.status}
+                    onChange={handleChange}
+                    color="primary"
+                    inputProps={{ 'aria-label': 'Status Policy Toggle' }}
+                  />
+                  <span style={{ fontSize: 13, color: form.status ? '#388e3c' : '#888' }}>{form.status ? 'Active' : 'Inactive'}</span>
+              </div>
+            </div>
+            <div className="form-row">
+              <div className="form-group form-group-full">
+                <label htmlFor="buttonUrl" className="form-label">Button URL (optional)</label>
+                <input
+                  type="text"
+                  id="buttonUrl"
+                  name="buttonUrl"
+                  className="form-input"
+                  value={form.buttonUrl || ''}
                   onChange={handleChange}
-                  color="primary"
-                  inputProps={{ 'aria-label': 'Active Policy Toggle' }}
+                  placeholder="https://example.com"
                 />
-                <span style={{ fontSize: 13, color: form.active ? '#388e3c' : '#888' }}>{form.active ? 'Active' : 'Inactive'}</span>
+                <p className="form-help-text">Provide a URL for the service button (optional)</p>
               </div>
             </div>
             <div className="form-group form-group-full">
               <label htmlFor="description" className="form-label form-label-required">Description</label>
-              <div className="editor-wrapper">
+              <div className="editor-wrapper-quill">
                 <ReactQuill
                   theme="snow"
-                  value={form.description || ''}
+                  value={form.description}
                   onChange={handleDescriptionChange}
                   modules={{
                     toolbar: [
@@ -155,9 +211,24 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
                     'blockquote', 'code-block',
                     'indent'
                   ]}
-                  style={{ height: '180px' }}
+                  style={{ maxHeight: 300, overflow: 'auto' }}
                 />
               </div>
+              <style>{`
+                                                          .editor-wrapper-quill .ql-container {
+                                                            max-height: 200px;
+                                                          }
+                                                          .editor-wrapper-quill .ql-editor {
+                                                            max-height: 200px;
+                                                            overflow-y: auto;
+                                                          }
+                                                          .editor-wrapper-quill .ql-toolbar {
+                                                            position: sticky;
+                                                            top: 0;
+                                                            z-index: 2;
+                                                            background: #fff;
+                                                          }
+                                                        `}</style>
             </div>
             <div className="form-actions">
               <Button
@@ -185,4 +256,4 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
 };
 
 export default BookingPolicyForm;
-// This file is now obsolete. All Gift Card add/edit logic is in GiftCard.jsx.
+
