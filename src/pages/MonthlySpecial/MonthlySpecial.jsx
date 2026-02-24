@@ -5,26 +5,26 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import EmptyState from '../../components/EmptyState/EmptyState';
-import Pagination from '../../components/Pagination/Pagination';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
+import GlobalLoader from '../../components/Loader/GlobalLoader';
+import Card from '../../components/Card/Card';
+import PageTitle from '../../components/PageTitle/PageTitle';
+import { deleteMonthlySpecial, getAllMonthlySpecial } from '../../services/monthlySpecialService';
+import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
-import GlobalLoader from '../../components/Loader/GlobalLoader';
-import Card from '../../components/Card/Card';
-import mockMonthlySpecials from '../../data/mockMonthlySpecials';
-import PageTitle from '../../components/PageTitle/PageTitle';
 
 const MonthlySpecial = () => {
     const navigate = useNavigate();
     const [expandedItems, setExpandedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
+    const itemsPerPage = 10;
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         itemId: null,
@@ -37,30 +37,28 @@ const MonthlySpecial = () => {
     useEffect(() => {
         setLoading(true);
         setTimeout(() => {
-            setSpecials(mockMonthlySpecials);
+            getAllMonthlySpecials();
             setLoading(false);
         }, 600);
-    }, []);
+    }, [page, searchTerm]);
 
-    // Memoized filtered and sorted data (client-side search only)
-    const filteredSpecials = useMemo(() => {
-        if (!searchTerm.trim()) return specials;
-        const search = searchTerm.toLowerCase();
-        return specials.filter(item =>
-            item.month.toLowerCase().includes(search)
-        );
-    }, [searchTerm, specials]);
 
-    // Reset to page 1 when search changes
-    const handleSearchChange = useCallback((e) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
-    }, []);
+    const getAllMonthlySpecials = async (pageNum = page, itemsPerPage, search = searchTerm) => {
+        setLoading(true);
+        setError(null);
+        try {
+            const resp = await getAllMonthlySpecial(pageNum, itemsPerPage, search);
+            if (resp && Array.isArray(resp.data)) {
+                setSpecials(resp.data)
+            }
+            setLoading(false);
+        } catch (err) {
+            setError('Failed to load services.');
+            setLoading(false);
+        }
+    };
 
-    const handlePageChange = useCallback((event, value) => {
-        setPage(value);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, []);
+    const filteredSpecials = specials;
 
     const toggleExpand = useCallback((id) => {
         setExpandedItems(prev =>
@@ -86,9 +84,21 @@ const MonthlySpecial = () => {
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
         setLoading(true);
-        setSpecials(prev => prev.filter(item => item.id !== confirmDialog.itemId));
-        setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-        setLoading(false);
+        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        try {
+            const response = await deleteMonthlySpecial(confirmDialog.itemId, token);
+            if (response && response.success) {
+                setSpecials(prev => prev.filter(item => item.id !== confirmDialog.itemId));
+                toast.success('Monthly Special deleted successfully!');
+            } else {
+                toast.error(response?.error || 'Failed to delete Monthly Special.');
+            }
+        } catch (err) {
+            toast.error('An error occurred while deleting Monthly Special.');
+        } finally {
+            setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+            setLoading(false);
+        }
     }, [confirmDialog.itemId]);
 
     const closeConfirmDialog = useCallback(() => {
@@ -96,9 +106,9 @@ const MonthlySpecial = () => {
     }, []);
 
     const renderSpecialItem = useCallback((item) => {
-        const isExpanded = expandedItems.includes(item.id);
+        const isExpanded = expandedItems.includes(item._id);
         return (
-            <Card className="news-item-wrapper" key={item.id} style={{ margin: 10 }} onClick={() => toggleExpand(item.id)}>
+            <Card className="news-item-wrapper" key={item._id} style={{ margin: 10 }} onClick={() => toggleExpand(item._id)}>
                 <div className='news-item'>
                     <div className="news-item-header">
                         <div className="news-item-info">
@@ -108,14 +118,14 @@ const MonthlySpecial = () => {
                                 {item.image && (
                                     <img src={item.image} alt={item.month} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4, marginRight: 8, border: '1px solid #eee' }} />
                                 )}
-                                <span className="date-badge">{item.created_at ? dayjs(item.created_at).format('DD-MMM-YYYY') : ''}</span>
+                                <span className="date-badge">{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</span>
                             </div>
                         </div>
                         <div className="news-item-actions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Button
                                 type="button"
                                 className="btn-icon edit"
-                                onClick={(e) => handleEdit(item.id, e)}
+                                onClick={(e) => handleEdit(item._id, e)}
                                 title="Edit"
                                 aria-label={`Edit ${item.month}`}
                             >
@@ -124,7 +134,7 @@ const MonthlySpecial = () => {
                             <Button
                                 type="button"
                                 className="btn-icon delete"
-                                onClick={(e) => handleDelete(item.id, e)}
+                                onClick={(e) => handleDelete(item._id, e)}
                                 title="Delete"
                                 aria-label={`Delete ${item.month}`}
                             >
@@ -176,7 +186,7 @@ const MonthlySpecial = () => {
                     ) : (
                         error ? (
                             <div className="empty-state">{error}</div>
-                        ) : filteredSpecials.length > 0 ? (
+                        ) : filteredSpecials?.length > 0 ? (
                             filteredSpecials.map(renderSpecialItem)
                         ) : (
                             <EmptyState

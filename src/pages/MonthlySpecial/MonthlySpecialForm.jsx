@@ -1,14 +1,15 @@
 
 
 
-import mockMonthlySpecials from '../../data/mockMonthlySpecials';
-import React, { useState } from 'react';
+// import mockMonthlySpecials from '../../data/mockMonthlySpecials';
+import { createMonthlySpecial, getMonthlySpecilById, updateMonthlySpecial } from '../../services/monthlySpecialService';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
-import { toast } from 'react-toastify';
-import '../GiftCard/EditGiftCard.css';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import '../GiftCard/EditGiftCard.css';
 
 const monthOptions = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -19,17 +20,43 @@ const MonthlySpecialForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
-    const monthName = isEdit ? id.charAt(0).toUpperCase() + id.slice(1) : '';
-    const currentSpecial = isEdit ? mockMonthlySpecials.find(s => s.month.toLowerCase() === id?.toLowerCase()) : null;
-
+    // const monthName = isEdit ? id.charAt(0).toUpperCase() + id.slice(1) : '';
+    // For real API, fetch currentSpecial by id if needed
+    const [monthName, setMonthName] = useState('')
     const [selectedMonth, setSelectedMonth] = useState(isEdit ? monthName : '');
-    const [image, setImage] = useState(currentSpecial?.image || '');
+    const [image, setImage] = useState('');
     const [imagePreview, setImagePreview] = useState('');
-    const previousImage = currentSpecial?.image || '';
+    const [previousImage, setPreviousImage] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    useEffect(() => {
+        async function fetchMonthlySpecial() {
+            if (isEdit && id) {
+                setLoading(true);
+                try {
+                    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+                    const resp = await getMonthlySpecilById(id, token);
+                    if (resp && resp.success && resp.data) {
+                        const data = resp.data;
+                        setSelectedMonth(data.month);
+                        setMonthName(data.month);
+                        setImage(data?.image)
+                        if (data.image) {
+                            setImagePreview(data.image);
+                        }
+                    } else {
+                        setError(resp?.error || 'Failed to fetch booking policy');
+                    }
+                } catch (err) {
+                    setError('Failed to fetch booking policy');
+                }
+                setLoading(false);
+            }
+        }
+        fetchMonthlySpecial();
+    }, [id, isEdit]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -65,25 +92,30 @@ const MonthlySpecialForm = () => {
             return;
         }
         const reader = new FileReader();
-        reader.onloadend = () => {
-            let updated;
+        reader.onloadend = async () => {
+            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const payload = {
+                month: selectedMonth,
+                image: reader.result,
+            };
+            let resp;
             if (isEdit) {
-                updated = mockMonthlySpecials.map(s =>
-                    s.month.toLowerCase() === month?.toLowerCase()
-                        ? { ...s, image: reader.result }
-                        : s
-                );
+                resp = await updateMonthlySpecial(id, token, payload);
             } else {
-                // Add new special
-                updated = [
-                    ...mockMonthlySpecials,
-                    { id: String(mockMonthlySpecials.length + 1), month: selectedMonth, image: reader.result }
-                ];
+                resp = await createMonthlySpecial(token, payload);
             }
-            localStorage.setItem('monthlySpecials', JSON.stringify(updated));
             setLoading(false);
-            setSuccess(isEdit ? 'Monthly Special updated!' : 'Monthly Special added!');
-            setTimeout(() => navigate('/monthly-special'), 1200);
+            if (resp && resp.success) {
+                setSuccess(isEdit ? 'Monthly Special updated successfully' : '"Monthly special created successfully"');
+                toast.success(isEdit ? 'Monthly Special updated successfully' : '"Monthly special created successfully"');
+                setTimeout(() => navigate('/monthly-special'), 1200);
+            } else {
+                const errorMsg = resp?.message
+                    ? resp.message
+                    : (resp?.error || 'Failed to save monthly special.');
+                setError(errorMsg);
+                toast.error(errorMsg);
+            }
         };
         if (image && image instanceof File) {
             reader.readAsDataURL(image);
@@ -109,25 +141,27 @@ const MonthlySpecialForm = () => {
                         <div className="form-row">
                             <div className="form-group form-group-full">
                                 <label className="form-label form-label-required">Month</label>
-                                {isEdit ? (
-                                    <input type="text" value={monthName} disabled className="form-input" />
-                                ) : (
-                                    <select value={selectedMonth} onChange={handleMonthChange} required className="form-input">
-                                        <option value="">Select Month</option>
-                                        {monthOptions.map(m => (
-                                            <option key={m} value={m}>{m}</option>
-                                        ))}
-                                    </select>
-                                )}
+                                <select value={selectedMonth} onChange={handleMonthChange} required className="form-input">
+                                    <option value="">Select Month</option>
+                                    {monthOptions.map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
                         <div className="form-row">
                             <div className="form-group form-group-full">
                                 <label className="form-label form-label-required">Image</label>
-                                <input type="file" accept="image/*" onChange={handleImageChange} className="form-input file-input" />
+                                <input
+                                    type="file"
+                                    id="image"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="form-input file-input"
+                                />
                                 {imagePreview && (
                                     <div className="image-preview-wrapper">
-                                        <img src={imagePreview} alt="Preview" className="image-preview" />
+                                        <img src={imagePreview} alt="Service Preview" className="image-preview" />
                                     </div>
                                 )}
                                 {previousImage && !imagePreview && (
