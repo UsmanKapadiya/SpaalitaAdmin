@@ -1,0 +1,15 @@
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start; /* aligns text properly */
+  gap: 5px; /* 5px space */
+  margin-top: 5px;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  margin-top: 3px; /* better vertical alignment */
+}
+
+.checkbox-text {
+  font-size: 14px;
+  line-height: 1.4;
+}

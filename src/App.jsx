@@ -33,6 +33,8 @@ import UserForm from './pages/User/UserForm';
 import OrderPage from './pages/Order/OrderPage';
 import OrderDetails from './pages/Order/OrderDetails';
 import ProductDetails from './pages/Product/ProductDetails';
+import Coupon from './pages/Coupon/Coupon';
+import CouponForm from './pages/Coupon/CouponForm';
 
 function App() {
   return (
@@ -86,6 +88,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <GiftCardForm />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/coupon"
+              element={
+                <ProtectedRoute>
+                  <Coupon />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/coupon/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <CouponForm />
                 </ProtectedRoute>
               }
             />

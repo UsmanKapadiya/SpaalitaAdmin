@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import DiscountIcon from '@mui/icons-material/Discount';
 import './DashboardLayout.css';
 import logo from "../../assets/logo.png"
 import Button from '../../components/Button/Button';
@@ -46,6 +47,7 @@ const DashboardLayout = ({ children }) => {
                 { path: '/user', icon: <PeopleIcon />, label: 'Users' },
                 { path: '/product', icon: <LocalOfferIcon />, label: 'Product' },                
                 { path: '/giftCards', icon: <CardGiftcardIcon />, label: 'GiftCard' },
+                { path: '/coupon', icon: <DiscountIcon />, label: 'Coupon' },
                 { path: '/services', icon: <BuildIcon />, label: 'Services' },
                 { path: '/bookingPolicy', icon: <PolicyIcon />, label: 'BookingPolicy' },
                 { path: '/monthly-special', icon: <EventNoteIcon />, label: 'MonthlySpecial' },
