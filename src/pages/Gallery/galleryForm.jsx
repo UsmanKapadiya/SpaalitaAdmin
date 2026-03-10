@@ -1,82 +1,128 @@
-
-
-
-import mockGallery from '../../data/mockGallery';
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
-import Button from '../../components/Button/Button';
 import { toast } from 'react-toastify';
 import PageTitle from '../../components/PageTitle/PageTitle';
-
-
+import { createGallery, updateGallery } from '../../services/galleryServices';
 
 const GalleryForm = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
-    const currentImage = isEdit ? mockGallery.find(s => s.id === id) : null;
-    const [image, setImage] = useState(currentImage?.image || '');
-    const [imagePreview, setImagePreview] = useState('');
-    const previousImage = currentImage?.image || '';
+    const [images, setImages] = useState([]);
+    const [imagePreview, setImagePreview] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    useEffect(() => {
+        if (isEdit) {
+            const data = location?.state;
+            if (data?.url) {
+                setImagePreview([data.url]);
+                setImages([]);
+            }
+        }
+    }, [id, isEdit]);
+
+    useEffect(() => {
+        return () => {
+            imagePreview.forEach((preview) => URL.revokeObjectURL(preview)); // Revoke object URLs
+        };
+    }, [imagePreview]);
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImage(file);
-            setImagePreview(URL.createObjectURL(file));
-            setError('');
-            setSuccess('');
+        const files = Array.from(e.target.files);
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        const validFiles = files.filter((file) => {
+            if (!allowedTypes.includes(file.type)) {
+                toast.error(`Invalid file type: ${file.name}`);
+                return false;
+            }
+
+            if (file.size > maxSize) {
+                toast.error(`File too large: ${file.name}`);
+                return false;
+            }
+
+            return true;
+        });
+
+        if (validFiles.length > 0) {
+            if (isEdit) {
+                setImages([validFiles[0]]);
+                setImagePreview([URL.createObjectURL(validFiles[0])]);
+            } else {
+                setImages((prevImages) => [...prevImages, ...validFiles]);
+                const previews = validFiles.map((file) => URL.createObjectURL(file));
+                setImagePreview((prevPreviews) => [...prevPreviews, ...previews]);
+            }
         }
     };
 
 
+    const handleRemoveImage = (index) => {
+        const updatedImages = images.filter((_, i) => i !== index);
+        const updatedPreviews = imagePreview.filter((_, i) => i !== index);
+        setImages(updatedImages);
+        setImagePreview(updatedPreviews);
+    };
 
-
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
-        setLoading(true);
-        if (!image) {
-            setError('Please select an image.');
-            setLoading(false);
+        if (!isEdit && images.length === 0) {
+            toast.error('Please select at least one image to upload.');
             return;
         }
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            let updated;
-            const galleryData = JSON.parse(localStorage.getItem('gallery') || 'null') || mockGallery;
-            if (isEdit) {
-                updated = galleryData.map(s =>
-                    s.id === id
-                        ? { ...s, image: reader.result, created_at: s.created_at }
-                        : s
-                );
-            } else {
-                // Add new image
-                updated = [
-                    ...galleryData,
-                    { id: String(galleryData.length + 1), image: reader.result, created_at: new Date().toISOString().slice(0, 10) }
-                ];
+
+        setLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            if (!token) {
+                toast.error('Authentication token is missing. Please log in again.');
+                setLoading(false);
+                return;
             }
-            localStorage.setItem('gallery', JSON.stringify(updated));
+            let response;
+            const formData = new FormData();
+
+            if (isEdit) {
+                formData.append('image', images[0]);
+                response = await updateGallery(id, formData, token);
+            } else {
+                images.forEach((file) => {
+                    formData.append('images', file);
+                });
+                response = await createGallery(formData, token);
+            }
+            if (response && response.success) {
+                setSuccess(isEdit ? 'Gallery updated successfully!' : 'Gallery created successfully');
+                toast.success(isEdit ? 'Gallery updated successfully' : 'Gallery created successfully');
+                setTimeout(() => navigate('/gallery'), 1200);
+            } else {
+                const errorMsg = response?.message
+                    ? response.message
+                    : (response?.error || 'Failed to save monthly special.');
+                setError(errorMsg);
+                toast.error(errorMsg);
+            }
+
+
+        } catch (err) {
+            console.error('Error uploading images:', err);
+            setError(err.message || 'Failed to upload images');
+            toast.error(err.message || 'Failed to upload images');
+        } finally {
             setLoading(false);
-            setSuccess(isEdit ? 'Gallery image updated!' : 'Gallery image added!');
-            setTimeout(() => navigate('/gallery'), 1200);
-        };
-        if (image && image instanceof File) {
-            reader.readAsDataURL(image);
-        } else {
-            setLoading(false);
-            setError('Please select an image.');
         }
     };
+
 
     return (
         <DashboardLayout>
@@ -91,42 +137,68 @@ const GalleryForm = () => {
                     {success && <div className="success-banner">{success}</div>}
 
                     <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">
-                        {/* No month selection for gallery images */}
                         <div className="form-row">
                             <div className="form-group form-group-full">
                                 <label className="form-label form-label-required">Image</label>
-                                <input type="file" accept="image/*" onChange={handleImageChange} className="form-input file-input" />
-                                {imagePreview && (
-                                    <div className="image-preview-wrapper">
-                                        <img src={imagePreview} alt="Preview" className="image-preview" />
-                                    </div>
-                                )}
-                                {previousImage && !imagePreview && (
-                                    <div className="image-preview-wrapper">
-                                        <span style={{ fontWeight: 'bold', fontSize: '13px' }}>Previous Image:</span>
-                                        <img src={previousImage} alt="Previous" className="image-preview" />
-                                    </div>
-                                )}
-                                <p className="form-help-text">Upload a monthly special image (jpg/png/gif)</p>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple={!isEdit}
+                                    onChange={handleImageChange}
+                                    disabled={loading}
+                                />
+                                <p className="form-help-text">Upload a gallery image (jpg/png/gif). You can select multiple images.</p>
+
+                                <div className="image-preview-container" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                    {imagePreview.map((img, index) => {
+                                        return (
+                                            <div key={index} style={{ position: 'relative' }}>
+                                                <img
+                                                    src={img} // prepend backend URL if needed
+                                                    alt={`preview-${index}`}
+                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveImage(index)}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        right: 0,
+                                                        background: 'red',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '50%',
+                                                        width: '20px',
+                                                        height: '20px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
                         </div>
+
                         <div className="form-actions">
-                            <Button
+                            <button
                                 type="submit"
                                 className="btn-add"
                                 disabled={loading}
                             >
-                                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Monthly Special' : 'Add Monthly Special')}
-                            </Button>
-                            <Button
+                                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Gallery' : 'Add Gallery')}
+                            </button>
+                            <button
                                 type="button"
                                 className="btn-secondary"
                                 onClick={() => navigate('/monthly-special')}
                                 disabled={loading}
-                                variant="secondary"
                             >
                                 Cancel
-                            </Button>
+                            </button>
                         </div>
                     </form>
                 </div>
