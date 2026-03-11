@@ -67,7 +67,6 @@ const Services = () => {
 
     // Edit gift card
     const handleEdit = useCallback((id, e) => {
-        console.log(id);
         e.stopPropagation();
         navigate(`/services/edit/${id}`);
     }, [navigate]);
@@ -155,7 +154,14 @@ const Services = () => {
                                         );
                                     },
                                 },
-                                { key: 'name', label: 'Name', render: (value, item) => value || item.serviceName },
+                                {
+                                    key: 'name',
+                                    label: 'Name',
+                                    render: (value, item) => {
+                                        const text = value || item.serviceName || '';
+                                        return text.charAt(0).toUpperCase() + text.slice(1);
+                                    }
+                                },
                                 {
                                     key: 'description',
                                     label: 'Description',
