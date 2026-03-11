@@ -45,7 +45,6 @@ const OrderPage = () => {
   }
 
   if (view === 'edit' && selectedOrder) {
-    console.log("Edit selectedOrder", selectedOrder)
     return (
       <OrderForm 
         order={selectedOrder} 

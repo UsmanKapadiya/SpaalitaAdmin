@@ -101,7 +101,6 @@ const OrderForm = ({ order, onSave, onCancel }) => {
                     total: form.total || 0
                 };
                 // const success = await createOrder(newOrder);
-                console.log('Created Order:', newOrder);
                 onSave(newOrder);
             }
         } catch (error) {
@@ -110,8 +109,7 @@ const OrderForm = ({ order, onSave, onCancel }) => {
             setLoading(false);
         }
     };
-    // console.log(form);
-    // console.log(order);
+
     return (
         <DashboardLayout>
             <div className="form-card">
