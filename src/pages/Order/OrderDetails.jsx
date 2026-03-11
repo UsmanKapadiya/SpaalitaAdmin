@@ -1,7 +1,6 @@
 
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
-import EditIcon from '@mui/icons-material/Edit';
 import HomeIcon from '@mui/icons-material/Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PageTitle from '../../components/PageTitle/PageTitle';
@@ -78,8 +77,8 @@ function AddressSection({ icon: Icon, title, address }) {
                 <span style={styles.addressTitle}>{title}</span>
             </div>
             <div style={styles.addressDetails}>
-                <div><b>Name:</b> {address?.name || <NotProvided />}</div>
-                <div><b>Address:</b> {address?.address || <NotProvided />}</div>
+                <div><b>Name:</b> {address?.firstName || <NotProvided />}</div>
+                <div><b>Address:</b> {address?.lastName || <NotProvided />}</div>
                 <div><b>City:</b> {address?.city || <NotProvided />}</div>
                 <div><b>State:</b> {address?.state || <NotProvided />}</div>
                 <div><b>ZIP:</b> {address?.zip || <NotProvided />}</div>
@@ -116,7 +115,6 @@ function ItemsTable({ items }) {
 
 
 function OrderDetails({ order, onBack, onEditOrder }) {
-    console.log("Order", order);
     if (!order) {
         return (
             <DashboardLayout>
