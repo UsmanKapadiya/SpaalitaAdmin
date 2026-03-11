@@ -106,8 +106,8 @@ const MonthlySpecialForm = () => {
             }
             setLoading(false);
             if (resp && resp.success) {
-                setSuccess(isEdit ? 'Monthly Special updated successfully' : '"Monthly special created successfully"');
-                toast.success(isEdit ? 'Monthly Special updated successfully' : '"Monthly special created successfully"');
+                setSuccess(isEdit ? 'Monthly Special updated successfully' : 'Monthly special created successfully');
+                toast.success(isEdit ? 'Monthly Special updated successfully' : 'Monthly special created successfully');
                 setTimeout(() => navigate('/monthly-special'), 1200);
             } else {
                 const errorMsg = resp?.message
