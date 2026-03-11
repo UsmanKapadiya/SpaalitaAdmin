@@ -21,7 +21,7 @@ const initialForm = {
     qty: '',
     description: '',
     image: '',
-    buttonUrl: '', // Optional field for button url
+    buttonUrl: '', 
 };
 
 const ServicesForm = () => {
@@ -30,7 +30,6 @@ const ServicesForm = () => {
     const isEdit = Boolean(id && id !== 'new');
     const { user } = useAuth();
     const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
-    console.log(id)
     const {
         form,
         setForm,
@@ -102,7 +101,6 @@ const ServicesForm = () => {
             if (isEdit && id) {
                 try {
                     const resp = await getServiceById(id);
-                    console.log(resp)
                     if (resp && resp.success && resp.data) {
                         const prod = resp.data;
                         setForm(f => ({
@@ -157,15 +155,15 @@ const ServicesForm = () => {
                                     required
                                 >
                                     <option value="">Select a service</option>
-                                    <option value="Facials">Facials</option>
-                                    <option value="Massages">Massages</option>
-                                    <option value="Acupressure">Acupressure</option>
-                                    <option value="Manicures and Pedicures">Manicures and Pedicures</option>
-                                    <option value="Body Treatments">Body Treatments</option>
-                                    <option value="Waxing">Waxing</option>
-                                    <option value="Laser Hair Removal">Laser Hair Removal</option>
-                                    <option value="Brows and Lashes">Brows and Lashes</option>
-                                    <option value="Spa Packages">Spa Packages</option>
+                                    <option value="facials">Facials</option>
+                                    <option value="massages">Massages</option>
+                                    <option value="acupressure">Acupressure</option>
+                                    <option value="manicures-and-pedicures">Manicures and Pedicures</option>
+                                    <option value="body-treatments">Body Treatments</option>
+                                    <option value="waxing">Waxing</option>
+                                    <option value="laser-hair-removal">Laser Hair Removal</option>
+                                    <option value="brows-and-lashes">Brows and Lashes</option>
+                                    <option value="spa-packages">Spa Packages</option>
                                 </select>
                             </div>
                         </div>
@@ -277,4 +275,3 @@ const ServicesForm = () => {
 };
 
 export default ServicesForm;
-// This file is now obsolete. All Gift Card add/edit logic is in GiftCard.jsx.
