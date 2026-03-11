@@ -7,7 +7,7 @@ export const createService = async (token, formData) => {
         const response = await requests.post(SERVICE_BASE, formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
+                'Content-Type': 'multipart/form-data',
             },
         });
         return { success: true, data: response.data };
