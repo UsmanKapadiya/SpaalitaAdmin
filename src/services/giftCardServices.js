@@ -8,6 +8,7 @@ export const createGiftCard = async (token, formData) => {
     return await requests.post(BASE_URL, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   } catch (error) {
@@ -21,6 +22,7 @@ export const updateGiftCard = async (id, token, giftCardData) => {
     return await requests.put(`${BASE_URL}/${id}`, giftCardData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   } catch (error) {

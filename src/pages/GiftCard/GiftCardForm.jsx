@@ -1,6 +1,4 @@
-
-
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -18,7 +16,10 @@ const initialForm = {
   price: '',
   qty: '',
   description: '',
-  image: '',
+  existingImages: [],
+  newImages: [],
+  imagePreviews: [],
+  showPreview: false,
 };
 
 const GiftCardForm = () => {
@@ -34,40 +35,41 @@ const GiftCardForm = () => {
     error,
     success,
     handleChange,
-    handleImageChange,
     handleDescriptionChange,
     handleSubmit,
+    handleImageChange,
     setError,
     setSuccess,
-    imagePreview,
-    setImagePreview,
   } = useForm({
     initialForm,
-    data: [], // Static data removed, ready for API integration
+    data: [],
     id,
     isEdit,
     fields: ['name', 'sku', 'price', 'qty', 'description'],
     onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
       try {
-        const payload = {
-          productName: formData.name,
-          sku: formData.sku,
-          price: Number(formData.price),
-          qty: Number(formData.qty),
-          productImages: Array.isArray(formData.images) ? formData.images : [],
-          description: formData.description,
-          category: 'GiftCard', // Always static
-        };
+        const fd = new FormData();
+        fd.append('productName', formData.name);
+        fd.append('sku', formData.sku);
+        fd.append('price', Number(formData.price));
+        fd.append('qty', Number(formData.qty));
+        fd.append('description', formData.description);
+        fd.append('category', 'GiftCard');
+
+        formData.existingImages.forEach(img => fd.append('existingImages[]', img));
+        formData.newImages.forEach(file => fd.append('productImages', file));
+
         let resp;
         if (isEdit) {
-          resp = await updateGiftCard(id, token, payload);
+          resp = await updateGiftCard(id, token, fd);
           setSuccess('Gift Card updated successfully!');
           toast.success('Gift Card updated successfully!');
         } else {
-          resp = await createGiftCard(token, payload);
+          resp = await createGiftCard(token, fd);
           setSuccess('Gift Card added successfully!');
           toast.success('Gift Card added successfully!');
         }
+
         setLoading(false);
         setTimeout(() => navigate('/giftCards'), 1200);
       } catch (err) {
@@ -75,23 +77,17 @@ const GiftCardForm = () => {
         setError({ message: err?.response?.data?.message || 'Something went wrong', field: null });
         toast.error(err?.response?.data?.message || 'Something went wrong');
       }
-      // setSuccess(isEdit ? 'Gift Card updated successfully!' : 'Gift Card added successfully!');
-      // toast.success(isEdit ? 'Gift Card updated successfully!' : 'Gift Card added successfully!');
-      // setLoading(false);
-      // setTimeout(() => navigate('/giftCards'), 1200);
     },
-    imageField: 'image',
-    descriptionField: 'description',
   });
 
-  // Fetch product details if editing
   useEffect(() => {
     const fetchGiftCard = async () => {
       if (isEdit && id) {
         try {
           const resp = await getGiftCardById(id, token);
-          if (resp && resp.success && resp.data) {
+          if (resp.success && resp.data) {
             const prod = resp.data;
+            const existingImages = Array.isArray(prod.productImages) ? prod.productImages : [];
             setForm(f => ({
               ...f,
               name: prod.productName || '',
@@ -99,18 +95,68 @@ const GiftCardForm = () => {
               price: prod.price || '',
               qty: prod.qty || '',
               description: prod.description || '',
-              images: Array.isArray(prod.productImages) ? prod.productImages : [],
-              imagePreviews: Array.isArray(prod.productImages) ? prod.productImages : [],
+              existingImages,
+              imagePreviews: existingImages,
             }));
           }
-        } catch (err) {
-          toast.error('Failed to fetch giftCard details');
+        } catch {
+          toast.error('Failed to fetch gift card details');
         }
       }
     };
     fetchGiftCard();
-    // eslint-disable-next-line
   }, [isEdit, id]);
+
+  const handleRemoveImage = (index, isExisting) => {
+    setForm(prev => {
+      if (isExisting) {
+        const updatedExisting = [...prev.existingImages];
+        updatedExisting.splice(index, 1);
+        const updatedPreviews = [...prev.imagePreviews];
+        updatedPreviews.splice(index, 1);
+        return { ...prev, existingImages: updatedExisting, imagePreviews: updatedPreviews };
+      } else {
+        const updatedNew = [...prev.newImages];
+        updatedNew.splice(index - prev.existingImages.length, 1);
+        const updatedPreviews = [...prev.imagePreviews];
+        updatedPreviews.splice(index, 1);
+        return { ...prev, newImages: updatedNew, imagePreviews: updatedPreviews };
+      }
+    });
+  };
+
+
+  const dragItem = useRef();
+  const dragOverItem = useRef();
+
+  const handleDragStart = (idx) => {
+    dragItem.current = idx;
+  };
+
+  const handleDragEnter = (idx) => {
+    dragOverItem.current = idx;
+  };
+
+  const handleDragEnd = () => {
+    setForm(f => {
+      const images = [...f.newImages];
+      const previews = [...f.imagePreviews];
+      const dragIdx = dragItem.current;
+      const hoverIdx = dragOverItem.current;
+      if (dragIdx === undefined || hoverIdx === undefined || dragIdx === hoverIdx) return f;
+
+      // Move image
+      const [draggedImg] = images.splice(dragIdx, 1);
+      images.splice(hoverIdx, 0, draggedImg);
+
+      // Move preview
+      const [draggedPrev] = previews.splice(dragIdx, 1);
+      previews.splice(hoverIdx, 0, draggedPrev);
+      return { ...f, images, imagePreviews: previews };
+    });
+    dragItem.current = undefined;
+    dragOverItem.current = undefined;
+  };
 
   return (
     <DashboardLayout>
@@ -121,151 +167,132 @@ const GiftCardForm = () => {
             subTitle={isEdit ? 'Edit gift card details and save changes.' : 'Fill in the details to add a new gift card.'}
             button={false}
           />
-          {error && error !== '' && (
-            <div className="error-banner">{typeof error === 'string' ? error : error.message}</div>
-          )}
           {success && <div className="success-banner">{success}</div>}
+          {error && <div className="error-banner">{error.message || error}</div>}
 
           <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="name" className="form-label form-label-required">Name</label>
+                <label className="form-label form-label-required">Name</label>
                 <input
                   type="text"
-                  id="name"
                   name="name"
                   className="form-input"
-                  placeholder="Enter gift card name"
                   value={form.name}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="sku" className="form-label form-label-required">Code</label>
+                <label className="form-label form-label-required">Code</label>
                 <input
                   type="text"
-                  id="sku"
                   name="sku"
                   className="form-input"
-                  placeholder="Gift Card Code"
                   value={form.sku}
                   onChange={handleChange}
                   required
                 />
               </div>
             </div>
+
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="value" className="form-label form-label-required">Value</label>
+                <label className="form-label form-label-required">Value</label>
                 <input
                   type="number"
-                  id="price"
                   name="price"
                   className="form-input"
-                  placeholder="0.00"
-                  step="0.01"
                   value={form.price}
                   onChange={handleChange}
                   required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="qty" className="form-label form-label-required">Quantity</label>
+                <label className="form-label form-label-required">Quantity</label>
                 <input
                   type="number"
-                  id="qty"
                   name="qty"
                   className="form-input"
-                  placeholder="0"
                   value={form.qty}
                   onChange={handleChange}
                   required
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group form-group-full">
-                <label htmlFor="image" className="form-label">Gift Card Image</label>
-                <input
-                  type="file"
-                  id="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="form-input file-input"
-                />
-                {imagePreview && (
-                  <div className="image-preview-wrapper">
-                    <img src={imagePreview} alt="Gift Card Preview" className="image-preview" />
-                  </div>
-                )}
-                <p className="form-help-text">Upload a gift card image (optional, jpg/png/gif)</p>
-              </div>
-            </div>
+
+            {/* Images */}
             <div className="form-group form-group-full">
-              <label htmlFor="description" className="form-label form-label-required">Description</label>
+              <label className="form-label">Gift Card Images</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="form-input file-input"
+              />
+              {form.imagePreviews.length > 0 && (
+                <div className="image-preview-wrapper" style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {form.imagePreviews && form.imagePreviews.length > 0 && (
+                    <div className="image-preview-wrapper" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {form.imagePreviews.map((img, i) => {
+                        const isExisting = i < form.existingImages.length;
+                        return (
+                          <div
+                            key={i}
+                            className="image-preview-container"
+                            style={{ position: 'relative', cursor: 'grab' }}
+                            draggable
+                            onDragStart={() => handleDragStart(i)}
+                            onDragEnter={() => handleDragEnter(i)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={e => e.preventDefault()}
+                            title={i === 0 ? 'Main Image' : 'Drag to reorder'}
+                          >
+                            <img
+                              src={img}
+                              alt={`Product Preview ${i + 1}`}
+                              className="image-preview"
+                              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: i === 0 ? '2px solid #007bff' : '1px solid #ccc' }}
+                            />
+                            <Button
+                              type="button"
+                              className="remove-image-btn"
+                              onClick={() => handleRemoveImage(i, isExisting)} // ✅ Pass isExisting
+                              aria-label="Remove image"
+                              variant="danger"
+                            >
+                              &#10005;
+                            </Button>
+                            {i === 0 && (
+                              <span className="main-image-label">Main</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="form-group form-group-full">
+              <label className="form-label form-label-required">Description</label>
               <div className="editor-wrapper-quill">
                 <ReactQuill
-                  theme="snow"
                   value={form.description || ''}
                   onChange={handleDescriptionChange}
-                  modules={{
-                    toolbar: [
-                      [{ 'header': [1, 2, 3, false] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ 'color': [] }, { 'background': [] }],
-                      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                      [{ 'align': [] }],
-                      ['link', 'image'],
-                      ['blockquote', 'code-block'],
-                      [{ 'indent': '-1' }, { 'indent': '+1' }],
-                      ['clean']
-                    ]
-                  }}
-                  formats={[
-                    'header',
-                    'bold', 'italic', 'underline', 'strike',
-                    'color', 'background',
-                    'list', 'bullet',
-                    'align',
-                    'link', 'image',
-                    'blockquote', 'code-block',
-                    'indent'
-                  ]}
-                  style={{ maxHeight: 300, overflow: 'auto' }}
+                  theme="snow"
+                  style={{ minHeight: 200 }}
                 />
               </div>
-              <style>{`
-                                .editor-wrapper-quill .ql-container {
-                                  max-height: 200px;
-                                }
-                                .editor-wrapper-quill .ql-editor {
-                                  max-height: 200px;
-                                  overflow-y: auto;
-                                }
-                                .editor-wrapper-quill .ql-toolbar {
-                                  position: sticky;
-                                  top: 0;
-                                  z-index: 2;
-                                  background: #fff;
-                                }
-                              `}</style>
             </div>
+
             <div className="form-actions">
-              <Button
-                type="submit"
-                className="btn-add"
-                disabled={loading}
-              >
-                {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Gift Card' : 'Add Gift Card')}
+              <Button type="submit" className="btn-add" disabled={loading}>
+                {loading ? (isEdit ? 'Updating...' : 'Adding...') : isEdit ? 'Update Gift Card' : 'Add Gift Card'}
               </Button>
-              <Button
-                type="button"
-                className="btn-secondary"
-                onClick={() => navigate('/giftCards')}
-                disabled={loading}
-                variant="secondary"
-              >
+              <Button type="button" className="btn-secondary" variant="secondary" onClick={() => navigate('/giftCards')} disabled={loading}>
                 Cancel
               </Button>
             </div>
