@@ -18,8 +18,9 @@ const initialForm = {
   price: '',
   qty: '',
   description: '',
-  images: [],
-  imagePreviews: [],
+  existingImages: [],   // images already in DB
+  newImages: [],        // newly selected files
+  imagePreviews: [],    // for UI preview (both existing + new)
   showPreview: false,
 };
 
@@ -28,6 +29,7 @@ const ProductForm = () => {
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+
 
   const {
     form,
@@ -46,27 +48,33 @@ const ProductForm = () => {
     data: mockProducts,
     id,
     isEdit,
-    fields: ['name', 'sku', 'price', 'qty', 'description', 'images',],
+    fields: ['name', 'sku', 'price', 'qty', 'description',],
     onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
       try {
-        const payload = {
-          productName: formData.name,
-          sku: formData.sku,
-          price: Number(formData.price),
-          qty: Number(formData.qty),
-          productImages: Array.isArray(formData.images) ? formData.images : [],
-          description: formData.description,
-          category: 'Product', // Always static
-        };
+        const form = new FormData();
+        form.append("productName", formData.name);
+        form.append("sku", formData.sku);
+        form.append("price", Number(formData.price));
+        form.append("qty", Number(formData.qty));
+        form.append("description", formData.description);
+        form.append("category", "Product");
+
+        // Send existing images (filenames) so backend keeps them
+        formData.existingImages.forEach(img => form.append("existingImages[]", img));
+
+        // Send new files
+        formData.newImages.forEach(file => form.append("productImages", file));
+
         let resp;
+
         if (isEdit) {
-          resp = await updateProduct(id, token, payload);
-          setSuccess('Product updated successfully!');
-          toast.success('Product updated successfully!');
+          resp = await updateProduct(id, token, form);
+          setSuccess("Product updated successfully!");
+          toast.success("Product updated successfully!");
         } else {
-          resp = await createProduct(token, payload);
-          setSuccess('Product added successfully!');
-          toast.success('Product added successfully!');
+          resp = await createProduct(token, form);
+          setSuccess("Product added successfully!");
+          toast.success("Product added successfully!");
         }
         setLoading(false);
         setTimeout(() => navigate('/product'), 1200);
@@ -82,38 +90,43 @@ const ProductForm = () => {
 
   // Fetch product details if editing
   useEffect(() => {
-    const fetchProduct = async () => {
-      if (isEdit && id) {
-        try {
-          const resp = await getProductById(id);
-          if (resp && resp.success && resp.data) {
-            const prod = resp.data;
-            setForm(f => ({
-              ...f,
-              name: prod.productName || '',
-              sku: prod.sku || '',
-              price: prod.price || '',
-              qty: prod.qty || '',
-              description: prod.description || '',
-              images: Array.isArray(prod.productImages) ? prod.productImages : [],
-              imagePreviews: Array.isArray(prod.productImages) ? prod.productImages : [],
-            }));
-          }
-        } catch (err) {
-          toast.error('Failed to fetch product details');
+    if (isEdit && id) {
+      const fetchProduct = async () => {
+        const resp = await getProductById(id);
+        if (resp?.success) {
+          setForm(f => ({
+            ...f,
+            name: resp.data.productName || '',
+            sku: resp.data.sku || '',
+            price: resp.data.price || '',
+            qty: resp.data.qty || '',
+            description: resp.data.description || '',
+            existingImages: resp.data.productImages || [],
+            imagePreviews: resp.data.productImages || [],
+          }));
         }
-      }
-    };
-    fetchProduct();
-    // eslint-disable-next-line
-  }, [isEdit, id]);
+      };
+      fetchProduct();
+    }
+  }, [id, isEdit]);
 
-  // Remove image by index
-  const handleRemoveImage = idx => {
-    setForm(f => {
-      const newImages = f.images.filter((_, i) => i !== idx);
-      const newPreviews = f.imagePreviews.filter((_, i) => i !== idx);
-      return { ...f, images: newImages, imagePreviews: newPreviews };
+
+
+  const handleRemoveImage = (index, isExisting) => {
+    setForm(prev => {
+      if (isExisting) {
+        const updatedExisting = [...prev.existingImages];
+        updatedExisting.splice(index, 1);
+        const updatedPreviews = [...prev.imagePreviews];
+        updatedPreviews.splice(index, 1);
+        return { ...prev, existingImages: updatedExisting, imagePreviews: updatedPreviews };
+      } else {
+        const updatedNew = [...prev.newImages];
+        const updatedPreviews = [...prev.imagePreviews];
+        updatedNew.splice(index - prev.existingImages.length, 1); // adjust index after existingImages
+        updatedPreviews.splice(index, 1);
+        return { ...prev, newImages: updatedNew, imagePreviews: updatedPreviews };
+      }
     });
   };
 
@@ -244,6 +257,47 @@ const ProductForm = () => {
                   />
                   {form.imagePreviews && form.imagePreviews.length > 0 && (
                     <div className="image-preview-wrapper" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {form.imagePreviews.map((img, i) => {
+                        // Determine if this image is from existingImages
+                        const isExisting = i < form.existingImages.length;
+
+                        return (
+                          <div
+                            key={i}
+                            className="image-preview-container"
+                            style={{ position: 'relative', cursor: 'grab' }}
+                            draggable
+                            onDragStart={() => handleDragStart(i)}
+                            onDragEnter={() => handleDragEnter(i)}
+                            onDragEnd={handleDragEnd}
+                            onDragOver={e => e.preventDefault()}
+                            title={i === 0 ? 'Main Image' : 'Drag to reorder'}
+                          >
+                            <img
+                              src={img}
+                              alt={`Product Preview ${i + 1}`}
+                              className="image-preview"
+                              style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: i === 0 ? '2px solid #007bff' : '1px solid #ccc' }}
+                            />
+                            <Button
+                              type="button"
+                              className="remove-image-btn"
+                              onClick={() => handleRemoveImage(i, isExisting)} // ✅ Pass isExisting
+                              aria-label="Remove image"
+                              variant="danger"
+                            >
+                              &#10005;
+                            </Button>
+                            {i === 0 && (
+                              <span className="main-image-label">Main</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {/* {form.imagePreviews && form.imagePreviews.length > 0 && (
+                    <div className="image-preview-wrapper" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       {form.imagePreviews.map((img, i) => (
                         <div
                           key={i}
@@ -277,7 +331,7 @@ const ProductForm = () => {
                         </div>
                       ))}
                     </div>
-                  )}
+                  )} */}
                   <p className="form-help-text">Upload one or more product images (optional, jpg/png/gif)</p>
                 </div>
               </div>

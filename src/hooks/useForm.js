@@ -51,18 +51,26 @@ export default function useForm({
     setSuccess('');
   };
 
-  const handleImageChange = e => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setForm(f => ({ ...f, [imageField]: reader.result }));
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-    setError('');
-    setSuccess('');
+  // const handleImageChange = (e) => {
+  //   const files = Array.from(e.target.files);
+
+  //   setForm(prev => ({
+  //     ...prev,
+  //     images: files,
+  //     imagePreviews: files.map(file => URL.createObjectURL(file))
+  //   }));
+  // };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setForm(prev => ({
+      ...prev,
+      newImages: [...prev.newImages, ...files],
+      imagePreviews: [
+        ...prev.imagePreviews,
+        ...files.map(file => URL.createObjectURL(file))
+      ]
+    }));
   };
 
   const handleDescriptionChange = useCallback((value) => {

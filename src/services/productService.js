@@ -8,6 +8,7 @@ export const createProduct = async (token, formData) => {
     return await requests.post(PRODUCT_BASE, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   } catch (error) {
@@ -21,6 +22,7 @@ export const updateProduct = async (id, token, productData) => {
     return await requests.put(`${PRODUCT_BASE}/${id}`, productData, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   } catch (error) {
@@ -55,7 +57,7 @@ export const getProductById = async (id, token) => {
   }
 };
 
-export const deleteProduct = async (id,token) => {
+export const deleteProduct = async (id, token) => {
   try {
     return await requests.delete(`${PRODUCT_BASE}/${id}`, {
       headers: {
