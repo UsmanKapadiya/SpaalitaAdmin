@@ -79,7 +79,7 @@ const UserForm = () => {
         setSuccess('');
     }, [username, firstName, lastName, email, phone, country, city, address, postalCode, role, status]);
 
-   
+
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -176,7 +176,7 @@ const UserForm = () => {
                         </div>
                     )}
                     <div className="form-row">
-                        <div className="form-group">
+                        <div className="form-group" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <label className="form-label">Profile Picture</label>
                             <input
                                 type="file"
@@ -185,8 +185,13 @@ const UserForm = () => {
                                 onChange={handleImageChange}
                             />
                             {profilePreview && (
-                                <div className="user-profile-img-preview">
-                                    <img src={profilePreview} alt="Profile Preview" className="user-profile-img" style={{ width: 64, height: 64 }} />
+                                <div className="user-profile-img-preview" style={{ marginTop: '8px' }}>
+                                    <img
+                                        src={profilePreview}
+                                        alt="Profile Preview"
+                                        className="user-profile-img"
+                                        style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: '50%' }}
+                                    />
                                 </div>
                             )}
                         </div>

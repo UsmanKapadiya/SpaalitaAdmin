@@ -53,10 +53,9 @@ const User = () => {
                 setUsers(resp.data || []);
                 setTotalPages(resp.pagination?.totalPages || 1);
                 setTotalUsers(resp.pagination?.total || 0);
-                return; // ✅ prevent falling to toast
+                return;
             }
 
-            // Only show toast if API explicitly failed
             toast.error(resp?.message || "Please try again.");
         } catch (error) {
             console.error(error);
@@ -134,7 +133,6 @@ const User = () => {
                     {loading ? (
                         <>
                             <GlobalLoader text="Loading users..." />
-
                         </>
                     ) : filteredUsers.items.length > 0 ? (
                         <Table
@@ -190,7 +188,7 @@ const User = () => {
                                 },
                                 {
                                     key: 'userName',
-                                    label: 'Name',
+                                    label: 'User Name',
                                 },
                                 {
                                     key: 'email',
