@@ -6,7 +6,6 @@ import Button from '../../components/Button/Button';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import mockUsers from '../../data/mockUsers';
 import { useNavigate } from 'react-router-dom';
 import { formatDate } from '../../utils/orderUtils';
 import Pagination from '../../components/Pagination/Pagination';
@@ -49,15 +48,19 @@ const User = () => {
             setLoading(true);
             const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const resp = await UserService.getUserList(token, page, itemsPerPage, searchTerm);
+
             if (resp?.success) {
                 setUsers(resp.data || []);
                 setTotalPages(resp.pagination?.totalPages || 1);
-                setTotalOrders(resp.pagination?.total || 0);
-            } else {
-                notifyError("Please try again.");
+                setTotalUsers(resp.pagination?.total || 0);
+                return; // ✅ prevent falling to toast
             }
+
+            // Only show toast if API explicitly failed
+            toast.error(resp?.message || "Please try again.");
         } catch (error) {
-            notifyError("An error occurred during fetch Data. Please try again.");
+            console.error(error);
+            toast.error("An error occurred during fetch data. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -75,7 +78,7 @@ const User = () => {
         navigate(`/user/edit/${id}`);
     };
 
-     const handleDeleteClick = (user) => {
+    const handleDeleteClick = (user) => {
         setOrderToDelete(user);
         setConfirmOpen(true);
     };

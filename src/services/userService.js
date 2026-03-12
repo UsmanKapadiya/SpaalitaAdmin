@@ -18,6 +18,7 @@ const UserService = {
     return requests.post(`/users`, body, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   },
@@ -26,6 +27,7 @@ const UserService = {
     return requests.put(`/users/${id}`, body, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
       },
     });
   },

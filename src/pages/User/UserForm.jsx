@@ -40,8 +40,6 @@ const UserForm = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const navigate = useNavigate();
 
-    const notifyError = (msg) => toast.error(msg);
-
     useEffect(() => {
         const fetchUser = async () => {
             if (isEdit) {
@@ -66,10 +64,10 @@ const UserForm = () => {
                         setCreatedAt(user.created_at || user.createdAt || '');
                         setOriginalUser(user);
                     } else {
-                        notifyError('Failed to fetch user details.');
+                        toast.error('Failed to fetch user details.');
                     }
                 } catch (error) {
-                    notifyError('An error occurred while fetching user details.');
+                    toast.error('An error occurred while fetching user details.');
                 }
             }
         };
@@ -81,15 +79,15 @@ const UserForm = () => {
         setSuccess('');
     }, [username, firstName, lastName, email, phone, country, city, address, postalCode, role, status]);
 
-    const handleProfilePictureChange = (e) => {
+   
+
+    const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfilePicture(reader.result);
-                setProfilePreview(reader.result);
-            };
-            reader.readAsDataURL(file);
+            setProfilePicture(file);
+            // Optional: preview
+            const previewUrl = URL.createObjectURL(file);
+            setProfilePreview(previewUrl);
         }
     };
 
@@ -98,6 +96,8 @@ const UserForm = () => {
         setError('');
         setSuccess('');
         setLoading(true);
+
+        // Basic validation
         if (!username.trim() || !firstName.trim() || !lastName.trim() || !email.trim() || (!isEdit && !password.trim())) {
             setError('Username, first name, last name, email, and password are required.');
             setLoading(false);
@@ -108,50 +108,41 @@ const UserForm = () => {
             setLoading(false);
             return;
         }
+
         const name = `${firstName} ${lastName}`;
         const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+
         const doApi = async () => {
             try {
+                const form = new FormData();
+
+                // Append text fields
+                form.append('userName', username);
+                form.append('firstName', firstName);
+                form.append('lastName', lastName);
+                form.append('name', name);
+                form.append('email', email);
+                form.append('phone', phone);
+                form.append('country', country);
+                form.append('city', city);
+                form.append('address', address);
+                form.append('postalCode', postalCode);
+                form.append('role', role);
+                form.append('status', status);
+                if (!isEdit) form.append('password', password);
+
+                // Append profile picture if selected
+                if (profilePicture instanceof File) {
+                    form.append('profilePicture', profilePicture);
+                }
+
                 let resp;
                 if (isEdit) {
-                    // Only send changed fields
-                    const changed = {};
-                    if (!originalUser) return;
-                    if ((originalUser.userName || originalUser.username || '') !== username) changed.username = username;
-                    if ((originalUser.firstName || '') !== firstName) changed.firstName = firstName;
-                    if ((originalUser.lastName || '') !== lastName) changed.lastName = lastName;
-                    if ((originalUser.email || '') !== email) changed.email = email;
-                    if ((originalUser.phone || '') !== phone) changed.phone = phone;
-                    if ((originalUser.country || '') !== country) changed.country = country;
-                    if ((originalUser.city || '') !== city) changed.city = city;
-                    if ((originalUser.address || '') !== address) changed.address = address;
-                    if ((originalUser.postalCode || '') !== postalCode) changed.postalCode = postalCode;
-                    if ((originalUser.role || 'Customer') !== role) changed.role = role;
-                    if ((originalUser.status || 'active') !== status) changed.status = status;
-                    if ((originalUser.profilePicture || '') !== profilePicture) changed.profilePicture = profilePicture;
-                    // Always send name if first/last changed
-                    if (changed.firstName || changed.lastName) changed.name = name;
-                    resp = await UserService.updateUser(token, changed, id);
+                    resp = await UserService.updateUser(token, form, id);
                 } else {
-                    const userObj = {
-                        userName: username,
-                        firstName,
-                        lastName,
-                        name,
-                        email,
-                        phone,
-                        country,
-                        password,
-                        city,
-                        address,
-                        postalCode,
-                        role,
-                        status,
-                        profilePicture,
-                        created_at: new Date().toISOString().slice(0, 10)
-                    };
-                    resp = await UserService.createUser(token, userObj);
+                    resp = await UserService.createUser(token, form);
                 }
+
                 if (resp?.success) {
                     setSuccess(isEdit ? 'User updated!' : 'User added!');
                     toast.success(isEdit ? 'User updated!' : 'User added!');
@@ -167,6 +158,7 @@ const UserForm = () => {
                 setLoading(false);
             }
         };
+
         doApi();
     };
 
@@ -186,7 +178,12 @@ const UserForm = () => {
                     <div className="form-row">
                         <div className="form-group">
                             <label className="form-label">Profile Picture</label>
-                            <input type="file" accept="image/*" className="form-input" onChange={handleProfilePictureChange} />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="form-input"
+                                onChange={handleImageChange}
+                            />
                             {profilePreview && (
                                 <div className="user-profile-img-preview">
                                     <img src={profilePreview} alt="Profile Preview" className="user-profile-img" style={{ width: 64, height: 64 }} />
@@ -276,7 +273,7 @@ const UserForm = () => {
                                         tabIndex={-1}
                                         aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                                     >
-                                        {showConfirmPassword ? <VisibilityOffIcon fontSize='small' />: <VisibilityIcon fontSize="small" />}
+                                        {showConfirmPassword ? <VisibilityOffIcon fontSize='small' /> : <VisibilityIcon fontSize="small" />}
                                     </span>
                                 </div>
                             </div>
