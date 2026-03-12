@@ -18,9 +18,9 @@ const initialForm = {
   price: '',
   qty: '',
   description: '',
-  existingImages: [],   // images already in DB
-  newImages: [],        // newly selected files
-  imagePreviews: [],    // for UI preview (both existing + new)
+  existingImages: [],
+  newImages: [],
+  imagePreviews: [],
   showPreview: false,
 };
 
@@ -29,8 +29,6 @@ const ProductForm = () => {
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
-
-
   const {
     form,
     setForm,
@@ -110,8 +108,6 @@ const ProductForm = () => {
     }
   }, [id, isEdit]);
 
-
-
   const handleRemoveImage = (index, isExisting) => {
     setForm(prev => {
       if (isExisting) {
@@ -123,14 +119,14 @@ const ProductForm = () => {
       } else {
         const updatedNew = [...prev.newImages];
         const updatedPreviews = [...prev.imagePreviews];
-        updatedNew.splice(index - prev.existingImages.length, 1); // adjust index after existingImages
+        updatedNew.splice(index - prev.existingImages.length, 1);
         updatedPreviews.splice(index, 1);
         return { ...prev, newImages: updatedNew, imagePreviews: updatedPreviews };
       }
     });
   };
 
-  // Drag and drop for image reordering
+
   const dragItem = useRef();
   const dragOverItem = useRef();
 
@@ -144,14 +140,16 @@ const ProductForm = () => {
 
   const handleDragEnd = () => {
     setForm(f => {
-      const images = [...f.images];
+      const images = [...f.newImages];
       const previews = [...f.imagePreviews];
       const dragIdx = dragItem.current;
       const hoverIdx = dragOverItem.current;
       if (dragIdx === undefined || hoverIdx === undefined || dragIdx === hoverIdx) return f;
+
       // Move image
       const [draggedImg] = images.splice(dragIdx, 1);
       images.splice(hoverIdx, 0, draggedImg);
+
       // Move preview
       const [draggedPrev] = previews.splice(dragIdx, 1);
       previews.splice(hoverIdx, 0, draggedPrev);
@@ -161,9 +159,6 @@ const ProductForm = () => {
     dragOverItem.current = undefined;
   };
 
-  const handlePreviewToggle = () => {
-    setForm(f => ({ ...f, showPreview: !f.showPreview }));
-  };
 
   return (
     <DashboardLayout>
@@ -296,42 +291,6 @@ const ProductForm = () => {
                       })}
                     </div>
                   )}
-                  {/* {form.imagePreviews && form.imagePreviews.length > 0 && (
-                    <div className="image-preview-wrapper" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                      {form.imagePreviews.map((img, i) => (
-                        <div
-                          key={i}
-                          className="image-preview-container"
-                          style={{ position: 'relative', cursor: 'grab' }}
-                          draggable
-                          onDragStart={() => handleDragStart(i)}
-                          onDragEnter={() => handleDragEnter(i)}
-                          onDragEnd={handleDragEnd}
-                          onDragOver={e => e.preventDefault()}
-                          title={i === 0 ? 'Main Image' : 'Drag to reorder'}
-                        >
-                          <img
-                            src={img}
-                            alt={`Product Preview ${i + 1}`}
-                            className="image-preview"
-                            style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: i === 0 ? '2px solid #007bff' : '1px solid #ccc' }}
-                          />
-                          <Button
-                            type="button"
-                            className="remove-image-btn"
-                            onClick={() => handleRemoveImage(i)}
-                            aria-label="Remove image"
-                            variant="danger"
-                          >
-                            &#10005;
-                          </Button>
-                          {i === 0 && (
-                            <span className="main-image-label">Main</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )} */}
                   <p className="form-help-text">Upload one or more product images (optional, jpg/png/gif)</p>
                 </div>
               </div>
