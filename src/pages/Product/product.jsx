@@ -42,36 +42,35 @@ const Product = () => {
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const resp = await getProducts(page, itemsPerPage, searchTerm);
-      let products = [];
-      if (resp?.success && Array.isArray(resp.data)) {
-        products = resp.data.map(item => {
-          return {
-            id: item._id,
-            name: item.productName,
-            sku: item.sku,
-            price: item.price,
-            qty: item.qty,
-            images: item.productImages,
-            description: item.description,
-            categories: item?.categories,
-            status: item.status,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt,
-          };
-        });
-        if (resp && resp.pagination) {
-          setPagination(resp.pagination);
-          setPage(resp.pagination.page);
-          setItemsPerPage(resp.pagination.limit);
-        }
+  const fetchData = async () => {
+    const resp = await getProducts(page, itemsPerPage, searchTerm);
+    let products = [];
+    if (resp?.success && Array.isArray(resp.data)) {
+      products = resp.data.map(item => {
+        return {
+          id: item._id,
+          name: item.productName,
+          sku: item.sku,
+          price: item.price,
+          qty: item.qty,
+          images: item.productImages,
+          description: item.description,
+          categories: item?.categories,
+          status: item.status,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      });
+      if (resp && resp.pagination) {
+        setPagination(resp.pagination);
+        setPage(resp.pagination.page);
+        setItemsPerPage(resp.pagination.limit);
       }
-      setLoading(false);
-      setProductData(products);
-    };
-
+    }
+    setLoading(false);
+    setProductData(products);
+  };
+  useEffect(() => {
     fetchData();
   }, [page, searchTerm, itemsPerPage]);
 
@@ -110,6 +109,8 @@ const Product = () => {
       await deleteProduct(confirmDialog.itemId, token);
       toast.success('Product deleted successfully!');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
+      fetchData();
+
       // getAllProducts(page, searchTerm); // Refresh list
     } catch (err) {
       toast.error('Failed to delete product');
