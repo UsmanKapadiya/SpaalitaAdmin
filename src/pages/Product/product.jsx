@@ -39,37 +39,15 @@ const Product = () => {
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 1 });
   const [loading, setLoading] = useState(true);
   const [error] = useState(null);
-  const [categories, setCategories] = useState([]);
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
 
   useEffect(() => {
     const fetchData = async () => {
-      const catResp = await getCategorys();
-      let catData = [];
-      if (catResp?.success) {
-        setCategories(catResp.data);
-        catData = catResp.data;
-      }
-
       const resp = await getProducts(page, itemsPerPage, searchTerm);
       let products = [];
       if (resp?.success && Array.isArray(resp.data)) {
         products = resp.data.map(item => {
-          const productCategories = (item.categories || []).map(catId => {
-            // Find parent
-            const parent = catData.find(c => c._id === catId);
-            if (parent) return { _id: parent._id, name: parent.name };
-
-            // Search children
-            for (const c of catData) {
-              const child = c.children?.find(ch => ch._id === catId);
-              if (child) return { _id: child._id, name: child.name };
-            }
-
-            return null; // skip unknown
-          }).filter(Boolean);
-
           return {
             id: item._id,
             name: item.productName,
@@ -78,7 +56,7 @@ const Product = () => {
             qty: item.qty,
             images: item.productImages,
             description: item.description,
-            categories: productCategories,
+            categories: item?.categories,
             status: item.status,
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
@@ -153,7 +131,7 @@ const Product = () => {
       />
     );
   }
-  console.log(categories);
+
   return (
     <DashboardLayout>
       <div className="news-page">
@@ -246,7 +224,10 @@ const Product = () => {
                   key: 'categories',
                   label: 'Category',
                   render: (productCategories) => {
+                    // Check if categories exist and is an array
                     if (!Array.isArray(productCategories) || productCategories.length === 0) return '-';
+
+                    // Map category names and join with comma
                     return productCategories.map(cat => cat.name).join(', ');
                   },
                 },

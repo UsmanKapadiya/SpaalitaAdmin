@@ -121,7 +121,11 @@ const ProductForm = () => {
         const resp = await getProductById(id);
         if (resp?.success) {
           const cats = resp.data.categories || [];
-          setSelectedCategories(cats);
+
+          // Set selected categories as array of IDs (parents + children)
+          const catIds = cats.map(c => c._id);
+
+          setSelectedCategories(catIds);
 
           setForm(f => ({
             ...f,
@@ -138,7 +142,7 @@ const ProductForm = () => {
             shipping_required: resp.data.shipping_required ?? true,
             shipping_taxable: resp.data.shipping_taxable ?? false,
             stock_status: resp.data.stock_status || 'instock',
-            categories: cats,
+            categories: catIds, // store IDs for form submit
             related_ids: resp.data.related_ids || [],
             existingImages: resp.data.productImages || [],
             imagePreviews: resp.data.productImages || [],
@@ -405,22 +409,13 @@ const ProductForm = () => {
                         return;
                       }
 
-                      // Take the latest selected item
-                      const latest = selected[selected.length - 1];
-
-                      let updated = [];
-
-                      if (latest.isParent) {
-                        // If parent selected, only keep it
-                        updated = [latest.value];
-                      } else if (latest.isChild) {
-                        // If child selected, keep child + its parent
-                        updated = [latest.parentId, latest.value];
-                      }
+                      // Collect all selected IDs
+                      const updated = selected.map(opt => opt.value);
 
                       setSelectedCategories(updated);
                       updateFormCategories(updated);
                     }}
+                   
                     isOptionDisabled={(option, selected) => {
                       if (!selected || selected.length === 0) return false;
 
