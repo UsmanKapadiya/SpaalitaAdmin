@@ -98,7 +98,7 @@
   margin-top: 24px;
 }
 .search-bar {
-  display: flex;
+  display: block;
   align-items: center;
   margin-bottom: 18px;
 }
