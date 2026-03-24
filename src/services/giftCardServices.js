@@ -32,7 +32,7 @@ export const updateGiftCard = async (id, token, giftCardData) => {
 
 
 
-export const getGiftCards = async (page, limit, searchTerm) => {
+export const getGiftCards = async (page=1, limit=1000, searchTerm) => {
   try {
     let url = `${BASE_URL}?page=${page}&limit=${limit}`;
     const params = [];
