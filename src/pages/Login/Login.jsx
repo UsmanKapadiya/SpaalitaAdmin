@@ -34,31 +34,24 @@ const Login = () => {
         username,
         password,
       };
+
       const resp = await AuthService.adminLogin(loginData);
       console.log(resp);
-        if (resp?.success === true) {
-          localStorage.setItem('user', JSON.stringify(resp?.data));
-          localStorage.setItem('authToken', JSON.stringify(resp?.token));
-          toast.success('Login successful! Welcome back.', {
-            position: 'top-right',
-            autoClose: 3000,
-          });
-          await login(username, password); // update context
-          setLoading(false);
-          navigate('/dashboard');
-      } else {
-        setLoading(false);
-        toast.error(resp?.message || 'Login failed. Please check your credentials.', {
-          position: 'top-right',
-          autoClose: 3000,
-        });
-      }
+      localStorage.setItem('user', JSON.stringify(resp?.data));
+      localStorage.setItem('authToken', JSON.stringify(resp?.token));
+
+      toast.success('Login successful! Welcome back.');
+
+      await login(username, password);
+      navigate('/dashboard');
+
     } catch (error) {
+      const message =
+        error.response?.data?.message || "Login failed";
+
+      toast.error(message);
+    } finally {
       setLoading(false);
-      toast.error('An unexpected error occurred. Please try again.', {
-        position: 'top-right',
-        autoClose: 3000,
-      });
     }
   };
 
