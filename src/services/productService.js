@@ -32,7 +32,7 @@ export const updateProduct = async (id, token, productData) => {
 
 
 
-export const getProducts = async (page, limit, searchTerm) => {
+export const getProducts = async (page=1, limit=1000, searchTerm) => {
   try {
     let url = `${PRODUCT_BASE}?page=${page}&limit=${limit}`;
     const params = [];
