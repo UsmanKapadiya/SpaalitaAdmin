@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
@@ -10,7 +10,10 @@ import { toast } from 'react-toastify';
 import useForm from '../../hooks/useForm';
 import mockProducts from '../../data/mockProducts';
 import { createProduct, updateProduct, getProductById } from '../../services/productService';
+import { getCategorys } from '../../services/categoryServices';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import Select from "react-select";
+
 
 const initialForm = {
   name: '',
@@ -18,6 +21,16 @@ const initialForm = {
   price: '',
   qty: '',
   description: '',
+  short_description: '',
+  slug: '',
+  regular_price: '',
+  sale_price: '',
+  tax_status: 'none',
+  shipping_required: true,
+  shipping_taxable: false,
+  stock_status: 'instock',
+  categories: [],
+  related_ids: [],
   existingImages: [],
   newImages: [],
   imagePreviews: [],
@@ -29,6 +42,9 @@ const ProductForm = () => {
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
   const {
     form,
     setForm,
@@ -56,10 +72,22 @@ const ProductForm = () => {
         form.append("qty", Number(formData.qty));
         form.append("description", formData.description);
         form.append("category", "Product");
+        form.append("slug", formData.slug);
+        form.append("regular_price", formData.regular_price);
+        form.append("sale_price", formData.sale_price);
+        form.append("short_description", formData.short_description);
+        form.append("tax_status", formData.tax_status);
+        form.append("shipping_required", formData.shipping_required);
+        form.append("shipping_taxable", formData.shipping_taxable);
+        form.append("stock_status", formData.stock_status);
+        selectedCategories.forEach(cat => {
+          form.append("categories[]", cat);
+        });
+
+        // form.append("related_ids", JSON.stringify(formData.related_idss));
 
         // Send existing images (filenames) so backend keeps them
         formData.existingImages.forEach(img => form.append("existingImages[]", img));
-
         // Send new files
         formData.newImages.forEach(file => form.append("productImages", file));
 
@@ -92,6 +120,13 @@ const ProductForm = () => {
       const fetchProduct = async () => {
         const resp = await getProductById(id);
         if (resp?.success) {
+          const cats = resp.data.categories || [];
+
+          // Set selected categories as array of IDs (parents + children)
+          const catIds = cats.map(c => c._id);
+
+          setSelectedCategories(catIds);
+
           setForm(f => ({
             ...f,
             name: resp.data.productName || '',
@@ -99,6 +134,16 @@ const ProductForm = () => {
             price: resp.data.price || '',
             qty: resp.data.qty || '',
             description: resp.data.description || '',
+            short_description: resp.data.short_description || '',
+            slug: resp.data.slug || '',
+            regular_price: resp.data.regular_price || '',
+            sale_price: resp.data.sale_price || '',
+            tax_status: resp.data.tax_status || 'none',
+            shipping_required: resp.data.shipping_required ?? true,
+            shipping_taxable: resp.data.shipping_taxable ?? false,
+            stock_status: resp.data.stock_status || 'instock',
+            categories: catIds, // store IDs for form submit
+            related_ids: resp.data.related_ids || [],
             existingImages: resp.data.productImages || [],
             imagePreviews: resp.data.productImages || [],
           }));
@@ -107,6 +152,76 @@ const ProductForm = () => {
       fetchProduct();
     }
   }, [id, isEdit]);
+
+  useEffect(() => {
+    const fetchCategory = async () => {
+      const resp = await getCategorys();
+      if (resp?.success) {
+        setCategories(resp?.data)
+      }
+    };
+    fetchCategory();
+  }, [])
+
+
+  console.log(categories);
+  // const categoryOptions = categories.map(parent => ({
+  //   label: parent.name,
+  //   value: parent._id,
+  //   isParent: true,
+  //   options: parent.children?.map(child => ({
+  //     label: child.name,
+  //     value: child._id,
+  //     parentId: parent._id,
+  //     isChild: true
+  //   })) || []
+  // }));
+
+  // const flatOptions = categoryOptions.flatMap(group => [
+  //   { label: group.label, value: group.value, isParent: true },
+  //   ...group.options
+  // ]);
+
+  const categoryOptions = categories.map(parent => {
+    // Parent option
+    const parentOption = {
+      label: parent.name,
+      value: parent._id,
+      isParent: true
+    };
+
+    // Children options (if any)
+    const childrenOptions = parent.children?.map(child => ({
+      label: child.name,
+      value: child._id,
+      parentId: parent._id,
+      isChild: true
+    })) || [];
+
+    return {
+      ...parentOption,
+      options: childrenOptions
+    };
+  });
+
+  const flatOptions = categories.flatMap(parent => {
+    const parentOption = {
+      label: parent.name,
+      value: parent._id,
+      isParent: true
+    };
+
+    const childrenOptions = parent.children?.map(child => ({
+      label: child.name,
+      value: child._id,
+      parentId: parent._id,
+      isChild: true
+    })) || [];
+
+    return [parentOption, ...childrenOptions];
+  });
+
+
 
   const handleRemoveImage = (index, isExisting) => {
     setForm(prev => {
@@ -159,6 +274,48 @@ const ProductForm = () => {
     dragOverItem.current = undefined;
   };
 
+  useEffect(() => {
+    const qtyNum = parseInt(form.qty, 10);
+
+    setForm((prev) => {
+      if (qtyNum <= 0 && prev.stock_status !== "outofstock") {
+        return { ...prev, stock_status: "outofstock" };
+      } else if (qtyNum > 0 && prev.stock_status === "outofstock") {
+        return { ...prev, stock_status: "instock" };
+      }
+      return prev;
+    });
+  }, [form.qty, setForm]);
+
+
+  const generateSlug = (text) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+  };
+
+  useEffect(() => {
+    if (!form.name) return;
+
+    if (!form.slugManuallyEdited) {
+      setForm((prev) => ({
+        ...prev,
+        slug: generateSlug(prev.name)
+      }));
+    }
+  }, [form.name]);
+
+  const flatOptionsWithIndent = flatOptions.map(opt => {
+    if (opt.isChild) {
+      return {
+        ...opt,
+        label: `\u00A0\u00A0\u2014 ${opt.label}` // adds "  — " before child label
+      };
+    }
+    return opt;
+  });
 
   return (
     <DashboardLayout>
@@ -174,6 +331,7 @@ const ProductForm = () => {
           {success && <div className="success-banner">{success}</div>}
           <form onSubmit={handleSubmit} className="edit-form" autoComplete="off">
             <div className="single-product-form">
+
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label form-label-required">Name</label>
@@ -186,10 +344,37 @@ const ProductForm = () => {
                     onChange={handleChange}
                     required
                   />
-                  {error && error.field === 'name' && (
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Slug</label>
+                  <input
+                    type="text"
+                    name="slug"
+                    className="form-input"
+                    value={form.slug}
+                    onChange={handleChange}
+                    placeholder="product-slug"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label form-label-required">Price</label>
+                  <input
+                    type="number"
+                    name="price"
+                    className="form-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    value={form.price}
+                    onChange={handleChange}
+                    required
+                  />
+                  {error && error.field === 'price' && (
                     <div className="input-error">{error.message}</div>
                   )}
-
                 </div>
                 <div className="form-group">
                   <label className="form-label form-label-required">SKU</label>
@@ -207,23 +392,87 @@ const ProductForm = () => {
                   )}
                 </div>
               </div>
+
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label form-label-required">Price</label>
+                  <label className="form-label">Categories</label>
+                  <Select
+                    isMulti
+                    options={flatOptionsWithIndent}
+                    value={flatOptions.filter(opt =>
+                      selectedCategories.includes(opt.value)
+                    )}
+                    onChange={(selected) => {
+                      if (!selected || selected.length === 0) {
+                        setSelectedCategories([]);
+                        updateFormCategories([]);
+                        return;
+                      }
+
+                      // Collect all selected IDs
+                      const updated = selected.map(opt => opt.value);
+
+                      setSelectedCategories(updated);
+                      updateFormCategories(updated);
+                    }}
+                   
+                    isOptionDisabled={(option, selected) => {
+                      if (!selected || selected.length === 0) return false;
+
+                      // Only one parent allowed at a time
+                      const selectedParent = selected.find(o => o.isParent);
+
+                      if (selectedParent) {
+                        // Disable other parents
+                        if (option.isParent && option.value !== selectedParent.value) return true;
+
+                        // Only allow children of the selected parent
+                        if (option.isChild && option.parentId !== selectedParent.value) return true;
+                      }
+
+                      // Only one child per parent
+                      const selectedChild = selected.find(o => o.isChild && o.parentId === selectedParent?.value);
+                      if (selectedChild && option.isChild && option.parentId === selectedParent?.value && option.value !== selectedChild.value) {
+                        return true;
+                      }
+
+                      return false;
+                    }}
+                  />
+
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Regular Price</label>
                   <input
                     type="number"
-                    name="price"
+                    name="regular_price"
                     className="form-input"
                     placeholder="0.00"
                     step="0.01"
-                    value={form.price}
+                    min="0"
+                    value={form.regular_price}
                     onChange={handleChange}
-                    required
                   />
-                  {error && error.field === 'price' && (
-                    <div className="input-error">{error.message}</div>
-                  )}
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Sale Price</label>
+                  <input
+                    type="number"
+                    name="sale_price"
+                    className="form-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    value={form.sale_price}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label className="form-label form-label-required">Quantity</label>
                   <input
@@ -231,15 +480,70 @@ const ProductForm = () => {
                     name="qty"
                     className="form-input"
                     placeholder="0"
+                    min="0"
                     value={form.qty}
-                    onChange={handleChange}
+                    onChange={handleChange} // global handler
                     required
                   />
-                  {error && error.field === 'qty' && (
-                    <div className="input-error">{error.message}</div>
-                  )}
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Stock Status</label>
+                  <select
+                    name="stock_status"
+                    className="form-input"
+                    value={form.stock_status}
+                    onChange={handleChange}
+                  >
+                    <option value="instock">In Stock</option>
+                    <option value="outofstock">Out of Stock</option>
+                  </select>
                 </div>
               </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Shipping Required</label>
+                  <select
+                    name="shipping_required"
+                    className="form-input"
+                    value={form.shipping_required}
+                    onChange={e =>
+                      setForm(f => ({
+                        ...f,
+                        shipping_required: e.target.value === 'true'
+                      }))
+                    }
+                  >
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Tax Status</label>
+                  <select name="tax_status" className="form-input" value={form.tax_status} onChange={handleChange}>
+                    <option value="none">None</option>
+                    <option value="taxable">Taxable</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Shipping Taxable</label>
+                  <select
+                    name="shipping_taxable"
+                    className="form-input"
+                    value={form.shipping_taxable}
+                    onChange={e =>
+                      setForm(f => ({
+                        ...f,
+                        shipping_taxable: e.target.value === 'true'
+                      }))
+                    }
+                  >
+                    <option value="false">False</option>
+                    <option value="true">True</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="form-row">
                 <div className="form-group form-group-full">
                   <label className="form-label">Product Images</label>
@@ -294,6 +598,19 @@ const ProductForm = () => {
                   <p className="form-help-text">Upload one or more product images (optional, jpg/png/gif)</p>
                 </div>
               </div>
+
+              <div className='form-row'>
+                <div className="form-group form-group-full">
+                  <label className="form-label">Short Description</label>
+                  <textarea
+                    name="short_description"
+                    className="form-input"
+                    value={form.short_description}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
               <div className="form-group form-group-full">
                 <label className="form-label form-label-required">Description</label>
                 <div className="editor-wrapper-quill">
@@ -347,7 +664,6 @@ const ProductForm = () => {
                 )}
               </div>
             </div>
-
             <div className="form-actions">
               <Button
                 type="submit"

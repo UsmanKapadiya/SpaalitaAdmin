@@ -35,6 +35,8 @@ import OrderDetails from './pages/Order/OrderDetails';
 import ProductDetails from './pages/Product/ProductDetails';
 import Coupon from './pages/Coupon/Coupon';
 import CouponForm from './pages/Coupon/CouponForm';
+import Category from './pages/Category/Category';
+import CategoryForm from './pages/Category/CategoryForm';
 
 function App() {
   return (
@@ -48,6 +50,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/category"
+              element={
+                <ProtectedRoute>
+                  <Category />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/category/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <CategoryForm />
                 </ProtectedRoute>
               }
             />
@@ -91,7 +109,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/coupon"
               element={
                 <ProtectedRoute>

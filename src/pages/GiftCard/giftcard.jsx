@@ -1,67 +1,85 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Button from '../../components/Button/Button';
-import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
-import { useNavigate } from 'react-router-dom';
-import GiftCardForm from './GiftCardForm';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { getGiftCards, deleteGiftCard } from '../../services/giftCardServices';
+import { getCategorys } from '../../services/categoryServices';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
 import { toast } from 'react-toastify';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import ArticleIcon from '@mui/icons-material/Article';
-import CardGiftcardIcon from '@mui/icons-material/CardGiftcard';
+import Button from '../../components/Button/Button';
+import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import EmptyState from '../../components/EmptyState/EmptyState';
 import Pagination from '../../components/Pagination/Pagination';
-import '../Product/product.css';
+import './giftcard.css';
 import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Table from '../../components/Table/Table';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ProductDetails from '../Product/ProductDetails';
 import PageTitle from '../../components/PageTitle/PageTitle';
-import { deleteGiftCard, getGiftCards } from '../../services/giftCardServices';
 import ImageNotFound from '../../assets/download.png'
 
 const GiftCard = () => {
   const navigate = useNavigate();
+  const [viewProductId, setViewProductId] = useState(null);
+  const handleView = useCallback((product, e) => {
+    e.stopPropagation();
+    setViewProductId(product.id);
+  }, []);
+  const handleBackFromView = useCallback(() => setViewProductId(null), []);
+  const handleEditFromView = useCallback((id) => navigate(`/giftCards/edit/${id}`), [navigate]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [giftCardData, setGiftCardData] = useState([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const [productData, setProductData] = useState([]);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 1 });
+  const [loading, setLoading] = useState(true);
   const [error] = useState(null);
-  // Fetch gift cards from API
-  const fetchGiftCards = async () => {
-    setLoading(true);
+  const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+
+
+  const fetchData = async () => {
     const resp = await getGiftCards(page, itemsPerPage, searchTerm);
-    if (resp && resp.data) {
-      setGiftCardData(resp.data);
-      if (resp.pagination) {
-        setTotalItems(resp.pagination.total || resp.data.length);
-        setTotalPages(resp.pagination.pages || 1);
-      } else {
-        setTotalItems(resp.data.length);
-        setTotalPages(1);
+    let products = [];
+    if (resp?.success && Array.isArray(resp.data)) {
+      products = resp.data.map(item => {
+        return {
+          id: item._id,
+          name: item.productName,
+          sku: item.sku,
+          price: item.price,
+          qty: item.qty,
+          images: item.productImages,
+          description: item.description,
+          categories: item?.categories,
+          status: item.status,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        };
+      });
+      if (resp && resp.pagination) {
+        setPagination(resp.pagination);
+        setPage(resp.pagination.page);
+        setItemsPerPage(resp.pagination.limit);
       }
-    } else {
-      setGiftCardData([]);
-      setTotalItems(0);
-      setTotalPages(1);
-      if (resp && resp.error) toast.error(resp.error);
     }
     setLoading(false);
+    setProductData(products);
   };
-
   useEffect(() => {
-    fetchGiftCards();
-  }, [page, itemsPerPage, searchTerm]);
+    fetchData();
+  }, [page, searchTerm, itemsPerPage]);
 
-  const filteredGiftCards = giftCardData;
 
-  // Edit gift card
+
+  const filteredProducts = productData;
+  const totalPages = pagination.pages;
+
+  // Edit product
   const handleEdit = useCallback((id, e) => {
     e.stopPropagation();
     navigate(`/giftCards/edit/${id}`);
@@ -74,51 +92,59 @@ const GiftCard = () => {
     itemName: ''
   });
 
-  // Delete gift card
+  // Delete product
   const handleDelete = useCallback((id, e) => {
     e.stopPropagation();
-    const item = giftCardData.find(item => item._id === id);
+    const item = productData.find(item => item.id === id);
     setConfirmDialog({
       isOpen: true,
       itemId: id,
-      itemName: item?.productName || item?.name || 'this gift card'
+      itemName: item?.name || 'this product'
     });
-  }, [giftCardData]);
-
+  }, [productData]);
 
   const confirmDelete = useCallback(async () => {
     if (!confirmDialog.itemId) return;
-    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
     try {
-      const resp = await deleteGiftCard(confirmDialog.itemId, token);
-      if (resp && resp.success === false) {
-        throw new Error(resp.error || 'Delete failed');
-      }
-      toast.success('Gift Card deleted successfully!');
+      await deleteGiftCard(confirmDialog.itemId, token);
+      toast.success('Product deleted successfully!');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-      fetchGiftCards(); // Refresh list
+      fetchData();
+
+      // getAllProducts(page, searchTerm); // Refresh list
     } catch (err) {
-      toast.error('Failed to delete Gift Card');
+      toast.error('Failed to delete product');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
     }
-  }, [confirmDialog.itemId]);
-
+  }, [confirmDialog.itemId, page, searchTerm]); //getAllProducts
 
   const closeConfirmDialog = useCallback(() => {
     setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
   }, []);
 
+  if (viewProductId) {
+    const product = productData.find(p => p.id === viewProductId);
+    return (
+      <ProductDetails
+        product={product}
+        onBack={handleBackFromView}
+        onEditProduct={handleEditFromView}
+      />
+    );
+  }
+
+  console.log(filteredProducts);
+
   return (
     <DashboardLayout>
       <div className="news-page">
-        <PageTitle
+       <PageTitle
           title="Gift Cards"
           subTitle="Manage your gift card inventory."
           button={true}
           buttonLabel="Add Gift Card"
           onButtonClick={() => navigate('/giftCards/edit/new')}
         />
-
         <div className="search-bar">
           <SearchAndFilter
             searchValue={searchTerm}
@@ -127,20 +153,21 @@ const GiftCard = () => {
               setPage(1);
             }}
             showFilter={false}
-            placeholder="Search gift cards by name, code, or description..."
+            placeholder="Search giftCard by Name or SKU..."
           />
         </div>
+
         <div className="product-table-wrapper order-list__table-container">
           {loading ? (
-            <GlobalLoader text="Loading gift cards..." />
+            <GlobalLoader text="Loading giftCards..." />
           ) : error ? (
-            <div className="empty-state" > {error}</div>
-          ) : filteredGiftCards.length > 0 ? (
+            <div className="empty-state">{error}</div>
+          ) : filteredProducts.length > 0 ? (
             <Table
               tableClassName="product-table"
               columns={[
                 {
-                  key: 'productImages',
+                  key: 'images',
                   label: 'Image',
                   render: (value) => {
                     const imgSrc = Array.isArray(value) && value.length > 0
@@ -156,65 +183,120 @@ const GiftCard = () => {
                     );
                   },
                 },
-                { key: 'productName', label: 'Name' },
-                { key: 'sku', label: 'Code' },
-                { key: 'price', label: 'Value', render: value => `$${value}` },
-                { key: 'qty', label: 'Qty' },
                 {
-                  key: 'description', label: 'Description',
-                  render: (value) => {
-                    if (!value) return '';
-                    const plain = value.replace(/<[^>]+>/g, '');
-                    return plain.length > 40 ? plain.slice(0, 40) + '...' : plain;
-                  }
+                  key: 'name',
+                  label: 'Name',
+                  render: (value) => value && value.length > 20 ? value.slice(0, 20) + '...' : value,
                 },
-                { key: 'createdAt', label: 'Created', render: value => value ? dayjs(value).format('DD-MMM-YYYY') : '' },
+                {
+                  key: 'sku',
+                  label: 'SKU',
+                },
+                {
+                  key: 'price',
+                  label: 'Price',
+                  render: (value) => `$${value}`,
+                },
+                {
+                  key: 'qty',
+                  label: 'Qty',
+                  render: (value) => {
+                    const qty = Number(value) || 0;
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{qty}</span>
+                        {qty < 10 && (
+                          <span
+                            style={{
+                              backgroundColor: '#dc3545',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Low
+                          </span>
+                        )}
+                      </div>
+                    );
+                  },
+                },
+                {
+                  key: 'categories',
+                  label: 'Category',
+                  render: (productCategories) => {
+                    // Check if categories exist and is an array
+                    if (!Array.isArray(productCategories) || productCategories.length === 0) return '-';
+
+                    // Map category names and join with comma
+                    return productCategories.map(cat => cat.name).join(', ');
+                  },
+                },
+                {
+                  key: 'createdAt',
+                  label: 'Created',
+                  render: (value) => value ? dayjs(value).format('DD-MMM-YYYY') : '',
+                },
                 {
                   key: 'actions',
                   label: 'Actions',
                   render: (value, item) => (
-                    <>
-                      <Button className="btn-icon edit" onClick={e => handleEdit(item._id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="icon">
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+                      <Button
+                        className="btn-icon view"
+                        onClick={e => handleView(item, e)}
+                        title={`View ${item.name}`}
+                        aria-label={`View ${item.name}`}
+                        variant="info"
+                        style={{ padding: 4, minWidth: 0, height: 32 }}
+                      >
+                        <VisibilityIcon />
+                      </Button>
+                      <Button className="btn-icon edit" onClick={e => handleEdit(item.id, e)} title={`Edit ${item.name}`} aria-label={`Edit ${item.name}`} variant="secondary" style={{ padding: 4, minWidth: 0, height: 32 }}>
                         <EditIcon />
                       </Button>
-                      <Button className="btn-icon delete" onClick={e => handleDelete(item._id || item.id, e)} title={`Delete ${item.productName || item.name}`} aria-label={`Delete ${item.productName || item.name}`} variant="danger">
+                      <Button className="btn-icon delete" onClick={e => handleDelete(item.id, e)} title={`Delete ${item.name}`} aria-label={`Delete ${item.name}`} variant="danger" style={{ padding: 4, minWidth: 0, height: 32 }}>
                         <DeleteIcon />
                       </Button>
-                    </>
-                  )
-                }
+                    </div>
+                  ),
+                },
               ]}
-              data={filteredGiftCards}
+              data={filteredProducts}
             />
           ) : (
             <EmptyState
-              icon={<CardGiftcardIcon style={{ fontSize: 48 }} />}
-              title="No Gift Cards Found"
-              description={searchTerm ? 'No gift cards found' : 'No gift cards yet'}
+              icon={<LocalOfferIcon style={{ fontSize: 48 }} />}
+              title="No GiftCards Found"
+              description={searchTerm ? 'No giftCards found' : 'No giftCards yet'}
             />
           )}
         </div>
+
         {totalPages > 1 && !loading && (
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            onPageChange={setPage}
+            onPageChange={(newPage) => setPage(newPage)}
             showInfo={true}
             showJumper={totalPages > 10}
           />
         )}
+
         <ConfirmDialog
           isOpen={confirmDialog.isOpen}
           onClose={closeConfirmDialog}
           onConfirm={confirmDelete}
-          title="Delete Gift Card"
+          title="Delete Product"
           message={`Are you sure you want to delete "${confirmDialog.itemName}"? This action cannot be undone.`}
           confirmText="Delete"
           cancelText="Cancel"
           type="danger"
         />
       </div>
-    </DashboardLayout >
+    </DashboardLayout>
   );
 };
 

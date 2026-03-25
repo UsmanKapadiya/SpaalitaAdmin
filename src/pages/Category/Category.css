@@ -1,0 +1,89 @@
+/* Category Table Styles - same as product table */
+.category-table-wrapper {
+  margin-top: 24px;
+  overflow-x: auto;
+}
+
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.category-table th, .category-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.category-table th {
+  background: var(--primary-color);
+  font-weight: 600;
+  color: var(--text-white);
+  font-size: 14px;
+}
+
+.category-table tr:last-child td {
+  border-bottom: none;
+}
+
+.category-table tbody tr:hover {
+  background: #f5faff;
+}
+
+.category-table td .btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin-right: 4px;
+  font-size: 18px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+
+.btn-icon.edit:hover {
+  color: var(--primary-color);
+}
+
+.btn-icon.delete:hover {
+  color: var(--danger-color);
+}
+
+.category-table td .btn-icon.edit {
+  color: #1976d2;
+}
+
+.category-table td .btn-icon.edit:hover {
+  color: var(--text-white);
+  background-color: var(--primary-color);
+}
+
+.category-table td .btn-icon.delete {
+  color: #d32f2f;
+}
+
+.category-table td .btn-icon.delete:hover {
+ color: var(--text-white);
+  background-color: var(--primary-color);
+}
+
+/* Optional: indent child categories */
+.category-table td.parent-indent {
+  padding-left: 20px;
+  font-style: italic;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .category-table th, .category-table td {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+}

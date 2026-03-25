@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { getProducts, deleteProduct } from '../../services/productService';
+import { getCategorys } from '../../services/categoryServices';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -41,13 +42,12 @@ const Product = () => {
   const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
 
-  const getAllProducts = async (pageNum = page, search = searchTerm) => {
-    setLoading(true);
-    try {
-      const resp = await getProducts(pageNum, itemsPerPage, search);
-      let products = [];
-      if (resp && resp.success && Array.isArray(resp.data)) {
-        products = resp.data.map(item => ({
+  const fetchData = async () => {
+    const resp = await getProducts(page, itemsPerPage, searchTerm);
+    let products = [];
+    if (resp?.success && Array.isArray(resp.data)) {
+      products = resp.data.map(item => {
+        return {
           id: item._id,
           name: item.productName,
           sku: item.sku,
@@ -55,28 +55,26 @@ const Product = () => {
           qty: item.qty,
           images: item.productImages,
           description: item.description,
-          category: item.category,
+          categories: item?.categories,
           status: item.status,
           createdAt: item.createdAt,
           updatedAt: item.updatedAt,
-        }));
-      }
-      setProductData(products);
+        };
+      });
       if (resp && resp.pagination) {
         setPagination(resp.pagination);
         setPage(resp.pagination.page);
         setItemsPerPage(resp.pagination.limit);
       }
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
-      toast.error('Failed to load products');
     }
+    setLoading(false);
+    setProductData(products);
   };
-
   useEffect(() => {
-    getAllProducts(page, searchTerm);
-  }, [page, searchTerm]);
+    fetchData();
+  }, [page, searchTerm, itemsPerPage]);
+
+
 
   const filteredProducts = productData;
   const totalPages = pagination.pages;
@@ -111,12 +109,14 @@ const Product = () => {
       await deleteProduct(confirmDialog.itemId, token);
       toast.success('Product deleted successfully!');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
-      getAllProducts(page, searchTerm); // Refresh list
+      fetchData();
+
+      // getAllProducts(page, searchTerm); // Refresh list
     } catch (err) {
       toast.error('Failed to delete product');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
     }
-  }, [confirmDialog.itemId, getAllProducts, page, searchTerm]);
+  }, [confirmDialog.itemId, page, searchTerm]); //getAllProducts
 
   const closeConfirmDialog = useCallback(() => {
     setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
@@ -198,14 +198,38 @@ const Product = () => {
                 {
                   key: 'qty',
                   label: 'Qty',
+                  render: (value) => {
+                    const qty = Number(value) || 0;
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span>{qty}</span>
+                        {qty < 10 && (
+                          <span
+                            style={{
+                              backgroundColor: '#dc3545',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: 4,
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                            }}
+                          >
+                            Low
+                          </span>
+                        )}
+                      </div>
+                    );
+                  },
                 },
                 {
-                  key: 'description',
-                  label: 'Description',
-                  render: (value) => {
-                    if (!value) return '';                
-                    const plain = value.replace(/<[^>]+>/g, '');
-                    return plain.length > 40 ? plain.slice(0, 40) + '...' : plain;
+                  key: 'categories',
+                  label: 'Category',
+                  render: (productCategories) => {
+                    // Check if categories exist and is an array
+                    if (!Array.isArray(productCategories) || productCategories.length === 0) return '-';
+
+                    // Map category names and join with comma
+                    return productCategories.map(cat => cat.name).join(', ');
                   },
                 },
                 {
