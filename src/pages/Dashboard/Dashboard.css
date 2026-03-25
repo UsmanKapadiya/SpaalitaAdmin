@@ -1,0 +1,135 @@
+/* Grid Layout */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Card */
+.stat-card {
+  background: var(--bg-white);
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;     
+  justify-content: center; 
+  text-align: center;
+
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Hover Effect */
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Header (Icon container) */
+.stat-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Icon */
+.stat-icon {
+  font-size: 36px;
+  padding: 12px;
+  border-radius: 50%;
+  background: var(--bg-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Value (Number) */
+.stat-value {
+  font-size: 30px;
+  font-weight: 700;
+  margin-top: 10px;
+  color: var(--text-primary);
+}
+
+/* Label */
+.stat-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Color Variants using global colors */
+.stat-icon.success {
+  color: var(--success-color);
+  background: #d1fae5; /* light success background */
+}
+
+.stat-icon.warning {
+  color: var(--warning-color);
+  background: #fff7ed; /* light warning background */
+}
+
+.stat-icon.error {
+  color: var(--danger-color);
+  background: #fee2e2; /* light danger background */
+}
+
+.stat-icon.info {
+  color: var(--text-white);
+  background: var(--primary-color);
+}
+
+.stat-icon.primary {
+  color: var(--text-white);
+  background: var(--primary-color);
+}
+
+.stat-icon.secondary {
+  color: var(--text-white);
+  background: var(--secondary-color);
+}
+
+/* Center loader & error */
+.center-box {
+  display: flex;
+  flex-direction: column; 
+  align-items: center;    
+  justify-content: center; 
+  height: 60vh;           
+  text-align: center;
+}
+
+/* Error styling */
+.error-text p {
+  color: var(--danger-color);
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+/* Button wrapper for center alignment */
+.retry-btn-wrapper {
+  display: flex;
+  justify-content: center; 
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .stat-icon {
+    font-size: 28px;
+    padding: 10px;
+  }
+}
