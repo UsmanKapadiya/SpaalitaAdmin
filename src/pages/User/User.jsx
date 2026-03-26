@@ -46,7 +46,7 @@ const User = () => {
     const getUserList = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const resp = await UserService.getUserList(token, page, itemsPerPage, searchTerm);
 
             if (resp?.success) {
@@ -89,7 +89,7 @@ const User = () => {
             return;
         }
         try {
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const resp = await UserService.DeleteOrder(token, userToDelete._id);
             if (resp?.success) {
                 toast.success(resp?.message, {

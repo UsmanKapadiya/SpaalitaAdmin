@@ -27,7 +27,7 @@ const Category = () => {
     const [page, setPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 1 });
-    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
     const [error] = useState(null);
 
     const fetchCategories = async (pageNum = page, search = searchTerm) => {

@@ -91,7 +91,7 @@ const Services = () => {
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         try {
             const response = await deleteServices(confirmDialog.itemId, token);
             if (response && response.success) {

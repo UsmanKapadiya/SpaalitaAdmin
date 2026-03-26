@@ -83,7 +83,7 @@ const GalleryForm = () => {
         setSuccess('');
 
         try {
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             if (!token) {
                 toast.error('Authentication token is missing. Please log in again.');
                 setLoading(false);

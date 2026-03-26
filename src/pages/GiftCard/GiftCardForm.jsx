@@ -40,7 +40,7 @@ const GiftCardForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id && id !== 'new');
-  const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+  const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
 

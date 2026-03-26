@@ -31,7 +31,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
       if (isEdit && id) {
         setLoading(true);
         try {
-          const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+          const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
           const resp = await getBookingPolicyById(id, token);
           if (resp && resp.success && resp.data) {
             setForm({
@@ -77,7 +77,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
       setLoading(false);
       return;
     }
-    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
     const apiForm = {
       ...form,
       status: form.status ? 'active' : 'Inactive',

@@ -67,7 +67,7 @@ const BookingPolicy = () => {
     }, [searchTerm, policies]);
 
     const updatePolicyStatus = async (selectedId) => {
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         const selectedPolicy = policies.find(item => item._id === selectedId);
         if (selectedPolicy && selectedPolicy.status !== 'active') {
             const resp = await updateBookingPolicy(selectedId, token, { ...selectedPolicy, status: 'active' });
@@ -102,7 +102,7 @@ const BookingPolicy = () => {
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         try {
             const response = await deleteBookingPolicy(confirmDialog.itemId, token);
             if (response && response.success) {

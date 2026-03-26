@@ -75,7 +75,7 @@ const Gallery = () => {
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         try {
             const resp = await deleteGallery(confirmDialog.itemId, token);
             console.log(resp);

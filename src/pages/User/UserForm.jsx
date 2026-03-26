@@ -44,7 +44,7 @@ const UserForm = () => {
         const fetchUser = async () => {
             if (isEdit) {
                 try {
-                    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+                    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
                     const resp = await UserService.getUserById(token, id);
                     if (resp?.success && resp.data) {
                         const user = resp.data;
@@ -110,7 +110,7 @@ const UserForm = () => {
         }
 
         const name = `${firstName} ${lastName}`;
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
         const doApi = async () => {
             try {

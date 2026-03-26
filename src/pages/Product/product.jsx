@@ -39,7 +39,7 @@ const Product = () => {
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 1 });
   const [loading, setLoading] = useState(true);
   const [error] = useState(null);
-  const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+  const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
 
   const fetchData = async () => {

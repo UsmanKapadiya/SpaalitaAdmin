@@ -6,7 +6,6 @@ const instance = axios.create({
   timeout: 50000,
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
   },
 });
 
@@ -16,7 +15,7 @@ instance.interceptors.request.use(function (config) {
   if (Cookies.get('userToken')) {
     token = JSON.parse(Cookies.get('userToken')).token; // Ensure you're accessing the correct field
   }
-  const isAuthenticated = localStorage.getItem('authToken');
+  const isAuthenticated = sessionStorage.getItem('authToken');
   // Remove quotes if present (e.g., if token is stored as '"tokenstring"')
   const cleanToken = isAuthenticated ? isAuthenticated.replace(/^"|"$/g, '') : '';
   
@@ -34,15 +33,19 @@ instance.interceptors.request.use(function (config) {
 instance.interceptors.response.use(
   response => response, // If response is successful, return it
   error => {
-    if (error.response && error.response.status === 401) {
+    // Check for invalid/expired token in error response
+    const message = error?.response?.data?.message || error?.response?.message;
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      message === "Invalid or expired token"
+    ) {
       // Clear authentication data (cookies/localStorage)
       localStorage.removeItem('authToken');
       localStorage.removeItem('userData');
       Cookies.remove('authToken');
-
-      // window.location.href = '/';
-
-      // Optionally, you can redirect to the login page
+      // Redirect to login screen
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
@@ -65,7 +68,7 @@ const requests = {
   customPost: (url, body, token) => {
     return instance.post(url, body, {
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "multipart/form-data",
         'Authorization': `Bearer ${token}`,
       }
     }).then(responseBody);
@@ -76,6 +79,7 @@ const requests = {
   patch: (url, body) => instance.patch(url, body).then(responseBody),
 
   delete: (url, body) => instance.delete(url, body).then(responseBody),
+  
   upload: (url, formData) =>
     instance.post(url, formData, {
       headers: {

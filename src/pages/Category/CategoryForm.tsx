@@ -27,7 +27,7 @@ const CategoryForm = () => {
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
     const [allCategories, setAllCategories] = useState([]);
-    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
 
     const {
         form,

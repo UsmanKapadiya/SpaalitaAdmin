@@ -84,7 +84,7 @@ const MonthlySpecial = () => {
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
         setLoading(true);
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         try {
             const response = await deleteMonthlySpecial(confirmDialog.itemId, token);
             if (response && response.success) {

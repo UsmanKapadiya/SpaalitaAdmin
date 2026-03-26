@@ -84,7 +84,7 @@ const Coupon = () => {
 
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
-        const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+        const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
         try {
             const resp = await deleteCoupon(confirmDialog.itemId, token);
             if (resp && resp.success === false) {

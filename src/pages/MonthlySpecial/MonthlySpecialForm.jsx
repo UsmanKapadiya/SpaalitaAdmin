@@ -36,7 +36,7 @@ const MonthlySpecialForm = () => {
             if (isEdit && id) {
                 setLoading(true);
                 try {
-                    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+                    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
                     const resp = await getMonthlySpecilById(id, token);
                     if (resp && resp.success && resp.data) {
                         const data = resp.data;
@@ -93,7 +93,7 @@ const MonthlySpecialForm = () => {
         }
         const reader = new FileReader();
         reader.onloadend = async () => {
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const payload = {
                 month: selectedMonth,
                 image: reader.result,

@@ -74,7 +74,7 @@ const OrderForm = ({ order, onSave, onCancel }) => {
         setLoading(true);
 
         try {
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             if (order && order._id) {
                 // Update existing order
                 // Remove customerName from update payload

@@ -42,7 +42,7 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
     const fetchOrder = async () => {
         try {
             setLoading(true);
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const resp = await OrderService.getOrderList(token, page, itemsPerPage, searchTerm, statusFilter);
             if (resp?.success) {
                 setOrders(resp.data || []);
@@ -70,7 +70,7 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
             return;
         }
         try {
-            const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+            const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
             const resp = await OrderService.DeleteOrder(token, orderToDelete._id);
             if (resp?.success) {
                 toast.success(resp?.message, {

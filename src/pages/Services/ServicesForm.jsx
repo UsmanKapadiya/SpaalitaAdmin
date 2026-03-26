@@ -29,7 +29,7 @@ const ServicesForm = () => {
     const { id } = useParams();
     const isEdit = Boolean(id && id !== 'new');
     const { user } = useAuth();
-    const token = localStorage.getItem('authToken')?.replace(/^"|"$/g, '');
+    const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
     const {
         form,
         setForm,
