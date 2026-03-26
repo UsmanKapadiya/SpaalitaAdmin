@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '../../components/Button/Button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +8,7 @@ import './Login.css';
 import AuthService from '../../services/authService';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
@@ -17,12 +17,24 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  // ✅ Restore remembered username on load
+  useEffect(() => {
+    const remembered = localStorage.getItem('rememberMe') === 'true';
+
+    if (remembered) {
+      const savedUsername = localStorage.getItem('username');
+      if (savedUsername) {
+        setUsername(savedUsername);
+        setRememberMe(true);
+      }
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Basic validation
     if (!username || !password) {
       setError('Please fill in all fields');
       setLoading(false);
@@ -30,15 +42,28 @@ const Login = () => {
     }
 
     try {
-      const loginData = {
-        username,
-        password,
-      };
+      const loginData = { username, password };
 
       const resp = await AuthService.adminLogin(loginData);
-      console.log(resp);
-      localStorage.setItem('user', JSON.stringify(resp?.data));
-      localStorage.setItem('authToken', JSON.stringify(resp?.token));
+
+      // ✅ Clear old storage
+      localStorage.removeItem('user');
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('authToken');
+
+      // ✅ Store based on rememberMe
+      if (rememberMe) {
+        localStorage.setItem('user', JSON.stringify(resp?.data));
+        localStorage.setItem('authToken', JSON.stringify(resp?.token));
+        localStorage.setItem('rememberMe', 'true');
+        localStorage.setItem('username', username); // save username
+      } else {
+        sessionStorage.setItem('user', JSON.stringify(resp?.data));
+        sessionStorage.setItem('authToken', JSON.stringify(resp?.token));
+        localStorage.setItem('rememberMe', 'false');
+        localStorage.removeItem('username');
+      }
 
       toast.success('Login successful! Welcome back.');
 
@@ -48,13 +73,11 @@ const Login = () => {
     } catch (error) {
       const message =
         error.response?.data?.message || "Login failed";
-
       toast.error(message);
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <div className="login-container">
       <div className="login-card">
@@ -106,23 +129,16 @@ const Login = () => {
               />
               Remember me
             </label>
-            <a href="#" className="forgot-password">
+
+            <div className="forgot-password disabled">
               Forgot password?
-            </a>
+            </div>
           </div>
 
           <Button type="submit" className="btn-login" disabled={loading} >
             {loading ? 'Signing in...' : 'Sign In'}
           </Button>
         </form>
-
-        {/* <div className="demo-credentials">
-          <strong>Demo Credentials:</strong>
-          <br />
-          Email: admin@clf.com
-          <br />
-          Password: admin123
-        </div> */}
       </div>
     </div>
   );
