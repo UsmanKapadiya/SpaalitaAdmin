@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../../components/Button/Button';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import IconButton from '@mui/material/IconButton';
+import { useAuth } from '../../context/AuthContext';
+import Button from '../../components/Button/Button';
 import logo from '../../assets/logo.png'
-import './Login.css';
 import AuthService from '../../services/authService';
+import './Login.css';
+
 
 const Login = () => {
-   const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +21,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  // ✅ Restore remembered username on load
   useEffect(() => {
     const remembered = localStorage.getItem('rememberMe') === 'true';
 
@@ -46,13 +49,13 @@ const Login = () => {
 
       const resp = await AuthService.adminLogin(loginData);
 
-      // ✅ Clear old storage
+      // Clear old storage
       localStorage.removeItem('user');
       localStorage.removeItem('authToken');
       sessionStorage.removeItem('user');
       sessionStorage.removeItem('authToken');
 
-      // ✅ Store based on rememberMe
+      // Store based on rememberMe
       if (rememberMe) {
         localStorage.setItem('user', JSON.stringify(resp?.data));
         localStorage.setItem('authToken', JSON.stringify(resp?.token));
@@ -109,15 +112,26 @@ const Login = () => {
             <label htmlFor="password" className="form-label">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              className="form-input"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
+
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                className="form-input"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+              />
+
+              <IconButton
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </div>
           </div>
 
           <div className="form-options">
