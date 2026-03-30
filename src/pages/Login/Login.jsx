@@ -57,16 +57,15 @@ const Login = () => {
 
       // Store based on rememberMe
       if (rememberMe) {
-        localStorage.setItem('user', JSON.stringify(resp?.data));
-        localStorage.setItem('authToken', JSON.stringify(resp?.token));
         localStorage.setItem('rememberMe', 'true');
         localStorage.setItem('username', username); // save username
       } else {
-        sessionStorage.setItem('user', JSON.stringify(resp?.data));
-        sessionStorage.setItem('authToken', JSON.stringify(resp?.token));
         localStorage.setItem('rememberMe', 'false');
         localStorage.removeItem('username');
       }
+
+      sessionStorage.setItem('user', JSON.stringify(resp?.data));
+      sessionStorage.setItem('authToken', JSON.stringify(resp?.token));
 
       toast.success('Login successful! Welcome back.');
 
