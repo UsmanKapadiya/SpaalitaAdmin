@@ -20,8 +20,11 @@ const initialForm = {
     value: '',
     qty: '',
     description: '',
-    image: '',
-    buttonUrl: '', 
+    buttonUrl: '',
+
+    image: null,          // single file
+    imagePreview: ''      // single preview
+
 };
 
 const ServicesForm = () => {
@@ -37,7 +40,7 @@ const ServicesForm = () => {
         error,
         success,
         handleChange,
-        handleImageChange,
+        // handleImageChange,
         handleDescriptionChange,
         handleSubmit,
         setError,
@@ -46,23 +49,37 @@ const ServicesForm = () => {
         setImagePreview,
     } = useForm({
         initialForm,
-        data: mockServices,
+        data: [],
         id,
         isEdit,
         fields: ['name', 'description',],
         // fields removed: validation handled in useForm, buttonUrl is optional
         onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
             // Only pass the required keys in the payload
-            const payload = {
-                serviceName: formData.name,
-                serviceImage: formData.image,
-                serviceDescription: formData.description,
-                buttonUrl: formData.buttonUrl,
-            };
+            // const payload = {
+            //     serviceName: formData.name,
+            //     serviceImage: formData.imagePreviews,
+            //     serviceDescription: formData.description,
+            //     buttonUrl: formData.buttonUrl,
+            // };
+
+            const formDataToSend = new FormData();
+
+            formDataToSend.append("serviceName", formData.name);
+            formDataToSend.append("serviceDescription", formData.description);
+            formDataToSend.append("buttonUrl", formData.buttonUrl);
+
+            if (formData.image instanceof File) {
+                formDataToSend.append("serviceImage", formData.image);
+            }
+            // send actual files
+            // formData.newImages.forEach((file) => {
+            //     formDataToSend.append("serviceImage", file);
+            // });
             try {
                 let response;
                 if (isEdit) {
-                    response = await updateService(id, token, payload);
+                    response = await updateService(id, token, formDataToSend);
                     if (response.success) {
                         setSuccess('Service updated successfully!');
                         toast.success('Service updated successfully!');
@@ -73,7 +90,7 @@ const ServicesForm = () => {
                         return;
                     }
                 } else {
-                    response = await createService(token, payload);
+                    response = await createService(token, formDataToSend);
                     if (response.success) {
                         setSuccess('Service added successfully!');
                         toast.success('Service added successfully!');
@@ -108,11 +125,12 @@ const ServicesForm = () => {
                             name: prod.serviceName || '',
                             description: prod.serviceDescription || '',
                             buttonUrl: prod.buttonUrl || '',
-                            image: prod.serviceImage || '',
+                            image: null, // important (not string)
+                            imagePreview: prod.serviceImage || ''
                         }));
-                        if (prod.serviceImage) {
-                            setImagePreview(prod.serviceImage);
-                        }
+                        // if (prod.serviceImage) {
+                        //     setImagePreview(prod.serviceImage);
+                        // }
                     }
                 } catch (err) {
                     toast.error('Failed to fetch product details');
@@ -122,6 +140,17 @@ const ServicesForm = () => {
         fetchServices();
         // eslint-disable-next-line
     }, [isEdit, id]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setForm(prev => ({
+            ...prev,
+            image: file,
+            imagePreview: URL.createObjectURL(file)
+        }));
+    };
 
     function stripHtmlTags(str) {
         if (!str) return '';
@@ -172,14 +201,26 @@ const ServicesForm = () => {
                                 <label htmlFor="image" className="form-label">Service Image</label>
                                 <input
                                     type="file"
-                                    id="image"
                                     accept="image/*"
-                                    onChange={handleImageChange}
+                                    // onChange={handleImageChange}
+                                    onChange={(e) => handleImageChange(e, false)}
                                     className="form-input file-input"
                                 />
-                                {imagePreview && (
+
+                                {form.imagePreview && (
                                     <div className="image-preview-wrapper">
-                                        <img src={imagePreview} alt="Service Preview" className="image-preview" />
+                                        <img
+                                            src={form.imagePreview}
+                                            alt="Service Preview"
+                                            className="image-preview"
+                                            style={{
+                                                width: 80,
+                                                height: 80,
+                                                objectFit: 'cover',
+                                                borderRadius: 6,
+                                                border: '1px solid #ccc'
+                                            }}
+                                        />
                                     </div>
                                 )}
                                 <p className="form-help-text">Upload a service image (optional, jpg/png/gif)</p>
