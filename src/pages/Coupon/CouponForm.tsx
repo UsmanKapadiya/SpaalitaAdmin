@@ -59,14 +59,10 @@ const CouponForm = () => {
             'couponAmount',
             // 'allowFreeShiping',
             'couponExpiryDate',
-            'minimumSpend',
-            'maximumSpend',
             'products',
             'excludeProducts',
             'category',
             'excludeCategory',
-            'usageLimitPerCoupon',
-            'usageLimitPerUser'
         ],
         onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
             try {
@@ -86,17 +82,20 @@ const CouponForm = () => {
                     usageLimitPerUser: formData.usageLimitPerUser ? Number(formData.usageLimitPerUser) : null,
                 };
 
-                let resp;
-                if (isEdit) {
-                    resp = await updateCoupon(id, token, payload);
-                    setSuccess('Coupon updated successfully!');
-                    toast.success('Coupon updated successfully!');
-                } else {
-                    resp = await createCoupon(token, payload);
-                    setSuccess('Coupon added successfully!');
-                    toast.success('Coupon added successfully!');
+                const resp = isEdit
+                    ? await updateCoupon(id, token, payload)
+                    : await createCoupon(token, payload);
+
+                if (!resp?.success) {
+                    setLoading(false);
+                    setError({ message: resp?.error || 'Something went wrong', field: null });
+                    toast.error(resp?.error || 'Something went wrong');
+                    return;
                 }
 
+                const message = isEdit ? 'Coupon updated successfully!' : 'Coupon added successfully!';
+                setSuccess(message);
+                toast.success(message);
                 setLoading(false);
                 setTimeout(() => navigate('/coupon'), 1200);
 
@@ -421,7 +420,7 @@ const CouponForm = () => {
                             <Button
                                 type="button"
                                 className="btn-secondary"
-                                onClick={() => navigate('/coupons')}
+                                onClick={() => navigate('/coupon')}
                                 disabled={loading}
                             >
                                 Cancel

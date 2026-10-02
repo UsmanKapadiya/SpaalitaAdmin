@@ -4,6 +4,7 @@ import Button from '../../components/Button/Button';
 import HomeIcon from '@mui/icons-material/Home';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 const styles = {
     header: {
         display: 'flex',
@@ -102,7 +103,7 @@ function ItemsTable({ items }) {
             <tbody>
                 {items.map((item, idx) => (
                     <tr key={idx}>
-                        <td>{item.image ? <img src={item.image} alt={item.name} style={styles.itemImage} /> : <></>}</td>
+                        <td>{item.image ? <img src={mediaUrl(item.image, 'products')} alt={item.name} style={styles.itemImage} /> : <></>}</td>
                         <td>{item.productId?.productName || item.productName || ''}</td>
                         <td>{item.qty}</td>
                         <td>{item?.price}</td>

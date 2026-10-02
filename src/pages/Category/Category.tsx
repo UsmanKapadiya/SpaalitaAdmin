@@ -69,7 +69,8 @@ const Category = () => {
     const confirmDelete = useCallback(async () => {
         if (!confirmDialog.itemId) return;
         try {
-            await deleteCategory(confirmDialog.itemId, token);
+            const resp = await deleteCategory(confirmDialog.itemId, token);
+            if (resp?.success === false) throw new Error(resp.error);
             toast.success('Category deleted successfully!');
             setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
             fetchCategories();

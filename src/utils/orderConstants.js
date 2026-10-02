@@ -1,9 +1,12 @@
 // Order Status Constants
+// The API sets "paid" / "failed" from Stripe payments; the dashboard counts "completed" orders.
 export const ORDER_STATUS = {
   PENDING: 'pending',
+  PAID: 'paid',
   PROCESSING: 'processing',
   SHIPPED: 'shipped',
   DELIVERED: 'delivered',
+  COMPLETED: 'completed',
   CANCELLED: 'cancelled',
   REFUNDED: 'refunded'
 };
@@ -11,10 +14,12 @@ export const ORDER_STATUS = {
 // Order Status Options for Filters and Dropdowns
 export const ORDER_STATUS_OPTIONS = [
   { value: ORDER_STATUS.PENDING, label: 'Pending Payment' },
+  { value: ORDER_STATUS.PAID, label: 'Paid' },
   { value: 'processing', label: 'Processing' },
   { value: 'on-hold', label: 'On hold' },
   { value: ORDER_STATUS.SHIPPED, label: 'Shipped' },
-  { value: ORDER_STATUS.DELIVERED, label: 'Completed' },
+  { value: ORDER_STATUS.DELIVERED, label: 'Delivered' },
+  { value: ORDER_STATUS.COMPLETED, label: 'Completed' },
   { value: ORDER_STATUS.CANCELLED, label: 'Cancelled' },
   { value: 'refund', label: 'Refund' },
   { value: 'failed', label: 'Failed' },
@@ -42,6 +47,16 @@ export const STATUS_COLORS = {
     bg: '#d4edda',
     text: '#155724',
     border: '#c3e6cb'
+  },
+  [ORDER_STATUS.COMPLETED]: {
+    bg: '#d4edda',
+    text: '#155724',
+    border: '#c3e6cb'
+  },
+  [ORDER_STATUS.PAID]: {
+    bg: '#cce5ff',
+    text: '#004085',
+    border: '#99d6ff'
   },
   [ORDER_STATUS.CANCELLED]: {
     bg: '#f8d7da',

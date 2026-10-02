@@ -1,4 +1,4 @@
-import requests from './api';
+import requests, { getErrorMessage } from './api';
 
 const BASE_URL = '/booking-policies';
 
@@ -12,7 +12,7 @@ export const createBookingPolicy = async (token, formData) => {
         });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, error: error.message || 'Failed to create service' };
+        return { success: false, error: getErrorMessage(error, 'Failed to create service') };
     }
 };
 
@@ -26,7 +26,7 @@ export const updateBookingPolicy = async (id, token, serviceData) => {
         });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, error: error.message || 'Failed to update service' };
+        return { success: false, error: getErrorMessage(error, 'Failed to update service') };
     }
 };
 
@@ -38,7 +38,7 @@ export const getAllBookingPolicy = async (page, limit, searchTerm) => {
     if (params.length) url += `&${params.join('&')}`;
     return await requests.get(url);
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch products' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch products') };
   }
 };
 
@@ -50,7 +50,7 @@ export const getBookingPolicyById = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch product' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch product') };
   }
 };
 
@@ -63,6 +63,6 @@ export const deleteBookingPolicy = async (id,token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to delete news item' };
+    return { success: false, error: getErrorMessage(error, 'Failed to delete news item') };
   }
 };

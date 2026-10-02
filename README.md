@@ -63,6 +63,15 @@ npm run dev
 
 3. Open your browser and navigate to `http://localhost:3000`
 
+### Backend API
+
+The panel uses the Laravel + MySQL API (`Spaalita_backend`), by default at
+`http://localhost:5000/api` (`start-server.bat` / `php artisan serve --port=5000`).
+To use another address, copy `.env.example` to `.env` and set `VITE_API_BASE_URL`
+(e.g. `http://localhost/spaalita/Spaalita_backend/public/api` with XAMPP Apache),
+then restart `npm run dev`. Uploaded images (`/uploads/...`) are loaded from the
+same server.
+
 ### Build for Production
 
 ```bash

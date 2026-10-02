@@ -80,7 +80,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
     const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
     const apiForm = {
       ...form,
-      status: form.status ? 'active' : 'Inactive',
+      status: form.status ? 'active' : 'inactive',
     };
     if (isEdit) {
       updateBookingPolicy(id, token, apiForm)
@@ -88,6 +88,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
           if (resp && resp.success) {
             setSuccess('Booking Policy updated successfully!');
             toast.success('Booking Policy updated successfully!');
+            setTimeout(() => navigate('/bookingPolicy'), 1200);
           } else {
             setError(resp?.error || 'Failed to update booking policy');
             toast.error(resp?.error || 'Failed to update booking policy');
@@ -99,7 +100,6 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
         })
         .finally(() => {
           setLoading(false);
-          setTimeout(() => navigate('/bookingPolicy'), 1200);
         });
     } else {
       createBookingPolicy(token, apiForm)
@@ -107,6 +107,7 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
           if (resp && resp.success) {
             setSuccess('Booking Policy added successfully!');
             toast.success('Booking Policy added successfully!');
+            setTimeout(() => navigate('/bookingPolicy'), 1200);
           } else {
             setError(resp?.error || 'Failed to add booking policy');
             toast.error(resp?.error || 'Failed to add booking policy');
@@ -118,7 +119,6 @@ const BookingPolicyForm = ({ policies, setPolicies }) => {
         })
         .finally(() => {
           setLoading(false);
-          setTimeout(() => navigate('/bookingPolicy'), 1200);
         });
     }
   };

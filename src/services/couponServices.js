@@ -1,4 +1,4 @@
-import requests from './api';
+import requests, { getErrorMessage } from './api';
 
 const PRODUCT_BASE = '/coupon';
 
@@ -11,7 +11,7 @@ export const createCoupon = async (token, formData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to create product' };
+    return { success: false, error: getErrorMessage(error, 'Failed to create product') };
   }
 };
 
@@ -23,7 +23,7 @@ export const updateCoupon = async (id, token, productData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to update product' };
+    return { success: false, error: getErrorMessage(error, 'Failed to update product') };
   }
 };
 
@@ -35,7 +35,7 @@ export const getCouponById = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch product' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch product') };
   }
 };
 
@@ -47,7 +47,7 @@ export const getAllCoupons = async (page, limit, searchTerm) => {
     if (params.length) url += `&${params.join('&')}`;
     return await requests.get(url);
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch products' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch products') };
   }
 };
 
@@ -59,6 +59,6 @@ export const deleteCoupon = async (id,token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to delete news item' };
+    return { success: false, error: getErrorMessage(error, 'Failed to delete news item') };
   }
 };

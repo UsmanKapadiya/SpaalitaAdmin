@@ -11,6 +11,7 @@ import mockProducts from '../../data/mockProducts';
 import { createGiftCard, updateGiftCard, getGiftCardById } from '../../services/giftCardServices';
 import { getCategorys } from '../../services/categoryServices';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 import Select from "react-select";
 
 
@@ -63,6 +64,15 @@ const GiftCardForm = () => {
     isEdit,
     fields: ['name', 'sku', 'price', 'qty', 'description',],
     onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
+      if (selectedCategories.length === 0) {
+        toast.error('Please select at least one category');
+        return;
+      }
+      // The API only lists items that have at least one image
+      if (formData.existingImages.length + formData.newImages.length === 0) {
+        toast.error('Please add at least one image');
+        return;
+      }
       try {
         const form = new FormData();
         form.append("productName", formData.name);
@@ -90,17 +100,20 @@ const GiftCardForm = () => {
         // Send new files
         formData.newImages.forEach(file => form.append("productImages", file));
 
-        let resp;
+        const resp = isEdit
+          ? await updateGiftCard(id, token, form)
+          : await createGiftCard(token, form);
 
-        if (isEdit) {
-          resp = await updateGiftCard(id, token, form);
-          setSuccess("Product updated successfully!");
-          toast.success("Product updated successfully!");
-        } else {
-          resp = await createGiftCard(token, form);
-          setSuccess("Product added successfully!");
-          toast.success("Product added successfully!");
+        if (!resp?.success) {
+          setLoading(false);
+          setError({ message: resp?.error || 'Something went wrong', field: null });
+          toast.error(resp?.error || 'Something went wrong');
+          return;
         }
+
+        const message = isEdit ? "Product updated successfully!" : "Product added successfully!";
+        setSuccess(message);
+        toast.success(message);
         setLoading(false);
         setTimeout(() => navigate('/giftCards'), 1200);
       } catch (err) {
@@ -130,8 +143,8 @@ const GiftCardForm = () => {
           ...f,
           name: resp.data.productName || '',
           sku: resp.data.sku || '',
-          price: resp.data.price || '',
-          qty: resp.data.qty || '',
+          price: String(resp.data.price ?? ''),
+          qty: String(resp.data.qty ?? ''),
           description: resp.data.description || '',
           short_description: resp.data.short_description || '',
           slug: resp.data.slug || '',
@@ -389,7 +402,6 @@ const GiftCardForm = () => {
                     onChange={(selected) => {
                       if (!selected || selected.length === 0) {
                         setSelectedCategories([]);
-                        updateFormCategories([]);
                         return;
                       }
 
@@ -397,7 +409,6 @@ const GiftCardForm = () => {
                       const updated = selected.map(opt => opt.value);
 
                       setSelectedCategories(updated);
-                      updateFormCategories(updated);
                     }}
                    
                     isOptionDisabled={(option, selected) => {
@@ -533,7 +544,7 @@ const GiftCardForm = () => {
                   <label className="form-label">Product Images</label>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/gif"
                     multiple
                     onChange={handleImageChange}
                     className="form-input file-input"
@@ -557,7 +568,7 @@ const GiftCardForm = () => {
                             title={i === 0 ? 'Main Image' : 'Drag to reorder'}
                           >
                             <img
-                              src={img}
+                              src={mediaUrl(img, 'products')}
                               alt={`Product Preview ${i + 1}`}
                               className="image-preview"
                               style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 6, border: i === 0 ? '2px solid #007bff' : '1px solid #ccc' }}

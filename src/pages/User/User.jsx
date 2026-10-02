@@ -13,6 +13,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import Table from '../../components/Table/Table';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import UserService from '../../services/userService';
+import { mediaUrl } from '../../utils/mediaUrl';
 import { toast } from 'react-toastify';
 import './user.css';
 import ConfirmDialog from '../../components/ConfirmDialog/ConfirmDialog';
@@ -153,7 +154,7 @@ const User = () => {
                                     label: 'Profile',
                                     render: (value, user) => user.profilePicture ? (
                                         <img
-                                            src={user.profilePicture}
+                                            src={mediaUrl(user.profilePicture)}
                                             alt={user.name || user.username || 'User'}
                                             style={{
                                                 width: 36,

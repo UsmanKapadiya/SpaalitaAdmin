@@ -37,7 +37,7 @@ const Coupon = () => {
             setCouponData(resp.data);
             if (resp.pagination) {
                 setTotalItems(resp.pagination.total || resp.data.length);
-                setTotalPages(resp.pagination.pages || 1);
+                setTotalPages(resp.pagination.totalPages || resp.pagination.pages || 1);
             } else {
                 setTotalItems(resp.data.length);
                 setTotalPages(1);

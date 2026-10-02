@@ -4,6 +4,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import { toast } from 'react-toastify';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import { createGallery, updateGallery } from '../../services/galleryServices';
+import { mediaUrl } from '../../utils/mediaUrl';
 
 const GalleryForm = () => {
     const navigate = useNavigate();
@@ -73,8 +74,8 @@ const GalleryForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isEdit && images.length === 0) {
-            toast.error('Please select at least one image to upload.');
+        if (images.length === 0) {
+            toast.error(isEdit ? 'Please select a new image.' : 'Please select at least one image to upload.');
             return;
         }
 
@@ -142,7 +143,7 @@ const GalleryForm = () => {
                                 <label className="form-label form-label-required">Image</label>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/jpeg,image/png,image/gif"
                                     multiple={!isEdit}
                                     onChange={handleImageChange}
                                     disabled={loading}
@@ -154,7 +155,7 @@ const GalleryForm = () => {
                                         return (
                                             <div key={index} style={{ position: 'relative' }}>
                                                 <img
-                                                    src={img} // prepend backend URL if needed
+                                                    src={mediaUrl(img)}
                                                     alt={`preview-${index}`}
                                                     style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
                                                 />
@@ -194,7 +195,7 @@ const GalleryForm = () => {
                             <button
                                 type="button"
                                 className="btn-secondary"
-                                onClick={() => navigate('/monthly-special')}
+                                onClick={() => navigate('/gallery')}
                                 disabled={loading}
                             >
                                 Cancel

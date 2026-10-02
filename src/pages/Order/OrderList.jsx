@@ -49,10 +49,10 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                 setTotalPages(resp.pagination?.totalPages || 1);
                 setTotalOrders(resp.pagination?.total || 0);
             } else {
-                notifyError("Please try again.");
+                toast.error("Please try again.");
             }
         } catch (error) {
-            notifyError("An error occurred during fetch Data. Please try again.");
+            toast.error("An error occurred during fetch Data. Please try again.");
         } finally {
             setLoading(false);
         }

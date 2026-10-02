@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import useForm from '../../hooks/useForm';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -71,6 +72,13 @@ const CategoryForm = () => {
                     }
                 }
 
+                if (!resp?.success) {
+                    setLoading(false);
+                    setError({ message: resp?.error || 'Something went wrong', field: null });
+                    toast.error(resp?.error || 'Something went wrong');
+                    return;
+                }
+
                 setLoading(false);
                 setTimeout(() => navigate('/category'), 1200);
 
@@ -105,7 +113,7 @@ const CategoryForm = () => {
                             slug: resp.data.slug || '',
                             description: resp.data.description || '',
                             parentId: resp.data.parentId || 'none',
-                            imagePreview: resp.data.image || '',
+                            imagePreview: mediaUrl(resp.data.image?.src),
                         }));
                     }
                 } catch (error) {
@@ -192,7 +200,7 @@ const CategoryForm = () => {
                                 <label className="form-label">Category Image</label>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/jpeg,image/png,image/gif"
                                     onChange={handleImageChange}
                                     className="form-input file-input"
                                 />

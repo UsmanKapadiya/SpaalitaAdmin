@@ -14,6 +14,7 @@ import GlobalLoader from '../../components/Loader/GlobalLoader';
 import Card from '../../components/Card/Card';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import { deleteMonthlySpecial, getAllMonthlySpecial } from '../../services/monthlySpecialService';
+import { mediaUrl } from '../../utils/mediaUrl';
 import { toast } from 'react-toastify';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -24,7 +25,8 @@ const MonthlySpecial = () => {
     const [expandedItems, setExpandedItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
-    const itemsPerPage = 10;
+    // No pagination on this page: one special per month, so this lists them all
+    const itemsPerPage = 100;
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
         itemId: null,
@@ -43,11 +45,11 @@ const MonthlySpecial = () => {
     }, [page, searchTerm]);
 
 
-    const getAllMonthlySpecials = async (pageNum = page, itemsPerPage, search = searchTerm) => {
+    const getAllMonthlySpecials = async (pageNum = page, limit = itemsPerPage, search = searchTerm) => {
         setLoading(true);
         setError(null);
         try {
-            const resp = await getAllMonthlySpecial(pageNum, itemsPerPage, search);
+            const resp = await getAllMonthlySpecial(pageNum, limit, search);
             if (resp && Array.isArray(resp.data)) {
                 setSpecials(resp.data)
             }
@@ -73,7 +75,7 @@ const MonthlySpecial = () => {
 
     const handleDelete = useCallback((id, e) => {
         e.stopPropagation();
-        const item = specials.find(item => item.id === id);
+        const item = specials.find(item => item._id === id);
         setConfirmDialog({
             isOpen: true,
             itemId: id,
@@ -88,7 +90,7 @@ const MonthlySpecial = () => {
         try {
             const response = await deleteMonthlySpecial(confirmDialog.itemId, token);
             if (response && response.success) {
-                setSpecials(prev => prev.filter(item => item.id !== confirmDialog.itemId));
+                setSpecials(prev => prev.filter(item => item._id !== confirmDialog.itemId));
                 toast.success('Monthly Special deleted successfully!');
             } else {
                 toast.error(response?.error || 'Failed to delete Monthly Special.');
@@ -116,7 +118,7 @@ const MonthlySpecial = () => {
                             <div className="news-item-date">
                                 {/* Show small image and created_at date */}
                                 {item.image && (
-                                    <img src={item.image} alt={item.month} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4, marginRight: 8, border: '1px solid #eee' }} />
+                                    <img src={mediaUrl(item.image)} alt={item.month} style={{ width: 32, height: 32, objectFit: 'cover', borderRadius: 4, marginRight: 8, border: '1px solid #eee' }} />
                                 )}
                                 <span className="date-badge">{item.createdAt ? dayjs(item.createdAt).format('DD-MMM-YYYY') : ''}</span>
                             </div>
@@ -146,7 +148,7 @@ const MonthlySpecial = () => {
                         <div className="news-item-description">
                             <div className="monthly-special-image">
                                 {item.image ? (
-                                    <img src={item.image} alt={item.month} />
+                                    <img src={mediaUrl(item.image)} alt={item.month} />
                                 ) : (
                                     <span>No image</span>
                                 )}

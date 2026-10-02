@@ -12,6 +12,7 @@ import mockGallery from '../../data/mockGallery';
 import SearchAndFilter from '../../components/SearchAndFilter/SearchAndFilter';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import { deleteGallery, getAllGallery } from '../../services/galleryServices';
+import { mediaUrl } from '../../utils/mediaUrl';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import '../Gallery/gallery.css'
@@ -143,7 +144,7 @@ const Gallery = () => {
 
                                         <div className="news-item-description">
                                             <div className="gallery-img-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
-                                                <img src={item.url} alt={`Gallery ${item._id}`} className="gallery-img" />
+                                                <img src={mediaUrl(item.url)} alt={`Gallery ${item._id}`} className="gallery-img" />
                                             </div>
                                         </div>
                                     </div>

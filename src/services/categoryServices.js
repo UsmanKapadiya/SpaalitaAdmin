@@ -1,4 +1,4 @@
-import requests from './api';
+import requests, { getErrorMessage } from './api';
 
 const CATEGORY_BASE = '/category';
 
@@ -12,7 +12,7 @@ export const createCategory = async (token, formData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to create category' };
+    return { success: false, error: getErrorMessage(error, 'Failed to create category') };
   }
 };
 
@@ -26,13 +26,13 @@ export const updateCategory = async (id, token, categoryData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to update category' };
+    return { success: false, error: getErrorMessage(error, 'Failed to update category') };
   }
 };
 
 
 
-export const getCategorys = async (page, limit, searchTerm) => {
+export const getCategorys = async (page = 1, limit = 1000, searchTerm) => {
   try {
     let url = `${CATEGORY_BASE}?page=${page}&limit=${limit}`;
     const params = [];
@@ -40,7 +40,7 @@ export const getCategorys = async (page, limit, searchTerm) => {
     if (params.length) url += `&${params.join('&')}`;
     return await requests.get(url);
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch categorys' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch categorys') };
   }
 };
 
@@ -53,7 +53,7 @@ export const getCategoryById = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch category' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch category') };
   }
 };
 
@@ -65,6 +65,6 @@ export const deleteCategory = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to delete news item' };
+    return { success: false, error: getErrorMessage(error, 'Failed to delete news item') };
   }
 };

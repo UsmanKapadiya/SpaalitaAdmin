@@ -13,6 +13,7 @@ import mockServices from '../../data/mockServices';
 import { createService, getServiceById, updateService } from '../../services/services';
 import { useAuth } from '../../context/AuthContext';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 
 const initialForm = {
     name: '',
@@ -201,7 +202,7 @@ const ServicesForm = () => {
                                 <label htmlFor="image" className="form-label">Service Image</label>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/jpeg,image/png,image/gif"
                                     // onChange={handleImageChange}
                                     onChange={(e) => handleImageChange(e, false)}
                                     className="form-input file-input"
@@ -210,7 +211,7 @@ const ServicesForm = () => {
                                 {form.imagePreview && (
                                     <div className="image-preview-wrapper">
                                         <img
-                                            src={form.imagePreview}
+                                            src={mediaUrl(form.imagePreview)}
                                             alt="Service Preview"
                                             className="image-preview"
                                             style={{

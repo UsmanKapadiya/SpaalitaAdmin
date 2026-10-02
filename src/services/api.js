@@ -1,8 +1,18 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+// Laravel API root. Override with VITE_API_BASE_URL in .env (see .env.example).
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
+
+// Server root that serves uploaded files ("/uploads/...").
+export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
+
+// Message to show for a failed request: the API's own message when it sent one.
+export const getErrorMessage = (error, fallback = 'Something went wrong') =>
+  error?.response?.data?.message || error?.message || fallback;
+
 const instance = axios.create({
-  baseURL: `http://localhost:5000/api`,
+  baseURL: API_BASE_URL,
   timeout: 50000,
   headers: {
     Accept: 'application/json',
@@ -33,19 +43,16 @@ instance.interceptors.request.use(function (config) {
 instance.interceptors.response.use(
   response => response, // If response is successful, return it
   error => {
-    // Check for invalid/expired token in error response
-    const message = error?.response?.data?.message || error?.response?.message;
-    if (
-      error.response &&
-      error.response.status === 401 &&
-      message === "Invalid or expired token"
-    ) {
-      // Clear authentication data (cookies/localStorage)
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      Cookies.remove('authToken');
+    // Missing, invalid or expired token ("No token provided..." / "Invalid or expired token")
+    if (error.response?.status === 401 && !error.config?.url?.includes('/admin/login')) {
+      // Clear the session (token in sessionStorage, logged-in flag in localStorage)
+      sessionStorage.removeItem('authToken');
+      sessionStorage.removeItem('user');
+      localStorage.removeItem('user');
       // Redirect to login screen
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

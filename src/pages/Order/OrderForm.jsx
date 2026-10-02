@@ -10,8 +10,10 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import EditIcon from '@mui/icons-material/Edit';
 import './OrderForm.css';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 import OrderService from '../../services/orderService';
 import { toast } from 'react-toastify';
+import { getErrorMessage } from '../../services/api';
 
 
 const OrderForm = ({ order, onSave, onCancel }) => {
@@ -88,7 +90,7 @@ const OrderForm = ({ order, onSave, onCancel }) => {
                     });
                     onSave(updatePayload);
                 } else {
-                    notifyError("Please try again.");
+                    toast.error("Please try again.");
                 }
 
             } else {
@@ -105,6 +107,7 @@ const OrderForm = ({ order, onSave, onCancel }) => {
             }
         } catch (error) {
             console.error('Error saving order:', error);
+            toast.error(getErrorMessage(error, 'Failed to update order'));
         } finally {
             setLoading(false);
         }
@@ -462,7 +465,7 @@ const OrderForm = ({ order, onSave, onCancel }) => {
                                         {form.items.map((item, idx) => {
                                             return (
                                                 <tr className="order-item-row" key={idx}>
-                                                    <td>{item.image && <img src={item.image} alt={item.name} style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', border: '1px solid #eee' }} />}</td>
+                                                    <td>{item.image && <img src={mediaUrl(item.image, 'products')} alt={item.name} style={{ width: 32, height: 32, borderRadius: 4, objectFit: 'cover', border: '1px solid #eee' }} />}</td>
                                                     <td>{item.name}</td>
                                                     <td>{item.qty ?? item.qty}</td>
                                                     <td className="order-item-price">${(parseFloat(item.price) * ((item.qty ?? item.qty) || 1)).toFixed(2)}</td>

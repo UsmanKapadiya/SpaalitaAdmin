@@ -3,6 +3,8 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import { useNavigate, useParams } from 'react-router-dom';
 import UserService from '../../services/userService';
+import { getErrorMessage } from '../../services/api';
+import { mediaUrl } from '../../utils/mediaUrl';
 import { toast } from 'react-toastify';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -152,8 +154,12 @@ const UserForm = () => {
                     toast.error(resp?.message || 'Failed to save user.');
                 }
             } catch (error) {
-                setError('An error occurred while saving user.');
-                toast.error('An error occurred while saving user.');
+                // e.g. 400 "All fields are required" with missingFields, 409 "User name or email already exists"
+                const missing = error?.response?.data?.missingFields;
+                const message = getErrorMessage(error, 'An error occurred while saving user.')
+                    + (missing?.length ? `: ${missing.join(', ')}` : '');
+                setError(message);
+                toast.error(message);
             } finally {
                 setLoading(false);
             }
@@ -180,14 +186,14 @@ const UserForm = () => {
                             <label className="form-label">Profile Picture</label>
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/gif"
                                 className="form-input"
                                 onChange={handleImageChange}
                             />
                             {profilePreview && (
                                 <div className="user-profile-img-preview" style={{ marginTop: '8px' }}>
                                     <img
-                                        src={profilePreview}
+                                        src={mediaUrl(profilePreview)}
                                         alt="Profile Preview"
                                         className="user-profile-img"
                                         style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: '50%' }}
@@ -216,8 +222,8 @@ const UserForm = () => {
                             <input type="email" className="form-input" value={email} onChange={e => setEmail(e.target.value)} required disabled={isEdit} />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Phone</label>
-                            <input type="text" className="form-input" value={phone} onChange={e => setPhone(e.target.value)} />
+                            <label className="form-label form-label-required">Phone</label>
+                            <input type="text" className="form-input" value={phone} onChange={e => setPhone(e.target.value)} required />
                         </div>
                     </div>
                     {!isEdit && (
@@ -286,22 +292,22 @@ const UserForm = () => {
                     )}
                     <div className="form-row">
                         <div className="form-group">
-                            <label className="form-label">Country</label>
-                            <input type="text" className="form-input" value={country} onChange={e => setCountry(e.target.value)} />
+                            <label className="form-label form-label-required">Country</label>
+                            <input type="text" className="form-input" value={country} onChange={e => setCountry(e.target.value)} required />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">City</label>
-                            <input type="text" className="form-input" value={city} onChange={e => setCity(e.target.value)} />
+                            <label className="form-label form-label-required">City</label>
+                            <input type="text" className="form-input" value={city} onChange={e => setCity(e.target.value)} required />
                         </div>
                     </div>
                     <div className="form-row">
                         <div className="form-group">
-                            <label className="form-label">Address</label>
-                            <input type="text" className="form-input" value={address} onChange={e => setAddress(e.target.value)} />
+                            <label className="form-label form-label-required">Address</label>
+                            <input type="text" className="form-input" value={address} onChange={e => setAddress(e.target.value)} required />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Postal Code</label>
-                            <input type="text" className="form-input" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
+                            <label className="form-label form-label-required">Postal Code</label>
+                            <input type="text" className="form-input" value={postalCode} onChange={e => setPostalCode(e.target.value)} required />
                         </div>
                     </div>
                     <div className="form-row">

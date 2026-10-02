@@ -22,6 +22,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import ProductDetails from '../Product/ProductDetails';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import ImageNotFound from '../../assets/download.png'
+import { mediaUrl } from '../../utils/mediaUrl';
 
 const GiftCard = () => {
   const navigate = useNavigate();
@@ -106,7 +107,8 @@ const GiftCard = () => {
   const confirmDelete = useCallback(async () => {
     if (!confirmDialog.itemId) return;
     try {
-      await deleteGiftCard(confirmDialog.itemId, token);
+      const resp = await deleteGiftCard(confirmDialog.itemId, token);
+      if (resp?.success === false) throw new Error(resp.error);
       toast.success('Product deleted successfully!');
       setConfirmDialog({ isOpen: false, itemId: null, itemName: '' });
       fetchData();
@@ -171,7 +173,7 @@ const GiftCard = () => {
                   label: 'Image',
                   render: (value) => {
                     const imgSrc = Array.isArray(value) && value.length > 0
-                      ? value[0]
+                      ? mediaUrl(value[0], 'products')
                       : ImageNotFound;
                     return (
                       <img

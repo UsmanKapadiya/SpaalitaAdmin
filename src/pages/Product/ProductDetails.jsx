@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import ImageNotFound from '../../assets/download.png'
+import { mediaUrl } from '../../utils/mediaUrl';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -78,7 +79,7 @@ function ProductDetails({ product, onBack, onEditProduct }) {
                     {product.images.map((img, idx) => (
                       <img
                         key={idx}
-                        src={img}
+                        src={mediaUrl(img, 'products')}
                         alt={`Product ${product.name} ${idx + 1}`}
                         style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }}
                         onError={e => { e.target.src = ImageNotFound; }}

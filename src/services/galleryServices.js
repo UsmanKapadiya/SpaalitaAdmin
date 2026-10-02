@@ -6,7 +6,9 @@ export const getAllGallery = async (searchTerm) => {
   try {
     let url = `${API_BASE}`;
     const params = [];
-    if (searchTerm) params.push(`date=${encodeURIComponent(searchTerm)}`);
+    // The API filters by a full dd-mm-yyyy date; a partial date lists every image
+    const date = searchTerm?.trim();
+    if (date && /^\d{2}-\d{2}-\d{4}$/.test(date)) params.push(`date=${encodeURIComponent(date)}`);
     if (params.length) url += `?${params.join('&')}`;
     return await requests.get(url);
   } catch (error) {

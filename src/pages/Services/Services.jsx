@@ -15,6 +15,8 @@ import Table from '../../components/Table/Table';
 import PageTitle from '../../components/PageTitle/PageTitle';
 import { toast } from 'react-toastify';
 import { getAllServices, deleteServices } from '../../services/services';
+import { mediaUrl } from '../../utils/mediaUrl';
+import ImageNotFound from '../../assets/download.png';
 
 const Services = () => {
     const navigate = useNavigate();
@@ -143,14 +145,9 @@ const Services = () => {
                                     key: 'image',
                                     label: 'Image',
                                     render: (value, item) => {
-                                        let src = item.image || item.serviceImage;
-                                        if (src && src.startsWith('data:image')) {
-                                            // already valid base64
-                                        } else if (src && !/^https?:\/\//.test(src) && !src.startsWith('/')) {
-                                            src = `/uploads/${src}`;
-                                        }
+                                        const src = mediaUrl(item.image || item.serviceImage) || ImageNotFound;
                                         return (
-                                            <img src={src} alt={item.name || item.serviceName} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} />
+                                            <img src={src} alt={item.name || item.serviceName} style={{ width: 48, height: 48, borderRadius: 6, objectFit: 'cover' }} onError={e => { e.target.src = ImageNotFound; }} />
                                         );
                                     },
                                 },

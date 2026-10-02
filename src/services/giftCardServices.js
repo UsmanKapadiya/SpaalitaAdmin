@@ -1,4 +1,4 @@
-import requests from './api';
+import requests, { getErrorMessage } from './api';
 
 const BASE_URL = '/giftcards';
 
@@ -12,7 +12,7 @@ export const createGiftCard = async (token, formData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to create giftCard' };
+    return { success: false, error: getErrorMessage(error, 'Failed to create giftCard') };
   }
 };
 
@@ -26,7 +26,7 @@ export const updateGiftCard = async (id, token, giftCardData) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to update giftCard' };
+    return { success: false, error: getErrorMessage(error, 'Failed to update giftCard') };
   }
 };
 
@@ -40,7 +40,7 @@ export const getGiftCards = async (page=1, limit=1000, searchTerm) => {
     if (params.length) url += `&${params.join('&')}`;
     return await requests.get(url);
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch giftCards' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch giftCards') };
   }
 };
 
@@ -53,7 +53,7 @@ export const getGiftCardById = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch giftCard' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch giftCard') };
   }
 };
 
@@ -65,6 +65,6 @@ export const deleteGiftCard = async (id,token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to delete news item' };
+    return { success: false, error: getErrorMessage(error, 'Failed to delete news item') };
   }
 };

@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Button from '../../components/Button/Button';
 import PageTitle from '../../components/PageTitle/PageTitle';
+import { mediaUrl } from '../../utils/mediaUrl';
 import '../GiftCard/EditGiftCard.css';
 
 const monthOptions = [
@@ -91,13 +92,8 @@ const MonthlySpecialForm = () => {
             setLoading(false);
             return;
         }
-        const reader = new FileReader();
-        reader.onloadend = async () => {
+        const save = async (payload) => {
             const token = sessionStorage.getItem('authToken')?.replace(/^"|"$/g, '');
-            const payload = {
-                month: selectedMonth,
-                image: reader.result,
-            };
             let resp;
             if (isEdit) {
                 resp = await updateMonthlySpecial(id, token, payload);
@@ -118,7 +114,12 @@ const MonthlySpecialForm = () => {
             }
         };
         if (image && image instanceof File) {
+            const reader = new FileReader();
+            reader.onloadend = () => save({ month: selectedMonth, image: reader.result });
             reader.readAsDataURL(image);
+        } else if (isEdit) {
+            // No new file: keep the current image
+            save({ month: selectedMonth });
         } else {
             setLoading(false);
             setError('Please select an image.');
@@ -161,7 +162,7 @@ const MonthlySpecialForm = () => {
                                 />
                                 {imagePreview && (
                                     <div className="image-preview-wrapper">
-                                        <img src={imagePreview} alt="Service Preview" className="image-preview" />
+                                        <img src={mediaUrl(imagePreview)} alt="Service Preview" className="image-preview" />
                                     </div>
                                 )}
                                 {previousImage && !imagePreview && (

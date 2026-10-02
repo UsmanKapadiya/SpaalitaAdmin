@@ -1,4 +1,4 @@
-import requests from './api';
+import requests, { getErrorMessage } from './api';
 
 const API_BASE = '/monthly-special';
 
@@ -14,7 +14,7 @@ export const createMonthlySpecial = async (token, data) => {
   } catch (error) {
     // Prefer API error message if present
     const apiMsg = error?.response?.data?.message;
-    return { success: false, error: error.message || 'Failed to create monthly special', message: apiMsg };
+    return { success: false, error: getErrorMessage(error, 'Failed to create monthly special'), message: apiMsg };
   }
 };
 
@@ -29,7 +29,7 @@ export const updateMonthlySpecial = async (id, token, data) => {
     return { success: true, data: response };
   } catch (error) {
     const apiMsg = error?.response?.data?.message;
-    return { success: false, error: error.message || 'Failed to update monthly special', message: apiMsg };
+    return { success: false, error: getErrorMessage(error, 'Failed to update monthly special'), message: apiMsg };
   }
 };
 
@@ -40,10 +40,9 @@ export const getAllMonthlySpecial = async (page, limit, searchTerm) => {
     const params = [];
     if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`);
     if (params.length) url += `&${params.join('&')}`;
-    console.log(requests.get(url));
     return await requests.get(url);
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch products' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch products') };
   }
 };
 
@@ -55,7 +54,7 @@ export const getMonthlySpecilById = async (id, token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to fetch product' };
+    return { success: false, error: getErrorMessage(error, 'Failed to fetch product') };
   }
 };
 
@@ -68,7 +67,7 @@ export const deleteMonthlySpecial = async (id,token) => {
       },
     });
   } catch (error) {
-    return { success: false, error: error.message || 'Failed to delete news item' };
+    return { success: false, error: getErrorMessage(error, 'Failed to delete news item') };
   }
 };
 
