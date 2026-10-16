@@ -37,6 +37,14 @@ const initialForm = {
   showPreview: false,
 };
 
+// The editor keeps markup such as "<p><br></p>" after its text is deleted:
+// treat that as no description (images count as content)
+const editorHtmlOrEmpty = (html) => {
+  if (!html) return '';
+  const hasText = html.replace(/<[^>]*>|&nbsp;/g, '').trim() !== '';
+  return hasText || /<img\b/i.test(html) ? html : '';
+};
+
 const GiftCardForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -62,7 +70,8 @@ const GiftCardForm = () => {
     data: mockProducts,
     id,
     isEdit,
-    fields: ['name', 'sku', 'price', 'qty', 'description',],
+    // Description is optional for gift cards
+    fields: ['name', 'sku', 'price', 'qty'],
     onSubmit: async (formData, { setError, setSuccess, setLoading }) => {
       if (selectedCategories.length === 0) {
         toast.error('Please select at least one category');
@@ -79,7 +88,7 @@ const GiftCardForm = () => {
         form.append("sku", formData.sku);
         form.append("price", Number(formData.price));
         form.append("qty", Number(formData.qty));
-        form.append("description", formData.description);
+        form.append("description", editorHtmlOrEmpty(formData.description));
         form.append("category", "Product");
         form.append("slug", formData.slug);
         form.append("regular_price", formData.regular_price);
@@ -607,7 +616,7 @@ const GiftCardForm = () => {
               </div>
 
               <div className="form-group form-group-full">
-                <label className="form-label form-label-required">Description</label>
+                <label className="form-label">Description</label>
                 <div className="editor-wrapper-quill">
                   <ReactQuill
                     theme="snow"
