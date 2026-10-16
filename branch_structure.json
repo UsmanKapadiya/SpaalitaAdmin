@@ -1,0 +1,21 @@
+{
+  "default_branch": "master",
+  "branches": [
+    "Mitesh_Changes",
+    "Products",
+    "master",
+    "origin"
+  ],
+  "parent": {
+    "Mitesh_Changes": "master",
+    "Products": "master",
+    "master": null,
+    "origin": "master"
+  },
+  "order": [
+    "master",
+    "Mitesh_Changes",
+    "Products",
+    "origin"
+  ]
+}
