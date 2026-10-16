@@ -155,6 +155,11 @@ function OrderDetails({ order, onBack, onEditOrder }) {
                                         <div><b>Name:</b> {order.user.userName || order.user.username || 'N/A'}</div>
                                         <div><b>Email:</b> {order.user.email || 'N/A'}</div>
                                     </>
+                                ) : order.guestInfo ? (
+                                    <>
+                                        <div><b>Guest:</b> {order.guestInfo.name || 'N/A'}</div>
+                                        <div><b>Email:</b> {order.guestInfo.email || 'N/A'}</div>
+                                    </>
                                 ) : 'N/A'}
                             </td>
                         </tr>

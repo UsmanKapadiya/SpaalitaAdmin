@@ -165,7 +165,7 @@ const OrderList = ({ onSelectOrder, onCreateOrder, onEditOrder }) => {
                                     label: 'Customer',
                                     render: (value, row) => (
                                         <div className="order-list__customer-info">
-                                            <span className="order-list__customer-name">{row.user?.userName || row.user?.username || 'N/A'}</span>
+                                            <span className="order-list__customer-name">{row.user?.userName || row.user?.username || (row.guestInfo?.name && `${row.guestInfo.name} (guest)`) || 'N/A'}</span>
                                         </div>
                                     ),
                                 },
