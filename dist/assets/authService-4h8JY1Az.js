@@ -1,1 +1,0 @@
-import{d as o}from"./index-2Z4JB0xI.js";const e={adminLogin:async r=>{try{return await o.post("/admin/login",r)}catch(t){throw t}},adminLogout:async()=>{try{return(await o.post("/admin/logout")).data}catch(r){throw console.error(r),r}}};export{e as default};
