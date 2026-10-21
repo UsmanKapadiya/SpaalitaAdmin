@@ -80,6 +80,11 @@ npm run build
 
 The build output will be in the `dist` folder.
 
+For Apache hosting, upload the **contents** of `dist` as the document root.
+The included `.htaccess` rewrites client-side routes (such as `/login`) to
+`index.html`, so refreshing or opening a route directly does not return a 404.
+Apache must have `mod_rewrite` enabled and allow `.htaccess` overrides.
+
 ## Technologies Used
 
 - **React 18** - Latest version of React with hooks
