@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 // Laravel API root. Override with VITE_API_BASE_URL in .env (see .env.example).
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace(/\/+$/, '');
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://backend.spaalita.intellimanagement.com').replace(/\/+$/, '');
 
 // Server root that serves uploaded files ("/uploads/...").
 export const API_ORIGIN = API_BASE_URL.replace(/\/api$/, '');
