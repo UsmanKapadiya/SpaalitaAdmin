@@ -1,4 +1,6 @@
 :root {
+  color-scheme: light;
+
   /* Brand Colors */
   --primary-color: #334155;
   --primary-hover: #42506a; /* Slightly lighter for hover */

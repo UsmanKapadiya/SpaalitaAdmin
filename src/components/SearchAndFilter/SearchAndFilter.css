@@ -161,31 +161,3 @@
     width: 100%;
   }
 }
-
-/* Dark theme support */
-@media (prefers-color-scheme: dark) {
-  .search-input,
-  .filter-select {
-    background: var(--bg-dark, #2d2d2d);
-    color: var(--text-primary-dark, #ffffff);
-    border-color: var(--border-color-dark, #444444);
-  }
-  
-  .search-input:focus,
-  .filter-select:focus {
-    border-color: var(--primary-color-dark, #4da3ff);
-    box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.1);
-  }
-  
-  .search-input__search-icon,
-  .search-input__clear-btn,
-  .filter-clear-btn {
-    color: var(--text-secondary-dark, #cccccc);
-  }
-  
-  .search-input__clear-btn:hover:not(:disabled),
-  .filter-clear-btn:hover:not(:disabled) {
-    background: var(--bg-hover-dark, #404040);
-    color: var(--text-primary-dark, #ffffff);
-  }
-}
